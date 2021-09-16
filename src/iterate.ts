@@ -1,15 +1,20 @@
 import { Sink, Source, Talkback } from './types'
 
 
-// TODO: test this
-
 export class Iteration<T> implements Sink<T> {
   talkback: Talkback | undefined
+  started = false
+
+  constructor(private autostart = false) {}
 
   greet(talkback: Talkback) {
-    this.talkback = talkback
-    this.talkback.start()
-    this.talkback.request()
+    if (!this.talkback) {
+      this.talkback = talkback
+
+      if (this.autostart) {
+        this.start()
+      }
+    }
   }
 
   receive() {
@@ -17,11 +22,31 @@ export class Iteration<T> implements Sink<T> {
   }
 
   end() {}
+
+  start() {
+    if (!this.started && this.talkback) {
+      this.started = true
+      this.talkback.start()
+      this.talkback.request()
+    }
+  }
+
+  stop() {
+    this.talkback?.end()
+  }
 }
 
 
 export function iterate<T>(source: Source<T>): Sink<T> {
   const iteration = new Iteration<T>()
+  source.connect(iteration)
+
+  return iteration
+}
+
+
+export function iterateLater<T>(source: Source<T>): Sink<T> {
+  const iteration = new Iteration<T>(false)
   source.connect(iteration)
 
   return iteration

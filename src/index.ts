@@ -12,3 +12,5 @@ export * from './take'
 export * from './iterate'
 export * from './iterable'
 export * from './scan'
+export * from './replay'
+

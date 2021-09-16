@@ -1,7 +1,6 @@
-import { Source, Talkback, Dispose, Sink } from './types'
+import { DisconnectableSource } from './disconnectable'
+import { Talkback, Dispose, Sink } from './types'
 
-
-// FIXME: subjects send data to the sink before they have called the talkback.start() method.
 
 class SubjectTalkback<T> extends Dispose {
   constructor(
@@ -9,17 +8,11 @@ class SubjectTalkback<T> extends Dispose {
     private sink: Sink<T>,
   ) { super() }
 
-  end() {
-    const index = this.source.sinks.indexOf(this.sink)
-
-    if (index !== -1) {
-      this.source.sinks.splice(index, 1)
-    }
-  }
+  end() { this.source.disconnect(this.sink) }
 }
 
 
-export class Subject<T> implements Source<T>, Sink<T> {
+export class Subject<T> extends DisconnectableSource<T> implements Sink<T> {
   done = false
   sinks = <Sink<T>[]> []
 
@@ -27,6 +20,14 @@ export class Subject<T> implements Source<T>, Sink<T> {
     if (!this.done) {
       this.sinks.push(sink)
       sink.greet(new SubjectTalkback(this, sink))
+    }
+  }
+
+  disconnect(sink: Sink<T>) {
+    const index = this.sinks.indexOf(sink)
+
+    if (index !== -1) {
+      this.sinks.splice(index, 1)
     }
   }
 

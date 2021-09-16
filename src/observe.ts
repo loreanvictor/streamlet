@@ -21,8 +21,8 @@ export class Observation<T> implements Sink<T> {
   end() {}
 
   start() {
-    if (!this.started) {
-      this.talkback?.start()
+    if (!this.started && this.talkback) {
+      this.talkback.start()
       this.started = true
     }
   }
