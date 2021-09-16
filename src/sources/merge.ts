@@ -1,4 +1,4 @@
-import { Talkback, Sink, Source, UnwrapSource } from './types'
+import { Talkback, Sink, Source, UnwrapSource } from '../types'
 
 
 class MergedSink<T extends Source<any>[]> implements Sink<UnwrapSource<T[number]>> {

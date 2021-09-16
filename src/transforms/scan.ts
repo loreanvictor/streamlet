@@ -1,4 +1,4 @@
-import { Source, Talkback, Sink } from './types'
+import { Source, Talkback, Sink } from '../types'
 
 
 export class ScannedSink<I, O> implements Sink<I> {

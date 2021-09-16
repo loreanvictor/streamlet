@@ -1,4 +1,4 @@
-import { Talkback, Sink, Source } from './types'
+import { Talkback, Sink, Source } from '../types'
 
 
 export class Observation<T> implements Sink<T> {

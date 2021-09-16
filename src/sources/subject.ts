@@ -1,5 +1,4 @@
-import { DisconnectableSource } from './disconnectable'
-import { Talkback, Dispose, Sink } from './types'
+import { Talkback, Dispose, Sink, DisconnectableSource } from '../types'
 
 
 class SubjectTalkback<T> extends Dispose {

@@ -2,7 +2,7 @@
 
 import { pipe,
   interval, map, flatten, observe, observeLater, take, merge, Subject, tap, greet, filter,
-  iterable, iterate, replay
+  iterable, iterate, replay, share,
 } from '../src'
 
 
@@ -13,17 +13,7 @@ pipe(
   map(x => x + 1),
   take(5),
   tap(console.log),
+  share,
+  replay,
   iterate,
 )
-
-
-// const a = new Subject()
-// const b = replay(a)
-
-// a.receive('Hellow')
-
-// observe(pipe(b, tap(console.log)))
-
-// a.receive('World')
-
-

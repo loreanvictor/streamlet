@@ -1,4 +1,4 @@
-import { Source, Sink, Dispose } from './types'
+import { Source, Sink, Dispose } from '../types'
 
 
 class IntervalTalkback extends Dispose {

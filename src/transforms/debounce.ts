@@ -1,4 +1,4 @@
-import { Source, Talkback, Sink } from './types'
+import { Source, Talkback, Sink } from '../types'
 
 
 class DebounceTalkback<T> implements Talkback {

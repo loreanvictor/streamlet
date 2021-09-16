@@ -1,7 +1,6 @@
-import { Sink, Source, Talkback } from './types'
-import { observe } from './observe'
-import { Observation } from '.'
-import { DisconnectableSource } from './disconnectable'
+import { Sink, Source, Talkback, DisconnectableSource } from '../types'
+import { observe } from '../sinks/observe'
+import { Observation } from '..'
 
 
 const _NO_VAL = {}

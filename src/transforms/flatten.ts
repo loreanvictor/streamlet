@@ -1,4 +1,4 @@
-import { Talkback, Source, Sink } from './types'
+import { Talkback, Source, Sink } from '../types'
 
 
 class FlattenedTalkback<T> implements Talkback {

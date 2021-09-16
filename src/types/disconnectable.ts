@@ -1,4 +1,4 @@
-import { Source, Sink } from './types'
+import { Source, Sink } from './base'
 
 
 export abstract class DisconnectableSource<T> implements Source<T> {
