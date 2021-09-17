@@ -7,6 +7,7 @@ class SubjectTalkback<T> extends Dispose {
     private sink: Sink<T>,
   ) { super() }
 
+  start() { this.source.plug(this.sink) }
   stop() { this.source.disconnect(this.sink) }
 }
 
@@ -17,8 +18,13 @@ export class Subject<T> extends DisconnectableSource<T> implements Sink<T> {
 
   connect(sink: Sink<T>) {
     if (!this.done) {
-      this.sinks.push(sink)
       sink.greet(new SubjectTalkback(this, sink))
+    }
+  }
+
+  plug(sink: Sink<T>) {
+    if (!this.done) {
+      this.sinks.push(sink)
     }
   }
 
