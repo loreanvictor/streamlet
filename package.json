@@ -18,6 +18,11 @@
     "cov:travis": "nyc npm run test && npx codecov",
     "cov:clean": "rm -fr ./.nyc_output && rm -fr ./coverage"
   },
+  "files": [
+    "dist/es6",
+    "dist/es5",
+    "dist/bundles"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/loreanvictor/streamlet.git"
