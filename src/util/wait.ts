@@ -5,14 +5,8 @@ import { noop } from './noop'
 
 export type WaitNotifier = number | Source<any> | PromiseLike<any>
 export type WaitIndicator<T> = (t: T) => WaitNotifier
+export type Waiting = NodeJS.Timeout | Talkback | AbortController
 
-type AbortSignal = { aborted: boolean }
-export type Waiting = NodeJS.Timeout | Talkback | AbortSignal
-
-
-function isAbortSignal(thing: unknown): thing is AbortSignal {
-  return !!thing && typeof (thing as any).aborted === 'boolean'
-}
 
 export function resolveWait<T>(indicator: WaitIndicator<T> | WaitNotifier, t: T): WaitNotifier {
   return typeof indicator === 'function' ? indicator(t) : indicator
@@ -25,14 +19,14 @@ export function wait(callback: () => void, notif: WaitNotifier): Waiting {
   } else if (isSource(notif)) {
     return notify(notif, callback)
   } else {
-    const signal = { aborted: false }
+    const controller = new AbortController()
     notif.then(() => {
-      if (!signal.aborted) {
+      if (!controller.signal.aborted) {
         callback()
       }
     }, noop)
 
-    return signal
+    return controller
   }
 }
 
@@ -40,8 +34,8 @@ export function wait(callback: () => void, notif: WaitNotifier): Waiting {
 export function stopWaiting(waiting: Waiting) {
   if (isTalkback(waiting)) {
     waiting.stop()
-  } else if (isAbortSignal(waiting)) {
-    waiting.aborted = true
+  } else if (waiting instanceof AbortController) {
+    waiting.abort()
   } else {
     clearTimeout(waiting)
   }

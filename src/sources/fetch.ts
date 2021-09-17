@@ -1,8 +1,7 @@
 import { Sink, Source, Talkback } from '../types'
-import { fetch as fetch$ } from 'cross-fetch'
 
 
-export class FetchTalkback implements Talkback {
+class FetchTalkback implements Talkback {
   private controller = new AbortController()
 
   constructor(
@@ -20,7 +19,7 @@ export class FetchTalkback implements Talkback {
   }
 
   fetch() {
-    fetch$(this.source.url, {
+    fetch(this.source.url, {
       ...this.source.options,
       signal: this.controller.signal,
     }).then(response => {
@@ -47,6 +46,6 @@ export class FetchSource implements Source<Response> {
 }
 
 
-export function fetch(url: string | Request, options: RequestInit = {}): FetchSource {
+export function fetch$(url: string | Request, options: RequestInit = {}): FetchSource {
   return new FetchSource(url, options)
 }
