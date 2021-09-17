@@ -8,3 +8,5 @@ export * from './scan'
 export * from './take'
 export * from './share'
 export * from './start-with'
+export * from './retry'
+
