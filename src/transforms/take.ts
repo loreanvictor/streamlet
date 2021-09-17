@@ -1,4 +1,4 @@
-import { Source, Sink, Talkback } from '../types'
+import { Source, Sink, Talkback, USourceFactory, isSource } from '../types'
 
 
 export class TakeTalkback<T> implements Talkback {
@@ -18,9 +18,9 @@ export class TakeTalkback<T> implements Talkback {
     }
   }
 
-  end(reason?: unknown) {
+  stop(reason?: unknown) {
     this.sink.disposed = true
-    this.sink.sourceTalkback.end(reason)
+    this.sink.sourceTalkback.stop(reason)
   }
 }
 
@@ -50,7 +50,7 @@ export class TakeSink<T> implements Sink<T> {
 
       if (this.taken === this.max && !this.disposed) {
         this.disposed = true
-        this.sourceTalkback.end()
+        this.sourceTalkback.stop()
         this.sink.end()
       }
     }
@@ -74,7 +74,12 @@ export class TakeSource<T> implements Source<T> {
 }
 
 
-export function take(max: number)
-  : <T>(source: Source<T>) => Source<T> {
-  return <T>(source: Source<T>) => new TakeSource(source, max)
+export function take(max: number): USourceFactory
+export function take<T>(source: Source<T>, max: number): Source<T>
+export function take<T>(source: Source<T> | number, max?: number): USourceFactory | Source<T> {
+  if (isSource(source)) {
+    return new TakeSource(source, max!)
+  } else {
+    return <U>(src: Source<U>) => take(src, source)
+  }
 }

@@ -53,7 +53,7 @@ class MergedTalkback<T extends Source<any>[]> implements Talkback {
     }
   }
 
-  end(reason?: unknown) {
+  stop(reason?: unknown) {
     this.dispose(reason)
   }
 
@@ -61,13 +61,13 @@ class MergedTalkback<T extends Source<any>[]> implements Talkback {
     this.disposed = true
     for (let i = 0; i < this.sources.length; i++) {
       if (i !== exempt) {
-        this.talkbacks[i]?.end(reason)
+        this.talkbacks[i]?.stop(reason)
       }
     }
   }
 
   disconnect(index: number) {
-    this.talkbacks[index] = void 0
+    this.talkbacks[index] =  undefined
     if (++this.endCount === this.talkbacks.length) {
       this.sink.end()
     }

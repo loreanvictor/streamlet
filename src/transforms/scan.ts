@@ -1,4 +1,4 @@
-import { Source, Talkback, Sink } from '../types'
+import { Source, Talkback, Sink, Accumulator, SourceMapping, isSource, SourceFactory } from '../types'
 
 
 export class ScannedSink<I, O> implements Sink<I> {
@@ -6,7 +6,7 @@ export class ScannedSink<I, O> implements Sink<I> {
 
   constructor(
     private sink: Sink<O>,
-    private accumulator: (o: O, i: I) => O,
+    private accumulator: Accumulator<I, O>,
     private initial?: O,
   ) {
     this.total = this.initial
@@ -35,7 +35,7 @@ export class ScannedSink<I, O> implements Sink<I> {
 export class ScannedSource<I, O> implements Source<O> {
   constructor(
     private source: Source<I>,
-    private accumulator: (o: O, i: I) => O,
+    private accumulator: Accumulator<I, O>,
     private initial?: O,
   ) { }
 
@@ -45,8 +45,15 @@ export class ScannedSource<I, O> implements Source<O> {
 }
 
 
-export function scan<T>(accumulator: (t: T, i: T) => T): (source: Source<T>) => Source<T>;
-export function scan<I, O>(accumulator: (total: O, each: I) => O, initial: O): (source: Source<I>) => Source<O>;
-export function scan<I, O>(accumulator: (total: O, each: I) => O, initial?: O) {
-  return (source: Source<I>) => new ScannedSource(source, accumulator, initial)
+export function scan<T>(accumulator: Accumulator<T>): SourceFactory<T>
+export function scan<T>(source: Source<T>, accumulator: Accumulator<T>): Source<T>
+export function scan<I, O>(accumulator: Accumulator<I, O>, initial: O): SourceMapping<I, O>
+export function scan<I, O>(source: Source<I>, accumulator: Accumulator<I, O>, initial: O): Source<O>
+export function scan<I, O>(source: Source<I> | Accumulator<I, O>, accumulator?: Accumulator<I, O> | O, initial?: O)
+  : SourceMapping<I, O> | Source<O> {
+  if (isSource(source)) {
+    return new ScannedSource(source, accumulator! as Accumulator<I, O>, initial)
+  } else {
+    return (src: Source<I>) => scan(src, source, accumulator as O)
+  }
 }

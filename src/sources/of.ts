@@ -23,7 +23,7 @@ class OfTalkback<T> extends Dispose {
     }
   }
 
-  end() {
+  stop() {
     this.disposed = true
     this.values.length = 0
   }

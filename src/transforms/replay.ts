@@ -21,8 +21,8 @@ class ReplayTalkback<T> implements Talkback {
   }
 
   request() { this.talkback.request() }
-  end(reason?: unknown) {
-    this.talkback.end(reason)
+  stop(reason?: unknown) {
+    this.talkback.stop(reason)
     this.source.disconnect(this.sink)
   }
 }

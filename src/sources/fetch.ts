@@ -1,6 +1,8 @@
 import { Sink, Source, Talkback } from '../types'
 
 
+// TODO: make this work on older node versions as well
+
 export class FetchTalkback implements Talkback {
   private controller = new AbortController()
 
@@ -10,6 +12,15 @@ export class FetchTalkback implements Talkback {
   ) {}
 
   start() {
+    this.fetch()
+  }
+
+  request() {
+    this.controller.abort()
+    this.fetch()
+  }
+
+  fetch() {
     fetch(this.source.url, {
       ...this.source.options,
       signal: this.controller.signal,
@@ -19,8 +30,7 @@ export class FetchTalkback implements Talkback {
     }).catch(error => this.sink.end(error))
   }
 
-  request() {}
-  end() {
+  stop() {
     this.controller.abort()
   }
 }

@@ -50,7 +50,7 @@ class IterableTalkback<T> implements Talkback {
     }
   }
 
-  end() {
+  stop() {
     this.disposed = true
   }
 }

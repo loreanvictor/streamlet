@@ -7,7 +7,7 @@ class SubjectTalkback<T> extends Dispose {
     private sink: Sink<T>,
   ) { super() }
 
-  end() { this.source.disconnect(this.sink) }
+  stop() { this.source.disconnect(this.sink) }
 }
 
 

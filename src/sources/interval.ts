@@ -20,7 +20,7 @@ class IntervalTalkback extends Dispose {
     }
   }
 
-  end() {
+  stop() {
     if (this.interval) {
       clearInterval(this.interval)
     }

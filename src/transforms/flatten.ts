@@ -12,9 +12,9 @@ class FlattenedTalkback<T> implements Talkback {
     (this.sink.innerTalkback || this.sink.outerTalkback)?.request()
   }
 
-  end() {
-    this.sink.innerTalkback?.end()
-    this.sink.outerTalkback?.end()
+  stop() {
+    this.sink.innerTalkback?.stop()
+    this.sink.outerTalkback?.stop()
   }
 }
 
@@ -36,13 +36,13 @@ class FlattenedInnerSink<T> implements Sink<T> {
 
   end(reason?: unknown) {
     if (reason !== undefined) {
-      this.sink.outerTalkback?.end()
+      this.sink.outerTalkback?.stop()
       this.sink.sink.end(reason)
     } else {
       if (!this.sink.outerTalkback) {
         this.sink.sink.end()
       } else {
-        this.sink.innerTalkback = void 0
+        this.sink.innerTalkback =  undefined
         this.sink.outerTalkback.request()
       }
     }
@@ -68,20 +68,20 @@ export class FlattenedSink<T> implements Sink<Source<T>> {
   }
 
   receive(innerSource: Source<T>) {
-    this.innerTalkback?.end()
+    this.innerTalkback?.stop()
     innerSource.connect(new FlattenedInnerSink(this))
   }
 
   end(reason?: unknown) {
     if (reason !== undefined) {
-      this.innerTalkback?.end()
+      this.innerTalkback?.stop()
 
       this.sink.end(reason)
     } else {
       if (!this.innerTalkback) {
         this.sink.end()
       } else {
-        this.outerTalkback = void 0
+        this.outerTalkback =  undefined
       }
     }
   }

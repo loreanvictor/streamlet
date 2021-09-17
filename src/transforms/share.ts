@@ -15,7 +15,7 @@ class SharedTalkback<T> implements Talkback {
     this.source.talkback.request()
   }
 
-  end() {
+  stop() {
     this.source.disconnect(this.sink)
   }
 }
@@ -76,7 +76,7 @@ export class SharedSource<T> extends DisconnectableSource<T> {
     }
 
     if (this.sinks.length === 0) {
-      this.talkback.end()
+      this.talkback.stop()
     }
   }
 }

@@ -1,7 +1,7 @@
 import { Talkback, Sink, Source } from '../types'
 
 
-export class Observation<T> implements Sink<T> {
+export class Observation<T> implements Sink<T>, Talkback {
   talkback: Talkback | undefined
   started = false
 
@@ -19,6 +19,7 @@ export class Observation<T> implements Sink<T> {
 
   receive() {}
   end() {}
+  request() { this.talkback?.request() }
 
   start() {
     if (!this.started && this.talkback) {
@@ -28,7 +29,7 @@ export class Observation<T> implements Sink<T> {
   }
 
   stop(reason?: unknown) {
-    this.talkback?.end(reason)
+    this.talkback?.stop(reason)
   }
 }
 

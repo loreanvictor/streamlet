@@ -2,18 +2,21 @@
 
 import { pipe,
   interval, map, flatten, observe, observeLater, take, merge, Subject, tap, greet, filter,
-  iterable, iterate, replay, share,
+  iterable, iterate, replay, share, debounce, throttle,
 } from '../src'
 
 
+const S = new Subject<void>()
+
+
+async function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 pipe(
-  pipe(interval(1000), map(() => pipe(interval(100), take(3)))),
-  flatten,
-  filter(x => x % 2 === 0),
-  map(x => x + 1),
-  take(5),
+  interval(100),
+  throttle(i => i % 2 === 0 ? delay(50) : delay(110)),
   tap(console.log),
-  share,
-  replay,
-  iterate,
+  take(5),
+  observe,
 )

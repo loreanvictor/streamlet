@@ -1,56 +1,47 @@
-import { Source, Talkback, Sink } from '../types'
-
-
-class DebounceTalkback<T> implements Talkback {
-  constructor(
-    private sink: DebouncedSink<T>,
-    private talkback: Talkback,
-  ) {}
-
-  start() { this.talkback.start() }
-  request() { this.talkback.request() }
-  end() {
-    if (this.sink.timeout) {
-      clearTimeout(this.sink.timeout)
-      this.sink.timeout = undefined
-    }
-  }
-}
+import { Source, Talkback, Sink, SourceFactory, isSource } from '../types'
+import { wait, stopWaiting, WaitNotifier, Waiting, WaitIndicator, resolveWait } from '../util/wait'
 
 
 export class DebouncedSink<T> implements Sink<T> {
-  timeout: NodeJS.Timeout | undefined;
-  shouldTerminate = false;
+  waiting: Waiting | undefined
+  shouldTerminate = false
 
   constructor(
     private sink: Sink<T>,
-    private wait: number,
+    private notif: WaitNotifier | WaitIndicator<T>,
   ) {}
 
   greet(talkback: Talkback) {
-    this.sink.greet(new DebounceTalkback(this, talkback))
+    this.sink.greet(talkback)
   }
 
   receive(t: T) {
-    if (this.timeout) {
-      clearTimeout(this.timeout)
+    this.reset()
+    this.waiting = wait(() => this.bleed(t), resolveWait(this.notif, t))
+  }
+
+  bleed(t: T) {
+    this.sink.receive(t)
+    if (this.shouldTerminate) {
+      this.sink.end()
     }
 
-    this.timeout = setTimeout(() => {
-      this.sink.receive(t)
-      if (this.shouldTerminate) {
-        this.sink.end()
-      }
-
-      this.timeout = undefined
-    }, this.wait)
+    this.reset()
   }
 
   end(reason?: unknown) {
-    if (reason === undefined && this.timeout !== undefined) {
+    if (reason === undefined && this.waiting) {
       this.shouldTerminate = true
     } else {
+      this.reset()
       this.sink.end(reason)
+    }
+  }
+
+  reset() {
+    if (this.waiting) {
+      stopWaiting(this.waiting)
+      this.waiting = undefined
     }
   }
 }
@@ -59,16 +50,24 @@ export class DebouncedSink<T> implements Sink<T> {
 export class DebouncedSource<T> implements Source<T> {
   constructor(
     private source: Source<T>,
-    private wait: number,
+    private notif: WaitNotifier | WaitIndicator<T>,
   ) {}
 
   connect(sink: Sink<T>) {
-    this.source.connect(new DebouncedSink(sink, this.wait))
+    this.source.connect(new DebouncedSink(sink, this.notif))
   }
 }
 
 
-export function debounce<T>(wait: number)
-  : (source: Source<T>) => Source<T> {
-  return (source: Source<T>) => new DebouncedSource(source, wait)
+export function debounce<T>(notif: WaitNotifier | WaitIndicator<T>): SourceFactory<T>
+export function debounce<T>(source: Source<T>, notif: WaitNotifier | WaitIndicator<T>): Source<T>
+export function debounce<T>(
+  source: Source<T> | WaitNotifier | WaitIndicator<T>,
+  notif?: WaitNotifier | WaitIndicator<T>
+): SourceFactory<T> | Source<T> {
+  if (isSource(source) && !!notif) {
+    return new DebouncedSource(source, notif!)
+  } else {
+    return (src: Source<T>) => debounce(src, source)
+  }
 }

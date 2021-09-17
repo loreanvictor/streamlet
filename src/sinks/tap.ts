@@ -1,10 +1,10 @@
-import { Sink, Source, Talkback } from '../types'
+import { Handler, Sink, Source, SourceFactory, Talkback } from '../types'
 
 
 export class TappedSink<T> implements Sink<T> {
   constructor(
     private sink: Sink<T>,
-    private op: (t: T) => void,
+    private op: Handler<T>,
   ) { }
 
   greet(talkback: Talkback) {
@@ -25,7 +25,7 @@ export class TappedSink<T> implements Sink<T> {
 export class TappedSource<T> implements Source<T> {
   constructor(
     private source: Source<T>,
-    private op: (t: T) => void,
+    private op: Handler<T>,
   ) { }
 
   connect(sink: Sink<T>) {
@@ -34,6 +34,12 @@ export class TappedSource<T> implements Source<T> {
 }
 
 
-export function tap<T>(op: (t: T) => void): (source: Source<T>) => Source<T> {
-  return (source: Source<T>) => new TappedSource(source, op)
+export function tap<T>(op: Handler<T>): SourceFactory<T>
+export function tap<T>(source: Source<T>, op: Handler<T>): Source<T>
+export function tap<T>(source: Source<T> | Handler<T>, op?: Handler<T>): SourceFactory<T> | Source<T> {
+  if (op !== undefined) {
+    return new TappedSource(source as Source<T>, op)
+  } else {
+    return (src: Source<T>) => tap(src, source as Handler<T>)
+  }
 }

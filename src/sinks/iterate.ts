@@ -1,7 +1,7 @@
 import { Sink, Source, Talkback } from '../types'
 
 
-export class Iteration<T> implements Sink<T> {
+export class Iteration<T> implements Sink<T>, Talkback {
   talkback: Talkback | undefined
   started = false
 
@@ -21,6 +21,7 @@ export class Iteration<T> implements Sink<T> {
     this.talkback?.request()
   }
 
+  request() { this.talkback?.request() }
   end() {}
 
   start() {
@@ -32,7 +33,7 @@ export class Iteration<T> implements Sink<T> {
   }
 
   stop() {
-    this.talkback?.end()
+    this.talkback?.stop()
   }
 }
 

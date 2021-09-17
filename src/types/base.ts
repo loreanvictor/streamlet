@@ -11,5 +11,19 @@ export interface Sink<T> {
 export interface Talkback {
   start(): void
   request(): void
-  end(reason?: unknown): void
+  stop(reason?: unknown): void
+}
+
+
+export function isTalkback(thing: unknown): thing is Talkback {
+  return !!thing
+    && typeof (thing as any).start === 'function'
+    && typeof (thing as any).request === 'function'
+    && typeof (thing as any).stop === 'function'
+}
+
+
+export function isSource<T>(thing: unknown): thing is Source<T> {
+  return !!thing
+    && typeof (thing as any).connect === 'function'
 }
