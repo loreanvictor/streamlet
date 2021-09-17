@@ -10,7 +10,7 @@
 npm i streamlets
 ```
   
-Streamlets are light-weight streams of data, following the _streamlet_ protocol. The protocol is designed to handle synchronous, asynchronous, listenable and pullable data streams simultaenously (as much as possible), while being easy and straightforward to build upon, and minimizing any overhead for handling such data streams.
+Streamlets are light-weight streams of data, following the _streamlet_ protocol. The protocol is designed to handle synchronous, asynchronous, listenable and pullable data streams seamlessly, be easy and straightforward to build upon, and minimize any overhead for handling data streams.
 
 > If you know [RxJS](https://rxjs.dev), this is just like RxJS but a bit more lightweight and more versatile, also less battle-tested, less utilities, generally more experimental. If you know [callbags](https://github.com/callbag/callbag), this is basically a simplified version of the callbag standard. In any case, if you are looking for a tool to use on production, I highly encourage looking at any of those two options.
 
