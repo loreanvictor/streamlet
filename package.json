@@ -1,6 +1,6 @@
 {
   "name": "streamlets",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "mini-streams",
   "main": "dist/es5/index.js",
   "module": "dist/es6/index.js",
@@ -65,5 +65,8 @@
       "text",
       "lcov"
     ]
+  },
+  "dependencies": {
+    "cross-fetch": "^3.1.4"
   }
 }
