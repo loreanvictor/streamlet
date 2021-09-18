@@ -5,7 +5,7 @@ export class Iteration<T> implements Sink<T>, Talkback {
   talkback: Talkback | undefined
   started = false
 
-  constructor(private autostart = false) {}
+  constructor(private autostart = true) {}
 
   greet(talkback: Talkback) {
     if (!this.talkback) {
