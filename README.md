@@ -161,5 +161,44 @@ source.connect(sink)
 // > 2021-09-17T17:57:33.428Z
 // > 2021-09-17T17:57:34.434Z
 ```
-Note that in this example, our sink (`logfive()`) did not explicitly request any data, and our source would push data without being requested.
-Sources can also be _pullable_, i.e. they might wait for the sink to request data before sending it.
+Note that in this example, our sink (`logfive()`) did not explicitly request any data, and `timer()` would push data without being requested. This type of source is called _listenable_. Sources can also be _pullable_, i.e. they might wait for the sink to request data before sending it. For example, here we have a source that responds with a random number whenever a sink requests data:
+```ts
+import { source, talkback } from 'streamlets'
+
+const random = source(
+  sink => sink.greet(talkback({
+    request: () => sink.receive(Math.random())
+  })
+)
+```
+Connecting this source with `logfive()` would result in nothing, since `logfive()` doesn't request data and `random` waits for requests. We can update `logfive()` as follows to make it work with _pullable_ sources:
+```ts diff
+import { sink } from 'streamlets'
+
+const logfive = () => {
+  let received = 0
+  let talkback
+
+  return sink({
+    greet: _talkback => {
+      (talkback = _talkback).start()
+      talkback.request()                                 // --> also request data to be sent
+    },
+    receive: data => {
+      console.log(data)
+      if (++received === 5) talkback.stop()
+      else talkback.request()                            // --> request more data when needed
+    }
+  })
+}
+```
+Which could now also be connected to `random` successfully:
+```js
+random.connect(logfive())
+
+// > 0.030974256671512546
+// > 0.8947308755278609
+// > 0.5683259310267721
+// > 0.9542027116808698
+// > 0.8944987662953441
+```
