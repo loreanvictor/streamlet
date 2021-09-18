@@ -34,7 +34,9 @@ interval(1000)
   |> observe(^)
 ```
 
-## Protocol
+<br><br>
+
+# Protocol
 
 Streamlets are made up of three primary primitives:
 
@@ -107,80 +109,49 @@ Following rules should apply:
 
 For example, this is a sink that takes five data pieces from a given source and logs them:
 ```ts
-class LogFive implements Sink<any> {
-  talkback: Talkback
-  received = 0
+import { sink } from 'streamlets'
 
-  greet(talkback) {
-    this.talkback = talkback
-    talkback.start()                   // --> start the stream
-    talkback.request()                 // --> also ask for data, in case the source doesn't push data on its own
-  }
-  
-  receive(data) {
-    console.log(data)                  // --> log the data
-    if (++this.received === 5) {       // --> if we've got enough data ...
-      this.talkback.stop()             // --> ... ask the source to stop
+const logfive = () => {
+  let received = 0
+  let talkback
+
+  return sink({
+    greet: _talkback => (talkback = _talkback).start(),  // --> start the data when got the talkback
+    receive: data => {
+      console.log(data)                                  // --> log incoming data
+      if (++received === 5) talkback.stop()              // --> stop data when we've got enough
     }
-  }
-  
-  end(reason?: unknown) {
-    if (reason) {
-      console.log('ERROR:: ' + reason) // --> there was an error
-    } else {
-      console.log('Did not get enough data, but thats ok')
-    }
-  }
+  })
 }
 ```
 
-Or this is a source (and its corresponding talkback) that announces the date and time to its sinks every second:
+And this is a source (and its corresponding talkback) that announces the date and time to its sinks every second:
 
 ```ts
-class TimeTalkback implements Talkback {
-  constructor(
-    private source: TimeSource,
-    private sink: Sink<Date>,
-  ) { }
-  
-  start() { this.source.plug(this.sink) }                // --> when the sink wants to start, plug it in
-  request() { }
-  stop() { this.source.unplug(this.sink) }               // --> when the sinks wants to stop, plug it out
-}
+import { source, talkback } from 'streamlets'
 
-class TimeSource implements Source<Date> {
-  sinks = []
-  interval: NodeJS.Timer
-  
-  constructor() {
-    this.interval = setInterval(() => {
-      const date = new Date()
-      this.sinks.forEach(sink => sink.receive(date))     // --> inform all plugged-in sinks of the date and time
-    }, 1000)
-  }
-  
-  connect(sink) {
-    sink.greet(new TimeTalkback(this, sink))             // --> give the sink the means to plug itself in
-  }
-  
-  plug(sink) {
-    this.sinks.push(sink)
-  }
-  
-  unplug(sink) {
-    this.sinks = this.sinks.filter(s => s !== sink)
-    if (this.sinks.length === 0) {                       // --> no one is listening anymore ...
-      clearInterval(this.interval)                       // --> ... let's close shop
-    }
-  }
+const timer = () => {
+  const sinks = []
+  setInterval(() => sinks.forEach(
+    sink => sink.receive(new Date())                      // --> inform all sinks of the date every second
+  ), 1000)
+
+  return source(
+    sink => sink.greet(                                   // --> greet incoming sinks ...
+      talkback({                                          // ... with a talkback ...
+        start: () => sinks.push(sink),                    // ... plug them into sinks when they want to start
+        stop: () => sinks.splice(sinks.indexOf(sink), 1)  // ... remove them from sinks when they want to stop
+      })
+    )
+  )
 }
 ```
 
 And now we could combine the two:
 
 ```ts
-const source = new TimeSource()
-const sink = new LogFive()
+const source = timer()
+const sink = logfive()
 
 source.connect(sink)
 
@@ -190,3 +161,5 @@ source.connect(sink)
 // > 2021-09-17T17:57:33.428Z
 // > 2021-09-17T17:57:34.434Z
 ```
+Note that in this example, our sink (`logfive()`) did not explicitly request any data, and our source would push data without being requested.
+Sources can also be _pullable_, i.e. they might wait for the sink to request data before sending it.
