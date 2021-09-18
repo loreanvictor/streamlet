@@ -104,7 +104,7 @@ Following rules should apply:
 - Sinks MUST be greeted with a talkback from the source, when they are connected
 - Sinks MUST NOT receive any data before the source greets them with a talkback
 - Sinks MUST NOT receive any data before they asked the source to start
-- Sinks MUST NOT receive any data after they have asked the source to stop
+- Sinks MUST NOT receive any data after they have asked the source to stop, unless the sink asks the source to start again
 - Sinks MUST NOT receive any data after the source has claimed an end to the data
 
 For example, this is a sink that takes five data pieces from a given source and logs them:
