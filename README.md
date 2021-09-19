@@ -211,7 +211,7 @@ This is work in progress, so definitely DO NOT USE IT IN PRODUCTION (maybe wait 
 
 That said, these are the areas where streamlets perhaps have an advantage over established solutions:
 
-- Streamlet protocol handles both listenable (e.g. Observable) and pullable (i.e. Iterable) sources, alongside anything in between. You can, for example, have a source that pushes values for 10 seconds after it connects to a sink, and waits for the sink to pull for pushing values for another 10 seconds.
+- Streamlet protocol handles both listenable (e.g. Observable) and pullable (e.g. Iterable) sources, alongside anything in between. You can, for example, have a source that pushes values for 10 seconds after it connects to a sink, and waits for the sink to pull for pushing values for another 10 seconds.
 - Streamlet sources are mostly pausable/resumable by default (a sink can ask the source to stop and to start later).
 - Streamlet protocol allows for custom sinks. You can have a sink that pauses the source when-ever a buffer is filled up and resumes it after the buffer is emptied.
 - Streamlets are _really_ light-weight (`map()` of RxJS weighs about 3.5K, while `map()` of streamlets weighs about 350B).
