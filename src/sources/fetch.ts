@@ -2,7 +2,7 @@ import { Sink, Source, Talkback } from '../types'
 
 
 class FetchTalkback implements Talkback {
-  private controller = new AbortController()
+  private controller: AbortController | undefined
 
   constructor(
     private source: FetchSource,
@@ -14,22 +14,29 @@ class FetchTalkback implements Talkback {
   }
 
   request() {
-    this.controller.abort()
-    this.fetch()
+    if (!this.controller) {
+      this.fetch()
+    }
   }
 
   fetch() {
+    this.controller = new AbortController()
     fetch(this.source.url, {
       ...this.source.options,
       signal: this.controller.signal,
-    }).then(response => {
-      this.sink.receive(response)
-      this.sink.end()
-    }).catch(error => this.sink.end(error))
+    })
+      .then(response => {
+        this.controller = undefined
+        this.sink.receive(response)
+      })
+      .catch(error => {
+        this.controller = undefined
+        this.sink.end(error)
+      })
   }
 
   stop() {
-    this.controller.abort()
+    this.controller?.abort()
   }
 }
 

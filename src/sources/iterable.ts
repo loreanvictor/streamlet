@@ -38,7 +38,9 @@ class IterableTalkback<T> implements Talkback {
     }
   }
 
-  start() {}
+  start() {
+    this.disposed = false
+  }
 
   request() {
     this.got = true

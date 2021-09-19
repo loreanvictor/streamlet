@@ -27,24 +27,29 @@ class StartingWithSink<T, A> implements Sink<T | A> {
 class StartingWithTalkback<T, A> implements Talkback {
   talkback: Talkback | undefined
   disposed = false
+  values: A[]
   requests = 0
 
   constructor(
     readonly source: StartingWithSource<T, A>,
     readonly sink: Sink<T | A>,
-  ) { }
+  ) {
+    this.values = this.source.values.slice()
+  }
 
   start() {
-    for (let i = 0; i < this.source.values.length; i++) {
-      if (this.disposed) {
-        return
-      }
+    this.disposed = false
 
-      this.sink.receive(this.source.values[i])
+    while (this.values.length !== 0 && !this.disposed) {
+      this.sink.receive(this.values.shift()!)
     }
 
     if (!this.disposed) {
-      this.source.source.connect(new StartingWithSink(this))
+      if (this.talkback) {
+        this.talkback.start()
+      } else {
+        this.source.source.connect(new StartingWithSink(this))
+      }
     }
   }
 

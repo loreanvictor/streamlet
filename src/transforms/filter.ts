@@ -15,10 +15,15 @@ export class FilteredSink<T> implements Sink<T> {
   }
 
   receive(t: T) {
-    if (this.condition(t)) {
-      this.sink.receive(t)
-    } else {
-      this.talkback.request()
+    try {
+      if (this.condition(t)) {
+        this.sink.receive(t)
+      } else {
+        this.talkback.request()
+      }
+    } catch (err) {
+      this.sink.end(err)
+      this.talkback.stop(err)
     }
   }
 

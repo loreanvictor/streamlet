@@ -1,6 +1,8 @@
 import { Source, Sink, Talkback, DisconnectableSource } from '../types'
 
 
+// TODO: this looks fishy and in need of testing / rework
+
 class SharedTalkback<T> implements Talkback {
   constructor(
     private source: SharedSource<T>,

@@ -2,17 +2,23 @@ import { Talkback, Source, Sink } from '../types'
 
 
 class FlattenedTalkback<T> implements Talkback {
+  disposed = false
+
   constructor(
     private sink: FlattenedSink<T>
   ) {}
 
-  start() {}
+  start() {
+    this.disposed = false;
+    (this.sink.innerTalkback || this.sink.outerTalkback)?.start()
+  }
 
   request() {
     (this.sink.innerTalkback || this.sink.outerTalkback)?.request()
   }
 
   stop() {
+    this.disposed = true
     this.sink.innerTalkback?.stop()
     this.sink.outerTalkback?.stop()
   }
@@ -27,7 +33,6 @@ class FlattenedInnerSink<T> implements Sink<T> {
   greet(talkback: Talkback) {
     this.sink.innerTalkback = talkback
     talkback.start()
-    talkback.request()
   }
 
   receive(t: T) {
@@ -43,7 +48,32 @@ class FlattenedInnerSink<T> implements Sink<T> {
         this.sink.sink.end()
       } else {
         this.sink.innerTalkback =  undefined
-        this.sink.outerTalkback.request()
+        if (!this.sink.talkback.disposed) {
+
+          // FIXME: this causes an auto-pull and should be further conditioned.
+          // however, currently this code will become problematic:
+          //
+          // ```js
+          // pipe(
+          //  fetch('https://pokeapi.co/api/v2/pokemon/ditto'),
+          //    map(res => promise(res.json())),
+          //    pullrate(1000),
+          //    flatten,
+          //    tap(() => console.log('GOT')),
+          //    iterate,
+          //  ) ```
+          //
+          // without this auto-pulling, this guy will just re-pull once, while
+          // it should re-pull indefinitely.
+          //
+          // with this auto-pull, if we switch `iterate` with `observe`, still we will get
+          // the same behavior, while the expected behavior might be to don't re-pull
+          //
+          // in any case, the latter issue can be resolved using `take(1)`, so
+          // for now I'll let this auto-pull exist. but this should be fixed later on.
+          //
+          this.sink.outerTalkback.request()
+        }
       }
     }
   }
@@ -63,12 +93,12 @@ export class FlattenedSink<T> implements Sink<Source<T>> {
 
   greet(talkback: Talkback) {
     this.outerTalkback = talkback
-    talkback.start()
     this.sink.greet(this.talkback)
   }
 
   receive(innerSource: Source<T>) {
     this.innerTalkback?.stop()
+    this.innerTalkback = undefined
     innerSource.connect(new FlattenedInnerSink(this))
   }
 

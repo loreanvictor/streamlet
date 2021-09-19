@@ -5,6 +5,7 @@ import { wait, stopWaiting, WaitNotifier, Waiting, WaitIndicator, resolveWait } 
 export class DebouncedSink<T> implements Sink<T> {
   waiting: Waiting | undefined
   shouldTerminate = false
+  talkback: Talkback
 
   constructor(
     private sink: Sink<T>,
@@ -12,12 +13,18 @@ export class DebouncedSink<T> implements Sink<T> {
   ) {}
 
   greet(talkback: Talkback) {
+    this.talkback = talkback
     this.sink.greet(talkback)
   }
 
   receive(t: T) {
     this.reset()
-    this.waiting = wait(() => this.bleed(t), resolveWait(this.notif, t))
+    try {
+      this.waiting = wait(() => this.bleed(t), resolveWait(this.notif, t))
+    } catch (err) {
+      this.sink.end(err)
+      this.talkback.stop(err)
+    }
   }
 
   bleed(t: T) {

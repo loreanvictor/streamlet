@@ -46,10 +46,12 @@
     "@typescript-eslint/parser": "^4.31.1",
     "chai": "^4.3.4",
     "eslint": "^7.32.0",
+    "isomorphic-fetch": "^3.0.0",
     "mocha": "^9.1.1",
     "nyc": "^15.1.0",
     "rollup": "^2.56.3",
     "rollup-plugin-terser": "^7.0.2",
+    "test-callbag-jsx": "^0.4.1",
     "ts-loader": "^9.2.5",
     "ts-node": "^10.2.1",
     "tslib": "^2.3.1",
@@ -70,6 +72,5 @@
       "text",
       "lcov"
     ]
-  },
-  "dependencies": {}
+  }
 }

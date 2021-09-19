@@ -38,12 +38,17 @@ class MergedTalkback<T extends Source<any>[]> implements Talkback {
   ) {}
 
   start() {
+    this.disposed = false
     for (let i = 0; i < this.sources.length; i++) {
       if (this.disposed) {
         break
       }
 
-      this.sources[i].connect(new MergedSink(this.sink, i, this))
+      if (!this.talkbacks[i]) {
+        this.sources[i].connect(new MergedSink(this.sink, i, this))
+      } else {
+        this.talkbacks[i]!.start()
+      }
     }
   }
 

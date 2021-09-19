@@ -3,7 +3,8 @@ import { wait, stopWaiting, resolveWait, Waiting, WaitNotifier, WaitIndicator } 
 
 
 export class ThrottledSink<T> implements Sink<T> {
-  waiting: Waiting | undefined;
+  waiting: Waiting | undefined
+  talkback: Talkback
 
   constructor(
     private sink: Sink<T>,
@@ -11,13 +12,19 @@ export class ThrottledSink<T> implements Sink<T> {
   ) {}
 
   greet(talkback: Talkback) {
+    this.talkback = talkback
     this.sink.greet(talkback)
   }
 
   receive(t: T) {
     if (!this.waiting) {
       this.sink.receive(t)
-      this.waiting = wait(() => this.reset(), resolveWait(this.notif, t))
+      try {
+        this.waiting = wait(() => this.reset(), resolveWait(this.notif, t))
+      } catch (err) {
+        this.sink.end(err)
+        this.talkback.stop(err)
+      }
     }
   }
 

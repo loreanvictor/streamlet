@@ -6,7 +6,6 @@ import { addListener, removeListener } from '../util/dom-events'
 
 class EventTalkback<EventName extends keyof HTMLElementEventMap>
   extends Dispose {
-  disposed = false
   handler: Handler<HTMLElementEventMap[EventName]>
 
   constructor(
@@ -20,13 +19,10 @@ class EventTalkback<EventName extends keyof HTMLElementEventMap>
   }
 
   start() {
-    if (!this.disposed) {
-      addListener(this.node, this.name, this.handler, this.options)
-    }
+    addListener(this.node, this.name, this.handler, this.options)
   }
 
   stop() {
-    this.disposed = true
     removeListener(
       this.node,
       this.name,

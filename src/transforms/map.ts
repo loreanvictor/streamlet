@@ -2,17 +2,25 @@ import { isSource, Mapping, Sink, Source, SourceMapping, Talkback } from '../typ
 
 
 export class MappedSink<I, O> implements Sink<I> {
+  talkback: Talkback
+
   constructor(
     private sink: Sink<O>,
     private op: Mapping<I, O>,
   ) { }
 
   greet(talkback: Talkback) {
+    this.talkback = talkback
     this.sink.greet(talkback)
   }
 
   receive(data: I) {
-    this.sink.receive(this.op(data))
+    try {
+      this.sink.receive(this.op(data))
+    } catch (err) {
+      this.sink.end(err)
+      this.talkback.stop(err)
+    }
   }
 
   end(reason?: unknown) {

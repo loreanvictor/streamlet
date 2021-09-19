@@ -27,6 +27,8 @@ export class RetryingSink<T> implements Sink<T> {
     if (!this.proxy) {
       this.proxy = new ProxyTalkback(this)
       this.sink.greet(this.proxy)
+    } else {
+      this.talkback.start()
     }
   }
 
@@ -49,7 +51,7 @@ export class RetryingSource<T> implements Source<T> {
   ) { }
 
   connect(sink: Sink<T>) {
-    this.source.connect(new RetryingSink(this, sink, this.max))
+    this.source.connect(new RetryingSink(this.source, sink, this.max))
   }
 }
 

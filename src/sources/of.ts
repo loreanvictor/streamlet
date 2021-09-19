@@ -14,18 +14,18 @@ class OfTalkback<T> extends Dispose {
   }
 
   start() {
-    while(this.values.length !== 0) {
+    this.disposed = false
+    while (this.values.length !== 0 && !this.disposed) {
       this.sink.receive(this.values.shift()!)
     }
 
-    if (!this.disposed) {
+    if (!this.disposed && this.values.length === 0) {
       this.sink.end()
     }
   }
 
   stop() {
     this.disposed = true
-    this.values.length = 0
   }
 }
 

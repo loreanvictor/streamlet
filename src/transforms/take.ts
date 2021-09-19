@@ -19,7 +19,6 @@ export class TakeTalkback<T> implements Talkback {
   }
 
   stop(reason?: unknown) {
-    this.sink.disposed = true
     this.sink.sourceTalkback.stop(reason)
   }
 }
@@ -27,7 +26,6 @@ export class TakeTalkback<T> implements Talkback {
 
 export class TakeSink<T> implements Sink<T> {
   taken = 0;
-  disposed = false;
   sourceTalkback: Talkback;
   talkback: TakeTalkback<T>;
 
@@ -48,8 +46,7 @@ export class TakeSink<T> implements Sink<T> {
       this.taken++
       this.sink.receive(t)
 
-      if (this.taken === this.max && !this.disposed) {
-        this.disposed = true
+      if (this.taken === this.max) {
         this.sourceTalkback.stop()
         this.sink.end()
       }

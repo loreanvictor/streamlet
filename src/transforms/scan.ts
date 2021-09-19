@@ -3,6 +3,7 @@ import { Source, Talkback, Sink, Accumulator, SourceMapping, isSource, SourceFac
 
 export class ScannedSink<I, O> implements Sink<I> {
   total: O | undefined
+  talkback: Talkback
 
   constructor(
     private sink: Sink<O>,
@@ -13,17 +14,23 @@ export class ScannedSink<I, O> implements Sink<I> {
   }
 
   greet(talkback: Talkback) {
+    this.talkback = talkback
     this.sink.greet(talkback)
   }
 
   receive(i: I) {
-    if (this.total) {
-      this.total = this.accumulator(this.total, i)
-    } else {
-      this.total = i as any as O
-    }
+    try {
+      if (this.total) {
+        this.total = this.accumulator(this.total, i)
+      } else {
+        this.total = i as any as O
+      }
 
-    this.sink.receive(this.total)
+      this.sink.receive(this.total)
+    } catch (err) {
+      this.sink.end(err)
+      this.talkback.stop(err)
+    }
   }
 
   end(reason?: unknown) {

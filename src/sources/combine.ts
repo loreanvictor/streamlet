@@ -40,14 +40,22 @@ class CombinedTalkback<T> implements Talkback {
   ) {}
 
   start() {
+    const initial = !this.disposed
+    this.disposed = false
     for (let i = 0; i < this.sources.length; i++) {
-      this.buffer[i] = EMPTY
+      if (initial) {
+        this.buffer[i] = EMPTY
+      }
 
       if (this.disposed) {
         break
       }
 
-      this.sources[i].connect(new CombinedSink(i, this))
+      if (!this.talkbacks[i]) {
+        this.sources[i].connect(new CombinedSink(i, this))
+      } else {
+        this.talkbacks[i]!.start()
+      }
     }
 
     if (this.sources.length === 0) {
