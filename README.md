@@ -209,7 +209,7 @@ random.connect(logfive())
 
 This is work in progress, so definitely DO NOT USE IT IN PRODUCTION (maybe wait until `0.1.0` rolls out). Besides that, this is an experimental library still, so use at your own discretion. Most probably, the advantages it has over established libraries like RxJS really aren't important for you, and the fact that it is NOT a battle-tested library, it does not comply with the Observable API, it does not have a community built around it or maintaining and improving it, will bite you back.
 
-Besides that:
+That said, these are the areas where streamlets perhaps have an advantage over established solutions:
 
 - Streamlet protocol handles both listenable (e.g. Observable) and pullable (i.e. Iterable) sources, alongside anything in between. You can, for example, have a source that pushes values for 10 seconds after it connects to a sink, and waits for the sink to pull for pushing values for another 10 seconds.
 - Streamlet sources are mostly pausable/resumable by default (a sink can ask the source to stop and to start later).
