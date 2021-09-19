@@ -207,7 +207,7 @@ random.connect(logfive())
 
 # Why Should I Use Streamlets Over X?
 
-This is work in progress, so definitely DO NOT USE IT IN PRODUCTION (maybe wait until `0.1.0` rolls out). Besides that, this is an experimental library still, so use at your own discretion. Most probably, the advantages it has over established libraries like RxJS really aren't important for you, and the fact that it is NOT a battle-tested library, it does not comply with the Observable API, it does not have a community built around it or maintaining and improving it, will bite you back.
+This is work in progress, so definitely DO NOT USE IT IN PRODUCTION (maybe wait until `0.1.0` rolls out). Besides that, this is an experimental library still, so use at your own discretion. Most probably, the advantages it has over established libraries like RxJS really aren't important for you, and the fact that it is NOT a battle-tested library, it does not comply with the Observable API, it does not have a community built around it or maintaining and improving it, etc. will bite you back.
 
 That said, these are the areas where streamlets perhaps have an advantage over established solutions:
 
