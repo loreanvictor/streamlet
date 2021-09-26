@@ -3,6 +3,7 @@ import { Talkback, Source, Sink } from '../types'
 
 class FlattenedTalkback<T> implements Talkback {
   disposed = false
+  requested = false
 
   constructor(
     private sink: FlattenedSink<T>
@@ -14,6 +15,7 @@ class FlattenedTalkback<T> implements Talkback {
   }
 
   request() {
+    this.requested = true;
     (this.sink.innerTalkback || this.sink.outerTalkback)?.request()
   }
 
@@ -33,9 +35,13 @@ class FlattenedInnerSink<T> implements Sink<T> {
   greet(talkback: Talkback) {
     this.sink.innerTalkback = talkback
     talkback.start()
+    if (this.sink.talkback.requested) {
+      talkback.request()
+    }
   }
 
   receive(t: T) {
+    this.sink.talkback.requested = false
     this.sink.sink.receive(t)
   }
 
@@ -48,31 +54,9 @@ class FlattenedInnerSink<T> implements Sink<T> {
         this.sink.sink.end()
       } else {
         this.sink.innerTalkback =  undefined
-        if (!this.sink.talkback.disposed) {
-
-          // FIXME: this causes an auto-pull and should be further conditioned.
-          // however, currently this code will become problematic:
-          //
-          // ```js
-          // pipe(
-          //  fetch('https://pokeapi.co/api/v2/pokemon/ditto'),
-          //    map(res => promise(res.json())),
-          //    pullrate(1000),
-          //    flatten,
-          //    tap(() => console.log('GOT')),
-          //    iterate,
-          //  ) ```
-          //
-          // without this auto-pulling, this guy will just re-pull once, while
-          // it should re-pull indefinitely.
-          //
-          // with this auto-pull, if we switch `iterate` with `observe`, still we will get
-          // the same behavior, while the expected behavior might be to don't re-pull
-          //
-          // in any case, the latter issue can be resolved using `take(1)`, so
-          // for now I'll let this auto-pull exist. but this should be fixed later on.
-          //
-          this.sink.outerTalkback.request()
+        if (!this.sink.talkback.disposed
+           && this.sink.talkback.requested) {
+          this.sink.outerTalkback?.request()
         }
       }
     }
