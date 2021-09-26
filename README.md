@@ -202,3 +202,17 @@ random.connect(logfive())
 // > 0.9542027116808698
 // > 0.8944987662953441
 ```
+
+<br><br>
+
+# Why Should I Use Streamlets Over X?
+
+This is work in progress, so definitely DO NOT USE IT IN PRODUCTION (maybe wait until `0.1.0` rolls out). Besides that, this is an experimental library still, so use at your own discretion. Most probably, the advantages it has over established libraries like RxJS really aren't important for you, and the fact that it is NOT a battle-tested library, it does not comply with the Observable API, it does not have a community built around it or maintaining and improving it, etc. will bite you back.
+
+That said, these are the areas where streamlets perhaps have an advantage over established solutions:
+
+- Streamlet protocol handles both listenable (e.g. Observable) and pullable (e.g. Iterable) sources, alongside anything in between. You can, for example, have a source that pushes values for 10 seconds after it connects to a sink, and waits for the sink to pull for pushing values for another 10 seconds.
+- Streamlet sources are mostly pausable/resumable by default (a sink can ask the source to stop and to start later).
+- Streamlet protocol allows for custom sinks. You can have a sink that pauses the source when-ever a buffer is filled up and resumes it after the buffer is emptied.
+- Streamlets are _really_ light-weight (`map()` of RxJS weighs about 3.5K, while `map()` of streamlets weighs about 350B).
+- Streamlets are (or ideally should be) _really_ fast and light on memory. One of my main goals for building them is to have reactive primitives that I can abuse with ease of mind (imagine every single state variable in an app being a stream).
