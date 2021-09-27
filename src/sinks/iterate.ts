@@ -38,7 +38,7 @@ export class Iteration<T> implements Sink<T>, Talkback {
 }
 
 
-export function iterate<T>(source: Source<T>): Sink<T> {
+export function iterate<T>(source: Source<T>): Iteration<T> {
   const iteration = new Iteration<T>()
   source.connect(iteration)
 
@@ -46,7 +46,7 @@ export function iterate<T>(source: Source<T>): Sink<T> {
 }
 
 
-export function iterateLater<T>(source: Source<T>): Sink<T> {
+export function iterateLater<T>(source: Source<T>): Iteration<T> {
   const iteration = new Iteration<T>(false)
   source.connect(iteration)
 

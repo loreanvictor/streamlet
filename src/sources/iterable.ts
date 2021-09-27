@@ -36,6 +36,7 @@ class IterableTalkback<T> implements Talkback {
         this.sink.receive(this.last.value)
       }
     }
+    this.inloop = false
   }
 
   start() {

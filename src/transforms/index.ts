@@ -10,4 +10,7 @@ export * from './share'
 export * from './start-with'
 export * from './retry'
 export * from './pullrate'
+export * from './stream'
+export * from './pull-buffer'
+
 
