@@ -73,7 +73,7 @@ Typically, these primitives work with each other as follows:
 ```js
 source.connect(sink)
 ```
-2. The source MUST _greet_ the sink with a talkback
+2. The source MUST _greet_ the sink with a talkback (not necessarily synchronously)
 ```js
 // inside the source
 sink.greet(talkback)
@@ -116,7 +116,7 @@ Following rules should apply:
 
 <br><br>
 
-## Examples
+# Examples
 
 This is a sink that takes five data pieces from a given source and logs them:
 ```ts
