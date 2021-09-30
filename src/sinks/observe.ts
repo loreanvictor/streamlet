@@ -29,6 +29,7 @@ export class Observation<T> implements Sink<T>, Talkback {
   }
 
   stop(reason?: unknown) {
+    this.started = false
     this.talkback?.stop(reason)
   }
 }

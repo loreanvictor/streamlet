@@ -33,6 +33,7 @@ export class Iteration<T> implements Sink<T>, Talkback {
   }
 
   stop() {
+    this.started = false
     this.talkback?.stop()
   }
 }

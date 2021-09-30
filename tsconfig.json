@@ -1,5 +1,5 @@
 {
-  "extends": "./conf/typescript/base",
+  "extends": "./conf/typescript/test",
   "compilerOptions": {
     "target": "es6",
     "declaration": false

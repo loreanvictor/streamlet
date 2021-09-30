@@ -10,32 +10,8 @@ import { pipe,
 } from '../src'
 
 
-const pauser = () => {
-  let rec = 0
-  let tb: Talkback
+const src = pipe(interval(100), tap(console.log))
+const obs = observe(src)
 
-  return sink({
-    greet(_tb) {
-      tb = _tb
-      tb.start()
-    },
-    receive() {
-      rec++
-      if (rec === 2) {
-        console.log('---[ PAUSE ]---')
-        tb.stop()
-        setTimeout(() => {
-          console.log('---[ RESUME ]---')
-          tb.start()
-        }, 1000)
-      }
-    }
-  })
-}
-
-
-const timer = share(interval(200))
-observe(timer)
-pipe(
-  timer, tap(console.log), connect(pauser())
-)
+setTimeout(() => obs.stop(), 600)
+setTimeout(() => obs.start(), 2000)

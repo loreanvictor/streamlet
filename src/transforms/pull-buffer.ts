@@ -1,8 +1,6 @@
 import { Source, Sink, Talkback, USourceFactory } from '../types'
 
 
-// TODO: test this
-
 export class PullBufferTalkback<T> implements Talkback {
   requested = false
 
