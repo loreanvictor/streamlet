@@ -9,7 +9,12 @@
 ```bash
 npm i streamlets
 ```
-  
+
+[![tests](https://img.shields.io/github/workflow/status/loreanvictor/streamlet/Test%20and%20Report%20Coverage?label=tests&logo=mocha&logoColor=green&style=flat-square)](https://github.com/loreanvictor/streamlet/actions?query=workflow%3A%22Test+and+Report+Coverage%22)
+[![coverage](https://img.shields.io/codecov/c/github/loreanvictor/streamlet?logo=codecov&style=flat-square)](https://codecov.io/gh/loreanvictor/streamlet)
+[![version](https://img.shields.io/npm/v/streamlets?logo=npm&style=flat-square)](https://www.npmjs.com/package/streamlets)
+
+
 Streamlets are light-weight streams of data, following the _streamlet_ protocol. The protocol is designed to handle synchronous, asynchronous, listenable and pullable data streams seamlessly, be easy and straightforward to build upon, and minimize any overhead for handling data streams.
 
 > If you know [RxJS](https://rxjs.dev), this is just like RxJS but a bit more lightweight and more versatile, also less battle-tested, less utilities, generally more experimental. If you know [callbags](https://github.com/callbag/callbag), this is basically a simplified version of the callbag standard. In any case, if you are looking for a tool to use on production, I highly encourage looking at any of those two options.
