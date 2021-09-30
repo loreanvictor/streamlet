@@ -1,8 +1,6 @@
 import { Source, Sink, Talkback, DisconnectableSource } from '../types'
 
 
-// TODO: this looks fishy and in need of testing / rework
-
 class SharedTalkback<T> implements Talkback {
   constructor(
     private source: SharedSource<T>,
@@ -10,7 +8,8 @@ class SharedTalkback<T> implements Talkback {
   ) { }
 
   start() {
-    this.source.talkback.start()
+    this.source.plug(this.sink)
+    this.source.start()
   }
 
   request() {
@@ -26,12 +25,10 @@ class SharedTalkback<T> implements Talkback {
 class SharedSink<T> implements Sink<T> {
   constructor(
     private source: SharedSource<T>,
-    private sink: Sink<T>,
   ) { }
 
   greet(talkback: Talkback) {
     this.source.talkback = talkback
-    this.sink.greet(talkback)
   }
 
   receive(t: T) {
@@ -54,20 +51,32 @@ class SharedSink<T> implements Sink<T> {
 
 export class SharedSource<T> extends DisconnectableSource<T> {
   sinks: Sink<T>[] = []
+  sink: SharedSink<T>
   talkback: Talkback
+  started = false
 
   constructor(
     private source: Source<T>
   ) { super() }
 
   connect(sink: Sink<T>) {
+    sink.greet(new SharedTalkback(this, sink))
+  }
+
+  start() {
+    if (!this.started && this.talkback) {
+      this.started = true
+      this.talkback.start()
+    }
+  }
+
+  plug(sink: Sink<T>) {
     this.sinks.push(sink)
 
-    if (this.sinks.length === 1) {
-      this.source.connect(new SharedSink(this, sink))
+    if (this.sinks.length === 1 && !this.sink) {
+      this.sink = new SharedSink(this)
+      this.source.connect(this.sink)
     }
-
-    sink.greet(new SharedTalkback(this, sink))
   }
 
   disconnect(sink: Sink<T>) {
@@ -78,6 +87,7 @@ export class SharedSource<T> extends DisconnectableSource<T> {
     }
 
     if (this.sinks.length === 0) {
+      this.started = false
       this.talkback.stop()
     }
   }

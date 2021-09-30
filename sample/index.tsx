@@ -10,11 +10,32 @@ import { pipe,
 } from '../src'
 
 
+const pauser = () => {
+  let rec = 0
+  let tb: Talkback
 
-const p = pipe(
-  iterable([1, 2, 3, 4, 5]),
-  pullBuffer(0),
-  pullrate(1000),
-  tap(x => console.log(x)),
-  iterate,
+  return sink({
+    greet(_tb) {
+      tb = _tb
+      tb.start()
+    },
+    receive() {
+      rec++
+      if (rec === 2) {
+        console.log('---[ PAUSE ]---')
+        tb.stop()
+        setTimeout(() => {
+          console.log('---[ RESUME ]---')
+          tb.start()
+        }, 1000)
+      }
+    }
+  })
+}
+
+
+const timer = share(interval(200))
+observe(timer)
+pipe(
+  timer, tap(console.log), connect(pauser())
 )

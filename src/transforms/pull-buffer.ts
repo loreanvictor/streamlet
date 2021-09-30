@@ -31,10 +31,11 @@ export class PullBufferTalkback<T> implements Talkback {
 export class PullBufferSink<T> implements Sink<T> {
   readonly buffer: T[] = []
   private talkback: PullBufferTalkback<T>
+  private ended = false
 
   constructor(
     private sink: Sink<T>,
-    private max: number = 1,
+    private max: number = -1,
   ) {}
 
   greet(talkback: Talkback) {
@@ -58,6 +59,10 @@ export class PullBufferSink<T> implements Sink<T> {
     if (this.buffer.length > 0) {
       this.sink.receive(this.buffer.shift()!)
 
+      if (this.buffer.length === 0 && this.ended) {
+        this.sink.end()
+      }
+
       return true
     } else {
       return false
@@ -65,7 +70,11 @@ export class PullBufferSink<T> implements Sink<T> {
   }
 
   end(reason?: unknown) {
-    this.sink.end(reason)
+    if (reason === undefined && this.buffer.length > 0) {
+      this.ended = true
+    } else {
+      this.sink.end(reason)
+    }
   }
 }
 
@@ -73,7 +82,7 @@ export class PullBufferSink<T> implements Sink<T> {
 export class PullBufferSource<T> implements Source<T> {
   constructor(
     private source: Source<T>,
-    private max: number = 1,
+    private max: number = -1,
   ) {}
 
   connect(sink: Sink<T>) {
@@ -82,9 +91,9 @@ export class PullBufferSource<T> implements Source<T> {
 }
 
 
-export function pullBuffer(max: number): USourceFactory
-export function pullBuffer<T>(source: Source<T>, max: number): Source<T>
-export function pullBuffer<T>(source: Source<T> | number, max?: number): Source<T> | USourceFactory {
+export function pullBuffer(max?: number): USourceFactory
+export function pullBuffer<T>(source: Source<T>, max?: number): Source<T>
+export function pullBuffer<T>(source?: Source<T> | number, max?: number): Source<T> | USourceFactory {
   if (source !== undefined && typeof source !== 'number') {
     return new PullBufferSource(source, max)
   } else {

@@ -1,6 +1,6 @@
 {
   "name": "streamlets",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "mini-streams",
   "main": "dist/es5/index.js",
   "module": "dist/es6/index.js",
@@ -49,6 +49,7 @@
     "isomorphic-fetch": "^3.0.0",
     "mocha": "^9.1.1",
     "nyc": "^15.1.0",
+    "nyc-config-tsx": "^0.1.0",
     "rollup": "^2.56.3",
     "rollup-plugin-terser": "^7.0.2",
     "test-callbag-jsx": "^0.4.1",

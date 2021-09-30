@@ -1,9 +1,36 @@
 import { Sink, Source, Talkback } from '../types'
 
 
+export class StreamedTalkback<T> implements Talkback {
+  private inited = false
+
+  constructor(
+    private sink: StreamedSink<T>,
+  ) {}
+
+  start() {
+    this.sink.talkback?.start()
+    if (!this.sink.disposed) {
+      this.inited = true
+      this.sink.talkback?.request()
+    }
+  }
+
+  request() {
+    if (this.inited) {
+      this.sink.talkback?.request()
+    }
+  }
+
+  stop(reason?: unknown) {
+    this.sink.talkback?.stop(reason)
+  }
+}
+
+
 export class StreamedSink<T> implements Sink<T> {
-  private talkback: Talkback
-  private disposed = false
+  talkback: Talkback
+  disposed = false
 
   constructor(
     private sink: Sink<T>
@@ -11,10 +38,7 @@ export class StreamedSink<T> implements Sink<T> {
 
   greet(talkback: Talkback) {
     this.talkback = talkback
-    this.sink.greet(talkback)
-    if (!this.disposed) {
-      this.talkback.request()
-    }
+    this.sink.greet(new StreamedTalkback(this))
   }
 
   receive(value: T) {

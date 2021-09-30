@@ -1,4 +1,4 @@
-export * from './pipe'
+export * from './util/pipe'
 export * from './sources'
 export * from './sinks'
 export * from './transforms'
