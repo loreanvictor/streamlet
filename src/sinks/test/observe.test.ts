@@ -114,4 +114,14 @@ describe('observeLater()', () => {
     obs.start()
     cb.should.have.been.calledThrice
   })
+
+  it('should auto start when request is called.', () => {
+    const start = fake()
+    const src = source(sink => sink.greet(talkback({ start })))
+    const obs = observeLater(src)
+
+    start.should.not.have.been.called
+    obs.request()
+    start.should.have.been.calledOnce
+  })
 })

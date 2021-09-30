@@ -8,8 +8,8 @@ export class Notification<T> implements Sink<T>, Talkback {
 
   greet(talkback: Talkback) {
     this.talkback = talkback
-    talkback.start()
-    talkback.request()
+    talkback?.start()
+    talkback?.request()
   }
 
   receive(t: T) {

@@ -19,7 +19,10 @@ export class Observation<T> implements Sink<T>, Talkback {
 
   receive() {}
   end() {}
-  request() { this.talkback?.request() }
+  request() {
+    this.start()
+    this.talkback?.request()
+  }
 
   start() {
     if (!this.started && this.talkback) {

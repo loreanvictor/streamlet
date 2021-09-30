@@ -21,14 +21,20 @@ export class Iteration<T> implements Sink<T>, Talkback {
     this.talkback?.request()
   }
 
-  request() { this.talkback?.request() }
+  request() {
+    this.start(false)
+    this.talkback?.request()
+  }
+
   end() {}
 
-  start() {
+  start(req = true) {
     if (!this.started && this.talkback) {
       this.started = true
       this.talkback.start()
-      this.talkback.request()
+      if (req) {
+        this.talkback.request()
+      }
     }
   }
 
