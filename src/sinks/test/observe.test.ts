@@ -47,6 +47,8 @@ describe('observe()', () => {
 
     clock.tick(8)
     cb.should.have.been.calledTwice
+
+    clock.restore()
   })
 
   it('should return an observation that will pass requests to source.', () => {
@@ -75,6 +77,8 @@ describe('observe()', () => {
     clock.tick(4)
     cb.callCount.should.equal(4)
     obs.stop()
+
+    clock.restore()
   })
 
   it('should handle redundant greets.', () => {

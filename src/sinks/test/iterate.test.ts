@@ -28,6 +28,7 @@ describe('iterate()', () => {
 
     clock.tick(200)
     cb.should.have.been.calledTwice
+    clock.restore()
   })
 
   it('should return an iteration that can be stopped and restarted.', () => {
@@ -53,6 +54,7 @@ describe('iterate()', () => {
     cb.should.have.been.calledThrice
     clock.tick(1)
     cb.callCount.should.equal(4)
+    clock.restore()
   })
 
   it('should return an observation that can be used to invoke further requests.', () => {

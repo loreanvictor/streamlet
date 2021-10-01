@@ -23,6 +23,7 @@ describe('tap()', () => {
     cb.lastCall.should.have.been.calledWith(2)
 
     ob.stop()
+    clock.restore()
   })
 
   it('should invoke given op before passing down the data.', () => {

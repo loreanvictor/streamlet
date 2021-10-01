@@ -42,7 +42,7 @@
   },
   "overrides": [
     {
-      "files": ["src/**/*.test.ts"],
+      "files": ["src/**/*.test.ts", "src/**/*.test.tsx"],
       "rules": {
         "no-unused-expressions": "off"
       }

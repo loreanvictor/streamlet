@@ -29,6 +29,8 @@ describe('notify', () => {
 
     cb.should.have.been.calledTwice
     cb.lastCall.should.have.been.calledWith(0)
+
+    clock.restore()
   })
 
   it('should be possible to stop the notification before values come in.', () => {
@@ -42,6 +44,8 @@ describe('notify', () => {
 
     clock.tick(50)
     cb.should.not.have.been.called
+
+    clock.restore()
   })
 
   it('should be possible to request the source through the notification.', () => {

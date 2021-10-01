@@ -67,5 +67,7 @@ describe('iterable()', () => {
     clock.tick(1000)
     cb.should.have.been.calledThrice
     cb.lastCall.should.have.been.calledWith('Johnny')
+
+    clock.restore()
   })
 })

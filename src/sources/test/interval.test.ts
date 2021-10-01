@@ -32,6 +32,7 @@ describe('interval()', () => {
     cb.lastCall.should.have.been.calledWith(2)
 
     obs.stop()
+    clock.restore()
   })
 
   it('should be pausable.', () => {
@@ -60,6 +61,7 @@ describe('interval()', () => {
     cb.lastCall.should.have.been.calledWith(11)
 
     obs.stop()
+    clock.restore()
   })
 
   it('should deal with redundant start/stops.', () => {
@@ -100,5 +102,7 @@ describe('interval()', () => {
       obs.stop()
 
     }).to.not.throw()
+
+    clock.restore()
   })
 })
