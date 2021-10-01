@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-expressions */
-
 import { fake, useFakeTimers } from 'sinon'
 import { expect } from 'chai'
 

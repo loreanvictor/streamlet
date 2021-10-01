@@ -7,9 +7,6 @@ function isIterable<T>(t: Iterable<T> | Iterator<T>): t is Iterable<T> {
 }
 
 
-// TODO: test this
-
-
 class IterableTalkback<T> implements Talkback {
   iterator: Iterator<T>
   inloop = false

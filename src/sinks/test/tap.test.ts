@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-expressions */
-
 import { fake, useFakeTimers } from 'sinon'
 import { of, interval } from '../../sources'
 import { source, sink, connect, pipe } from '../../util'

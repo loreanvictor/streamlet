@@ -13,7 +13,7 @@ class IntervalTalkback extends Dispose {
   }
 
   start() {
-    if (!this.interval) {
+    if (this.interval === undefined) {
       this.interval = setInterval(() => {
         this.sink.receive(this.count++)
       }, this.period)
@@ -21,7 +21,7 @@ class IntervalTalkback extends Dispose {
   }
 
   stop() {
-    if (this.interval) {
+    if (this.interval !== undefined) {
       clearInterval(this.interval)
       this.interval = undefined
     }

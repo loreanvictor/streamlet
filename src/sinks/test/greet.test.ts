@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-expressions */
-
 import { fake } from 'sinon'
 
 import { pipe, sink, connect } from '../../util'

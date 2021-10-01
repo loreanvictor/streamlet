@@ -39,5 +39,13 @@
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_|^renderer$" }],
     "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/no-var-requires": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.test.ts"],
+      "rules": {
+        "no-unused-expressions": "off"
+      }
+    }
+  ]
 }
