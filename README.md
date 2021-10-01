@@ -9,10 +9,15 @@
 ```bash
 npm i streamlets
 ```
-  
-Streamlets are light-weight streams of data, following the _streamlet_ protocol. The protocol is designed to handle synchronous, asynchronous, listenable and pullable data streams seamlessly, be easy and straightforward to build upon, and minimize any overhead for handling data streams.
 
-> If you know [RxJS](https://rxjs.dev), this is just like RxJS but a bit more lightweight and more versatile, also less battle-tested, less utilities, generally more experimental. If you know [callbags](https://github.com/callbag/callbag), this is basically a simplified version of the callbag standard. In any case, if you are looking for a tool to use on production, I highly encourage looking at any of those two options.
+[![tests](https://img.shields.io/github/workflow/status/loreanvictor/streamlet/Test%20and%20Report%20Coverage?label=tests&logo=mocha&logoColor=green)](https://github.com/loreanvictor/streamlet/actions?query=workflow%3A%22Test+and+Report+Coverage%22)
+[![coverage](https://app.codacy.com/project/badge/Coverage/95822ae988d14ef3957704b31372d24e)](https://www.codacy.com/gh/loreanvictor/streamlet/dashboard?utm_source=github.com&utm_medium=referral&utm_content=loreanvictor/streamlet&utm_campaign=Badge_Coverage)
+[![version](https://img.shields.io/npm/v/streamlets?logo=npm)](https://www.npmjs.com/package/streamlets)
+<!--
+[![coverage](https://img.shields.io/codecov/c/github/loreanvictor/streamlet?logo=codecov)](https://codecov.io/gh/loreanvictor/streamlet)
+-->
+
+Streamlets are light-weight streams of data, following the _streamlet_ protocol. The protocol is designed to handle synchronous, asynchronous, listenable and pullable data streams seamlessly, be easy and straightforward to build upon, and minimize any overhead for handling data streams.
 
 ```js
 import { pipe, interval, tap, observe } from 'streamlets'
@@ -68,12 +73,12 @@ Typically, these primitives work with each other as follows:
 ```js
 source.connect(sink)
 ```
-2. The source MUST _greet_ the sink with a talkback
+2. The source MUST _greet_ the sink with a talkback (not necessarily synchronously)
 ```js
 // inside the source
 sink.greet(talkback)
 ```
-3. The sink MAY ask the source (via the talkback) to _start_ sending data, whenever it is ready
+3. The sink MAY ask the source (via the talkback) to _start_ sending data
 ```js
 // inside the sink
 talkback.start()
@@ -106,8 +111,14 @@ Following rules should apply:
 - Sinks MUST NOT receive any data before they asked the source to start
 - Sinks MUST NOT receive any data after they have asked the source to stop, unless the sink asks the source to start again
 - Sinks MUST NOT receive any data after the source has claimed an end to the data
+- Sinks MUST NOT request further data before they have been greeted and asked the source to start sending data
+- Sinks MUST NOT request further data after they have asked the source to stop or the source has signaled end of data
 
-For example, this is a sink that takes five data pieces from a given source and logs them:
+<br><br>
+
+# Examples
+
+This is a sink that takes five data pieces from a given source and logs them:
 ```ts
 import { sink } from 'streamlets'
 
