@@ -20,6 +20,7 @@ class MergedSink<T extends Source<any>[]> implements Sink<UnwrapSource<T[number]
   end(reason?: unknown) {
     if (reason !== undefined) {
       this.talkback.dispose(undefined, this.index)
+      this.sink.end(reason)
     } else {
       this.talkback.disconnect(this.index)
     }
