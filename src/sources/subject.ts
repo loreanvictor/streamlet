@@ -8,13 +8,15 @@ class SubjectTalkback<T> extends Dispose {
   ) { super() }
 
   start() { this.source.plug(this.sink) }
+  request() { this.source.request() }
   stop() { this.source.disconnect(this.sink) }
 }
 
 
-export class Subject<T> extends DisconnectableSource<T> implements Sink<T> {
+export class Subject<T> extends DisconnectableSource<T> implements Sink<T>, Talkback {
   done = false
   sinks = <Sink<T>[]> []
+  talkback: Talkback
 
   connect(sink: Sink<T>) {
     if (!this.done) {
@@ -37,7 +39,8 @@ export class Subject<T> extends DisconnectableSource<T> implements Sink<T> {
   }
 
   greet(talkback: Talkback) {
-    talkback.start()
+    this.talkback = talkback
+    this.start()
   }
 
   receive(t: T) {
@@ -62,4 +65,8 @@ export class Subject<T> extends DisconnectableSource<T> implements Sink<T> {
     this.done = true
     this.sinks.length = 0
   }
+
+  start() { this.talkback.start() }
+  request() { this.talkback.request() }
+  stop() { this.talkback.stop() }
 }
