@@ -1,5 +1,5 @@
 import { fake } from 'sinon'
-import server from 'fetch-mock'
+import network from 'fetch-mock'
 import sleep from 'sleep-promise'
 
 import { fetch$ } from '../fetch'
@@ -10,7 +10,7 @@ import { tap, observe, finalize, observeLater } from '../../sinks'
 describe('fetch()', () => {
   it('should fetch given URL', async () => {
     const cb = fake()
-    server.get('http://example.com/', 200)
+    network.get('http://example.com/', 200)
 
     pipe(
       fetch$('http://example.com/'),
@@ -18,15 +18,16 @@ describe('fetch()', () => {
       observe
     )
 
-    server.called('http://example.com/').should.be.true
+    network.called('http://example.com/').should.be.true
     await sleep(1)
     cb.should.have.been.calledOnce
-    server.restore()
+
+    network.restore()
   })
 
   it('should send the request again on data requests.', async () => {
     const cb = fake()
-    server.get('http://example.com/', 200)
+    network.get('http://example.com/', 200)
 
     const obs = pipe(
       fetch$('http://example.com/'),
@@ -38,14 +39,15 @@ describe('fetch()', () => {
     obs.request()
     await sleep(1)
     cb.should.have.been.calledTwice
-    server.restore()
+
+    network.restore()
   })
 
   it('should pass down the error.', async () => {
     const cb = fake()
     const cb2 = fake()
 
-    server.get('http://example.com/', {throws: new Error('test')})
+    network.get('http://example.com/', {throws: new Error('test')})
 
     pipe(
       fetch$('http://example.com/'),
@@ -58,12 +60,12 @@ describe('fetch()', () => {
     cb.should.not.have.been.called
     cb2.should.have.been.calledOnce
 
-    server.restore()
+    network.restore()
   })
 
   it('should be pausable / resumable', async () => {
     const cb = fake()
-    server.get('http://example.com/', 200)
+    network.get('http://example.com/', 200)
 
     const obs = pipe(
       fetch$('http://example.com/'),
@@ -78,12 +80,13 @@ describe('fetch()', () => {
     obs.start()
     await sleep(1)
     cb.should.have.been.calledOnce
-    server.restore()
+
+    network.restore()
   })
 
   it('should requesst again when not mid-flight.', async () => {
     const cb = fake()
-    server.get('http://example.com/', 200)
+    network.get('http://example.com/', 200)
 
     const obs = pipe(
       fetch$('http://example.com/', { headers: { 'X-Test': 'test' } }),
@@ -92,17 +95,18 @@ describe('fetch()', () => {
     )
 
     obs.request()
-    server.calls('http://example.com/').should.have.length(1)
+    network.calls('http://example.com/').should.have.length(1)
 
     await sleep(1)
     obs.request()
-    server.calls('http://example.com/').should.have.length(2)
-    server.restore()
+    network.calls('http://example.com/').should.have.length(2)
+
+    network.restore()
   })
 
   it('should handle bogus interrupts.', async () => {
     const cb = fake()
-    server.get('http://example.com/', 200)
+    network.get('http://example.com/', 200)
 
     const obs = pipe(
       fetch$('http://example.com/'),
@@ -113,5 +117,7 @@ describe('fetch()', () => {
     obs.stop()
     await sleep(1)
     cb.should.not.have.been.called
+
+    network.restore()
   })
 })

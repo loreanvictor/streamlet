@@ -14,26 +14,23 @@ class PromiseTalkback<T> implements Talkback {
     if (this.finished) {
       this.sink.end()
     } else {
-      const initial = !this.disposed
       this.disposed = false
 
-      if (initial) {
-        this._promise.then(
-          value => {
+      this._promise.then(
+        value => {
+          if (!this.disposed) {
             this.finished = true
-            if (!this.disposed) {
-              this.sink.receive(value)
-              this.sink.end()
-            }
-          },
-          error => {
-            this.finished = true
-            if (!this.disposed) {
-              this.sink.end(error)
-            }
+            this.sink.receive(value)
+            this.sink.end()
           }
-        )
-      }
+        },
+        error => {
+          if (!this.disposed) {
+            this.finished = true
+            this.sink.end(error)
+          }
+        }
+      )
     }
   }
 

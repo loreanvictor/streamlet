@@ -2,7 +2,7 @@ import { Sink, Source, Talkback } from '../types'
 
 
 class FetchTalkback implements Talkback {
-  controller: AbortController | undefined
+  private controller: AbortController | undefined
 
   constructor(
     private source: FetchSource,
