@@ -1,3 +1,4 @@
+import { DataMultiplexer, EndMultiplexer } from '..'
 import { Source, Sink, Talkback, DisconnectableSource } from '../types'
 
 
@@ -32,25 +33,21 @@ class SharedSink<T> implements Sink<T> {
   }
 
   receive(t: T) {
-    const copy = this.source.sinks.slice(0)
-    for (let i = 0; i < copy.length; i++) {
-      copy[i].receive(t)
-    }
+    this.source.dataMux.send(t)
   }
 
   end(reason?: unknown) {
-    const copy = this.source.sinks.slice(0)
-    for (let i = 0; i < copy.length; i++) {
-      copy[i].end(reason)
-    }
-
+    this.source.endMux.send(reason)
     this.source.sinks.length = 0
+    this.source.started = false
   }
 }
 
 
 export class SharedSource<T> extends DisconnectableSource<T> {
   sinks: Sink<T>[] = []
+  dataMux = new DataMultiplexer<T>(this.sinks)
+  endMux = new EndMultiplexer(this.sinks)
   sink: SharedSink<T>
   talkback: Talkback
   started = false
@@ -88,7 +85,7 @@ export class SharedSource<T> extends DisconnectableSource<T> {
 
     if (this.sinks.length === 0) {
       this.started = false
-      this.talkback.stop()
+      this.talkback?.stop()
     }
   }
 }

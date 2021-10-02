@@ -1,3 +1,4 @@
+import { DataMultiplexer, EndMultiplexer } from '..'
 import { Talkback, Dispose, Sink, DisconnectableSource } from '../types'
 
 
@@ -17,6 +18,8 @@ export class Subject<T> extends DisconnectableSource<T> implements Sink<T>, Talk
   done = false
   sinks = <Sink<T>[]> []
   talkback: Talkback
+  dataMux =  new DataMultiplexer<T>(this.sinks)
+  endMux = new EndMultiplexer(this.sinks)
 
   connect(sink: Sink<T>) {
     if (!this.done) {
@@ -44,24 +47,11 @@ export class Subject<T> extends DisconnectableSource<T> implements Sink<T>, Talk
   }
 
   receive(t: T) {
-    const copy = this.sinks.slice(0)
-    for (let i = 0; i < copy.length; i++) {
-      const sink = copy[i]
-      if (this.sinks.indexOf(sink) !== -1) {
-        sink.receive(t)
-      }
-    }
+    this.dataMux.send(t)
   }
 
   end(reason?: unknown) {
-    const copy = this.sinks.slice(0)
-    for (let i = 0; i < copy.length; i++) {
-      const sink = copy[i]
-      if (this.sinks.indexOf(sink) !== -1) {
-        sink.end(reason)
-      }
-    }
-
+    this.endMux.send(reason)
     this.done = true
     this.sinks.length = 0
   }

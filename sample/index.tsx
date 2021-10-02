@@ -10,8 +10,9 @@ import { pipe,
 } from '../src'
 
 
-const src = pipe(interval(100), tap(console.log))
-const obs = observe(src)
+const src = share(interval(1000))
+observe(src)
+const o = pipe(src, tap(console.log), observe)
 
-setTimeout(() => obs.stop(), 600)
-setTimeout(() => obs.start(), 2000)
+setTimeout(() => o.stop(), 2000)
+setTimeout(() => o.start(), 4000)
