@@ -177,4 +177,13 @@ describe('Subject', () => {
 
     clock.restore()
   })
+
+  it('should handle invocation of talkback methods even when not subscribed.', () => {
+    expect(() => {
+      const sub = new Subject()
+      sub.start()
+      sub.request()
+      sub.stop()
+    }).to.not.throw()
+  })
 })
