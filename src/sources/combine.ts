@@ -117,6 +117,7 @@ export class CombinedSource<T> implements Source<T[]> {
 
 type S<T> = Source<T>
 
+export function combine(): S<[]>
 export function combine<T1>(s1: S<T1>): S<[T1]>
 export function combine<T1, T2>(s1: S<T1>, s2: S<T2>): S<[T1, T2]>
 export function combine<T1, T2, T3>(s1: S<T1>, s2: S<T2>, s3: S<T3>): S<[T1, T2, T3]>

@@ -2,8 +2,6 @@ import { Source, Sink, Dispose, Handler } from '../types'
 import { addListener, removeListener } from '../util/dom-events'
 
 
-// TODO: test this
-
 class EventTalkback<EventName extends keyof HTMLElementEventMap>
   extends Dispose {
   handler: Handler<HTMLElementEventMap[EventName]>
