@@ -17,26 +17,37 @@ npm i streamlets
 [![coverage](https://img.shields.io/codecov/c/github/loreanvictor/streamlet?logo=codecov)](https://codecov.io/gh/loreanvictor/streamlet)
 -->
 
-Streamlets are light-weight streams of data, following the _streamlet_ protocol. The protocol is designed to handle synchronous, asynchronous, listenable and pullable data streams seamlessly, be easy and straightforward to build upon, and minimize any overhead for handling data streams.
+Streamlet is a protocol for handling streams of data.
+
+- ↕️ It allows for handling pullables (i.e. iterables), listenables (i.e. observables) and anything in between.
+- ⛓️ It allows for handling synchronous and asynchronous data sources.
+- ⏯️ It enables pausing / resuming streams.
+- 📦 It allows pretty light-weight primitives and tools.
+
+<br>
+
+The `streamlets` package includes typings and tools built around this protocol.
 
 ```js
 import { pipe, interval, tap, observe } from 'streamlets'
 
-pipe(
-  interval(1000),
-  tap(console.log),
-  observe,
-)
-```
+const obs = 
+  pipe(
+    interval(1000),
+    tap(console.log),
+    observe,
+  )
 
-_or with the [hopefully soon-ish to land pipelines](https://github.com/tc39/proposal-pipeline-operator)_:
 
-```js
-import { interval, tap, observe } from 'streamlets'
+setTimeout(() => obs.stop(), 2000)
+setTimeout(() => obs.start(), 4000)
 
-interval(1000)
-  |> tap(^, console.log)
-  |> observe(^)
+// > 0
+// > 1
+// ... pausde for two seconds, no logs ...
+// > 2
+// > 3
+// > ...
 ```
 
 <br><br>
@@ -51,68 +62,31 @@ Streamlets are made up of three primary primitives:
 
 ```ts
 interface Source<T> {
-  connect(sink: Sink<T>)
+  connect(sink: Sink<T>)     // --> called by outside code, connects a source and a sink
 }
 
 interface Sink<T> {
-  greet(talkback: Talkback)
-  receive(data: T)
-  end(reason?: unknown)
+  greet(talkback: Talkback)  // --> called by the source, gives the sink a way of communicating back
+  receive(data: T)           // --> called by the source, sends some data to the sink
+  end(reason?: unknown)      // --> called by the source, sends an end signal to the sink
 }
 
 interface Talkback {
-  start()
-  request()
-  stop(reason?: unknown)
+  start()                    // --> called by the sink, tells the source to start sending data
+  request()                  // --> called by the sink, asks the source for more data
+  stop(reason?: unknown)     // --> called by the sink, asks the source to stop sending more data
 }
 ```
 
-Typically, these primitives work with each other as follows:
-
-1. A sink _connects_ to a source
-```js
-source.connect(sink)
-```
-2. The source MUST _greet_ the sink with a talkback (not necessarily synchronously)
-```js
-// inside the source
-sink.greet(talkback)
-```
-3. The sink MAY ask the source (via the talkback) to _start_ sending data
-```js
-// inside the sink
-talkback.start()
-```
-4. The sink MAY now _receive_ data from the source
-```js
-// inside the source
-sink.receive(data)
-```
-6. The sink MAY also _request_ more data (via the talkback)
-```js
-// inside the sink
-talkback.request()
-```
-8. The sink MAY ask the source (via the talkback) to _stop_ sending more data. It might also provide a reason for this (i.e. error)
-```js
-// inside the sink
-talkback.stop()
-```
-10. The source MAY signal the _end_ of the data to the sink. It might also provide a reason for this (i.e. error)
-```js
-// inside the source
-sink.end()
-```
-
-Following rules should apply:
-
-- Sinks MUST be greeted with a talkback from the source, when they are connected
-- Sinks MUST NOT receive any data before the source greets them with a talkback
-- Sinks MUST NOT receive any data before they asked the source to start
-- Sinks MUST NOT receive any data after they have asked the source to stop, unless the sink asks the source to start again
-- Sinks MUST NOT receive any data after the source has claimed an end to the data
-- Sinks MUST NOT request further data before they have been greeted and asked the source to start sending data
-- Sinks MUST NOT request further data after they have asked the source to stop or the source has signaled end of data
+1. A source **MUST** greet a sink with a talkback after they are connected. A source **MAY** greet a connected sink synchronously or asynchronously.
+2. A source **MAY** send data or an end signal to a sink, **IF AND ONLY IF** all of the following hold:
+    - The sink was connected to the source.
+    - The source has greeted the sink with a talkback.
+    - The sink has started the talkback at least once.
+    - The sink has not stopped the talkback after the last time it has started it.
+    - The source has not already sent an end signal to the sink.
+3. A source **MAY** provide additional reasons for the end signal (i.e. error). Similarly, a sink **MAY** provide additional reasons for why it is stopping the stream.
+4. A sink **MAY** request for more data using its talkback, **IF AND ONLY IF** all of the conditions of (2) hold.
 
 <br><br>
 
@@ -216,14 +190,35 @@ random.connect(logfive())
 
 <br><br>
 
-# Why Should I Use Streamlets Over X?
+# Prior Work
 
-This is work in progress, so definitely DO NOT USE IT IN PRODUCTION (maybe wait until `0.1.0` rolls out). Besides that, this is an experimental library still, so use at your own discretion. Most probably, the advantages it has over established libraries like RxJS really aren't important for you, and the fact that it is NOT a battle-tested library, it does not comply with the Observable API, it does not have a community built around it or maintaining and improving it, etc. will bite you back.
+If you find this useful, you most probably want to use [RxJS](https://rxjs.dev/). This is an experimental work.
+If you are into these kinds of experiments, checkout [the callbag standard](https://github.com/callbag/callbag) as well.
+The main differences between streamlets and aforementioned libraries are:
 
-That said, these are the areas where streamlets perhaps have an advantage over established solutions:
+- Streamlets and callbags handle both pullables and listenables, and anything in between. RxJS does not.
+- Streamlets support pausing / resuming by default. This [can be added](https://github.com/erikras/callbag-pausable) to callbags as well, not supported by the standard itself. RxJS does not support this.
+- Streamlets and callbags are pretty light-weight. RxJS operators and utilities are way heavier than both.
 
-- Streamlet protocol handles both listenable (e.g. Observable) and pullable (e.g. Iterable) sources, alongside anything in between. You can, for example, have a source that pushes values for 10 seconds after it connects to a sink, and waits for the sink to pull for pushing values for another 10 seconds.
-- Streamlet sources are mostly pausable/resumable by default (a sink can ask the source to stop and to start later).
-- Streamlet protocol allows for custom sinks. You can have a sink that pauses the source when-ever a buffer is filled up and resumes it after the buffer is emptied.
-- Streamlets are _really_ light-weight (`map()` of RxJS weighs about 3.5K, while `map()` of streamlets weighs about 350B).
-- Streamlets are (or ideally should be) _really_ fast and light on memory. One of my main goals for building them is to have reactive primitives that I can abuse with ease of mind (imagine every single state variable in an app being a stream).
+<div align="center">
+
+primitive / utility        | Streamlet | Callbag | RxJS
+-------------------------- | --------- | ------- | ------
+`interval()`               | 366B      | 200B    | 4.6kB
+`merge()`                  | 535B      | 336B    | 5.9kB
+`map()`                    | 390B      | 198B    | 3.5kB
+`flatten()` / `switchMap()`| 532B      | 288B    | 5.0kB
+
+</div>
+
+- I am hoping streamlets are at least as fast and consume much less memory than both RxJS observables and callbags. I need some benchmarking to make sure of this though.
+
+<br><br>
+
+# Acknowledgement
+
+The streamlet protocol is heavily influenced by [the callbag standard](https://github.com/callbag/callbag). A lot of code and utilities built around callbags were directly adopted into utilities for streamlets, including (but not limited to):
+- [callbag-from-iter](https://github.com/staltz/callbag-from-iter), [callbag-flatten](https://github.com/staltz/callbag-flatten), and lots of other callbag related utilities by [@staltz](https://github.com/staltz)
+- [callbag-of](https://github.com/Andarist/callbag-of) and [callbag-retry](https://github.com/Andarist/callbag-retry) by [@Andarist](https://github.com/Andarist)
+- [callbag-start-with](https://github.com/krawaller/callbag-start-with) by [@krawaller](https://github.com/krawaller)
+- [callbag-debounce](https://github.com/atomrc/callbag-debounce) by [@atomrc](https://github.com/atomrc)
