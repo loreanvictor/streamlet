@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./misc/logo-cutout.svg" width="128px"/>
+<img src="/misc/logo-cutout.svg" width="128px"/>
   
 # Streamlet Protocol
 
