@@ -1,18 +1,19 @@
 import { Sink } from '../types'
 
 
-export abstract class Multiplexer<T, O=T> {
+export abstract class Multiplexer<T, O=T, S extends Sink<T> = Sink<T>> {
   constructor(
-    readonly sinks: Sink<T>[]
+    readonly sinks: S[],
+    readonly inline = false,
   ) {}
 
-  protected abstract act(sink: Sink<T>, options: O): void
+  protected abstract act(sink: S, options: O): void
 
   send(options: O) {
-    const copy = this.sinks.slice(0)
+    const copy = this.inline ? this.sinks : this.sinks.slice(0)
     for (let i = 0; i < copy.length; i++) {
       const sink = copy[i]
-      if (this.sinks.indexOf(sink) !== -1) {
+      if (this.inline || this.sinks.indexOf(sink) !== -1) {
         this.act(sink, options)
       }
     }
