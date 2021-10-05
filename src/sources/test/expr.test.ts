@@ -92,8 +92,9 @@ describe('expr()', () => {
   it('should pass down errors when one source errs.', () => {
     const cb = fake()
     const cb2 = fake()
-    const a = source<number>(sink => sink.greet(talkback({ start() { sink.end(42) }})))
-    const b = new Subject<number>()
+    const stop = fake()
+    const a = source<number>(sink => sink.greet(talkback({ stop })))
+    const b = source<number>(sink => sink.greet(talkback({ start() { sink.end(42) }})))
     pipe(
       expr($ => $(a, 0) + $(b, 0)),
       tap(cb),
@@ -103,6 +104,25 @@ describe('expr()', () => {
 
     cb.should.not.have.been.called
     cb2.should.have.been.calledOnceWith(42)
+    stop.should.have.been.calledOnce
+  })
+
+  it('should handle errors in the expr function itself.', () => {
+    const cb = fake()
+    const cb2 = fake()
+    const stop = fake()
+
+    const a = source(sink => sink.greet(talkback({ stop })))
+    pipe(
+      expr($ => { $(a); throw new Error('oops') }),
+      tap(cb),
+      finalize(cb2),
+      observe
+    )
+
+    cb.should.not.have.been.called
+    cb2.should.have.been.calledOnce
+    stop.should.have.been.calledOnce
   })
 
   it('should not re-emit for emission of passively tracked sources.', () => {

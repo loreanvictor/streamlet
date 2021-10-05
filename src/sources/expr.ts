@@ -114,10 +114,14 @@ class ExprTalkback<R> implements Talkback {
 
   run(tracking?: Tracking<unknown>) {
     this.maskMux.send()
-    const value = this.source._expr(this.activeTrack, this.passiveTrack)
+    try {
+      const value = this.source._expr(this.activeTrack, this.passiveTrack)
 
-    if (!this.disposed && (!tracking || tracking.seen)) {
-      this.sink.receive(value)
+      if (!this.disposed && (!tracking || tracking.seen)) {
+        this.sink.receive(value)
+      }
+    } catch (error) {
+      this.error(error)
     }
   }
 
