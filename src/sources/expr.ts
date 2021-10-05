@@ -45,8 +45,8 @@ class RequestMultiplexer extends Multiplexer<unknown, void, Tracking<unknown>> {
 class Tracking<T> implements Sink<T> {
   talkback: Talkback | undefined
   value: T | typeof _Unset = _Unset
-  disposed = false
   seen = true
+  disposed = false
 
   constructor(
     readonly source: Source<T>,
@@ -93,6 +93,7 @@ class ExprTalkback<R> implements Talkback {
   reqMux = new RequestMultiplexer(this.trackings)
 
   endCount = 0
+  disposed = false
 
   constructor(
     readonly source: ExprSource<R>,
@@ -115,7 +116,7 @@ class ExprTalkback<R> implements Talkback {
     this.maskMux.send()
     const value = this.source._expr(this.activeTrack, this.passiveTrack)
 
-    if (!tracking || tracking.seen) {
+    if (!this.disposed && (!tracking || tracking.seen)) {
       this.sink.receive(value)
     }
   }
@@ -144,6 +145,7 @@ class ExprTalkback<R> implements Talkback {
   }
 
   error(reason: unknown, source?: Tracking<unknown>) {
+    this.disposed = true
     this.sink.end(reason)
     this.stopMux.send(source)
     this.trackings.length = 0
@@ -151,6 +153,7 @@ class ExprTalkback<R> implements Talkback {
 
   endCheck() {
     if (++this.endCount === this.trackings.length) {
+      this.disposed = true
       this.sink.end()
       this.trackings.length = 0
     }
