@@ -2,13 +2,11 @@ import { Source, Sink, Talkback } from '../types'
 import { Multiplexer } from '../util'
 
 
-export type TrackFunc = {
-  <T>(source: Source<T>): T | undefined
-  <T>(source: Source<T>, initial: T): T
-}
+export type TrackFunc = <T>(source: Source<T>) => T
 export type ExprFunc<R> = ($: TrackFunc, _: TrackFunc) => R
-const _Unset = {}
 
+
+class TrackingNotEmitted extends Error {}
 
 class MaskMultiplexer extends Multiplexer<unknown, void, Tracking<unknown>> {
   constructor(trackings: Tracking<unknown>[]) { super(trackings, true) }
@@ -44,9 +42,10 @@ class RequestMultiplexer extends Multiplexer<unknown, void, Tracking<unknown>> {
 
 class Tracking<T> implements Sink<T> {
   talkback: Talkback | undefined
-  value: T | typeof _Unset = _Unset
+  value: T
   seen = true
   disposed = false
+  emitted = false
 
   constructor(
     readonly source: Source<T>,
@@ -61,6 +60,7 @@ class Tracking<T> implements Sink<T> {
 
   receive(value: T) {
     if (!this.disposed) {
+      this.emitted = true
       this.value = value
       if (this.active) {
         this.exprTalkback.run(this)
@@ -99,8 +99,8 @@ class ExprTalkback<R> implements Talkback {
     readonly source: ExprSource<R>,
     readonly sink: Sink<R>,
   ) {
-    this.activeTrack = (src, initial?) => this.track(src, true, initial)
-    this.passiveTrack = (src, initial?) => this.track(src, false, initial)
+    this.activeTrack = src => this.track(src, true)
+    this.passiveTrack = src => this.track(src, false)
   }
 
   start() {
@@ -121,12 +121,14 @@ class ExprTalkback<R> implements Talkback {
         this.sink.receive(value)
       }
     } catch (error) {
-      this.error(error)
+      if (!this.disposed && !(error instanceof TrackingNotEmitted)) {
+        this.error(error)
+      }
     }
   }
 
   connect<T>(source: Source<T>, active: boolean): Tracking<T> {
-    let tracking = this.trackmap.get(source)
+    let tracking = this.trackmap.get(source) as Tracking<T>
     if (!tracking) {
       tracking = new Tracking(source, active, this)
       this.trackings.push(tracking)
@@ -137,15 +139,15 @@ class ExprTalkback<R> implements Talkback {
     return tracking
   }
 
-  track<T>(source: Source<T>, active: boolean, initial?: T): T | undefined {
+  track<T>(source: Source<T>, active: boolean) {
     const tracking = this.connect(source, active)
     tracking.seen = true
 
-    if (tracking.value === _Unset) {
-      return initial
-    } else {
-      return tracking.value as T
+    if (!tracking.emitted) {
+      throw new TrackingNotEmitted()
     }
+
+    return tracking.value
   }
 
   error(reason: unknown, source?: Tracking<unknown>) {

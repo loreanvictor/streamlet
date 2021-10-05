@@ -16,14 +16,16 @@ describe('expr()', () => {
     const b = new Subject<number>()
 
     const o = pipe(
-      expr($ => $(a, 0) + $(b, 2)),
+      expr($ => $(a) + $(b)),
       tap(cb),
       finalize(cb2),
       observe,
     )
 
-    cb.should.have.been.calledOnceWith(2)
+    cb.should.not.have.been.called
     a.receive(1)
+    cb.should.not.have.been.called
+    b.receive(2)
     cb.should.have.been.calledWith(3)
     b.receive(41)
     cb.should.have.been.calledWith(42)
@@ -66,26 +68,23 @@ describe('expr()', () => {
     const b = iterable([1, 2, 3])
 
     const o = pipe(
-      expr($ => $(a, 'Z') + $(b, 0)),
+      expr($ => $(a) + $(b)),
       tap(cb),
       finalize(cb2),
       observe,
     )
 
-    cb.should.have.been.calledOnceWith('Z0')
+    cb.should.not.have.been.called
     o.request()
-    cb.should.have.been.calledThrice
-    cb.should.have.been.calledWith('a0')
     cb.should.have.been.calledWith('a1')
     o.request()
-    cb.callCount.should.equal(5)
     cb.should.have.been.calledWith('b1')
     cb.should.have.been.calledWith('b2')
     o.request()
-    cb.callCount.should.equal(6)
     cb.should.have.been.calledWith('b3')
+    cb.resetHistory()
     o.request()
-    cb.callCount.should.equal(6)
+    cb.should.not.have.been.called
     cb2.should.have.been.calledOnce
   })
 
@@ -93,10 +92,10 @@ describe('expr()', () => {
     const cb = fake()
     const cb2 = fake()
     const stop = fake()
-    const a = source<number>(sink => sink.greet(talkback({ stop })))
+    const a = source<number>(sink => sink.greet(talkback({ start() { sink.receive(2) }, stop })))
     const b = source<number>(sink => sink.greet(talkback({ start() { sink.end(42) }})))
     pipe(
-      expr($ => $(a, 0) + $(b, 0)),
+      expr($ => $(a) + $(b)),
       tap(cb),
       finalize(cb2),
       observe
@@ -112,7 +111,7 @@ describe('expr()', () => {
     const cb2 = fake()
     const stop = fake()
 
-    const a = source(sink => sink.greet(talkback({ stop })))
+    const a = source(sink => sink.greet(talkback({ start() { sink.receive(42) }, stop })))
     pipe(
       expr($ => { $(a); throw new Error('oops') }),
       tap(cb),
@@ -132,13 +131,17 @@ describe('expr()', () => {
     const b = new Subject<number>()
 
     const o = pipe(
-      expr(($, _) => $(a, 0) + _(b, 2)),
+      expr(($, _) => $(a) + _(b)),
       tap(cb),
       finalize(cb2),
       observe,
     )
 
-    cb.should.have.been.calledOnceWith(2)
+    cb.should.not.have.been.called
+    a.receive(1)
+    cb.should.not.have.been.called
+    b.receive(2)
+    cb.should.not.have.been.called
     a.receive(1)
     cb.should.have.been.calledWith(3)
     cb.resetHistory()
@@ -182,28 +185,29 @@ describe('expr()', () => {
   })
 
   it('should properly pause / resume when some sources have ended.', () => {
-    const a = take(interval(10), 2)
-    const b = interval(20)
+    const a = take(interval(10), 3)
+    const b = interval(10)
 
     const cb = fake()
     const clock = useFakeTimers()
 
     const o = pipe(
-      expr($ => `${$(a, -1) + 1}${$(b, -1) + 1}`),
+      expr($ => `${$(a)}${$(b)}`),
       tap(cb),
       observe,
     )
 
-    cb.should.have.been.calledOnceWith('00')
+    cb.should.not.have.been.called
+    clock.tick(20)
+    cb.should.have.been.calledOnceWith('10')
     clock.tick(10)
-    cb.should.have.been.calledWith('10')
-    clock.tick(10)
+    cb.should.have.been.calledWith('20')
     cb.should.have.been.calledWith('21')
+    clock.tick(10)
+    cb.should.have.been.calledWith('22')
     cb.resetHistory()
     clock.tick(10)
-    cb.should.not.have.been.called
-    clock.tick(10)
-    cb.should.have.been.calledOnceWith('22')
+    cb.should.have.been.calledOnceWith('23')
 
     o.stop()
     cb.resetHistory()
@@ -211,15 +215,15 @@ describe('expr()', () => {
     cb.should.not.have.been.called
 
     o.start()
-    clock.tick(20)
-    cb.should.have.been.calledOnceWith('23')
+    clock.tick(10)
+    cb.should.have.been.calledOnceWith('24')
 
     clock.restore()
   })
 
   it('should handle sending requests to source who have not provided talkbacks.', () => {
     const a = source(() => {})
-    expect(() => observe(expr($ => $(a, 0))).request()).to.not.throw()
+    expect(() => observe(expr($ => $(a))).request()).to.not.throw()
   })
 
   it('should handle mis-behaving sources.', () => {
@@ -232,6 +236,31 @@ describe('expr()', () => {
     const cb = fake()
 
     observe(tap(expr($ => $(a)), cb))
+    cb.should.not.have.been.called
+  })
+
+  it('should not emit when notifying source was not tracked in last run.', () => {
+    const cb = fake()
+
+    const a = new Subject<number>()
+    const b = new Subject<number>()
+
+    pipe(
+      expr($ => $(a) % 2 === 0 ? $(b) : 42),
+      tap(cb),
+      observe,
+    )
+
+    a.receive(2)
+    b.receive(13)
+
+    cb.should.have.been.calledOnceWith(13)
+
+    a.receive(3)
+    cb.should.have.been.calledWith(42)
+    cb.resetHistory()
+
+    b.receive(7)
     cb.should.not.have.been.called
   })
 })
