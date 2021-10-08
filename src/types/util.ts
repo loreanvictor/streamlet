@@ -3,6 +3,7 @@ import { Source, Sink } from './base'
 
 export type Handler<T> = (t: T) => void
 export type Condition<T> = (t: T) => boolean
+export type Equals<T, U=T> = (t: T, u: U) => boolean
 export type Accumulator<I, O = I> = (acc: O, value: I) => O
 export type TypeCondition<T, W extends T> = (t: T) => t is W
 export type Mapping<I, O> = (i: I) => O

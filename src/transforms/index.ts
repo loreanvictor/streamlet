@@ -12,5 +12,6 @@ export * from './retry'
 export * from './pullrate'
 export * from './stream'
 export * from './pull-buffer'
+export * from './distinct'
 
 

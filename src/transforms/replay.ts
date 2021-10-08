@@ -1,9 +1,4 @@
-import { Sink, Source, Talkback, DisconnectableSource } from '../types'
-import { observe } from '../sinks/observe'
-import { Observation } from '..'
-
-
-const _NO_VAL = {}
+import { Sink, Source, Talkback } from '../types'
 
 
 class ReplayTalkback<T> implements Talkback {
@@ -15,7 +10,7 @@ class ReplayTalkback<T> implements Talkback {
 
   start() {
     this.talkback.start()
-    if (this.source.last !== _NO_VAL) {
+    if (this.source.emitted) {
       this.sink.receive(this.source.last as T)
     }
   }
@@ -23,7 +18,6 @@ class ReplayTalkback<T> implements Talkback {
   request() { this.talkback.request() }
   stop(reason?: unknown) {
     this.talkback.stop(reason)
-    this.source.disconnect(this.sink)
   }
 }
 
@@ -39,6 +33,7 @@ class ReplaySink<T> implements Sink<T> {
   }
 
   receive(data: T) {
+    this.source.emitted = true
     this.source.last = data
     this.sink.receive(data)
   }
@@ -47,28 +42,16 @@ class ReplaySink<T> implements Sink<T> {
 }
 
 
-export class ReplayedSource<T> extends DisconnectableSource<T> {
-  last: T | typeof _NO_VAL = _NO_VAL
-  sinks = 0
-  observation: Observation<T>
-  memory: T[] = []
+export class ReplayedSource<T> implements Source<T> {
+  last: T
+  emitted = false
 
   constructor(
     private source: Source<T>,
-  ) {
-    super()
-    this.observation = observe(this)
-  }
+  ) {}
 
   connect(sink: Sink<T>) {
-    this.sinks++
     this.source.connect(new ReplaySink(this, sink))
-  }
-
-  disconnect(_: Sink<T>) {
-    if (--this.sinks === 0) {
-      this.observation.stop()
-    }
   }
 }
 

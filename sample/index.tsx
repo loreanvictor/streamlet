@@ -6,15 +6,16 @@ import { pipe,
   interval, map, flatten, observe, observeLater, take, merge, Subject, tap, greet, filter,
   iterable, iterate, replay, share, debounce, throttle, combine, startWith, finalize,
   connect, source, sink, talkback, Source, Sink, Talkback, pullrate, of, event, scan,
-  fetch, promise, retry, stream, pullBuffer,
+  fetch, promise, retry, stream, pullBuffer, distinct,
 } from '../src'
 
 
 const obs = pipe(
   iterable([1, 2, 3, 4]),
   pullrate(1000),
+  distinct,
   stream,
-  tap(console.log),
+  tap(x => console.log(x)),
   observe
 )
 
