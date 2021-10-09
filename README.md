@@ -44,13 +44,13 @@ setTimeout(() => obs.start(), 4000)
 
 // > 0
 // > 1
-// ... pausde for two seconds, no logs ...
+// ... paused for two seconds, no logs ...
 // > 2
 // > 3
 // > ...
 ```
 
-👉 Check out [the wiki](https://github.com/loreanvictor/streamlet/wiki).
+👉 Check out [the wiki](https://github.com/loreanvictor/streamlet/wiki) for installation and usage guides.
 
 <br><br>
 
