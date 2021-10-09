@@ -1,7 +1,8 @@
 {
   "name": "streamlets",
-  "version": "0.1.0",
-  "description": "mini-streams",
+  "version": "0.1.1",
+  "description": "protocol and utilities for light-weight data streams",
+  "keywords": ["stream", "reactive", "FRP", "observable", "iterable"],
   "main": "dist/es5/index.js",
   "module": "dist/es6/index.js",
   "types": "dist/es6/index.d.ts",
