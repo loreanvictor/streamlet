@@ -50,6 +50,8 @@ setTimeout(() => obs.start(), 4000)
 // > ...
 ```
 
+👉 Check out [the wiki](https://github.com/loreanvictor/streamlet/wiki).
+
 <br><br>
 
 # Prior Work
