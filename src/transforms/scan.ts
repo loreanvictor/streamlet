@@ -1,14 +1,16 @@
 import { Source, Talkback, Sink, Accumulator, SourceMapping, isSource, SourceFactory } from '../types'
 
 
+const _UNSET = {}
+
 export class ScannedSink<I, O> implements Sink<I> {
-  total: O | undefined
+  total: O | typeof _UNSET
   talkback: Talkback
 
   constructor(
     private sink: Sink<O>,
     private accumulator: Accumulator<I, O>,
-    private initial?: O,
+    private initial: O | typeof _UNSET = _UNSET,
   ) {
     this.total = this.initial
   }
@@ -20,13 +22,13 @@ export class ScannedSink<I, O> implements Sink<I> {
 
   receive(i: I) {
     try {
-      if (this.total) {
-        this.total = this.accumulator(this.total, i)
+      if (this.total !== _UNSET) {
+        this.total = this.accumulator(this.total as O, i)
       } else {
         this.total = i as any as O
       }
 
-      this.sink.receive(this.total)
+      this.sink.receive(this.total as O)
     } catch (err) {
       this.sink.end(err)
       this.talkback.stop(err)
