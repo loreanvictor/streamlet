@@ -7,16 +7,18 @@ class PullRateTalkback implements Talkback {
 
   constructor(
     private readonly talkback: Talkback,
-    private readonly rate: WaitNotifier,
+    private readonly sink: PullRateSink<unknown>,
   ) { }
 
   start() { this.talkback.start() }
   request() {
     this.reset()
     this.waiting = wait(() => {
-      this.reset()
-      this.talkback.request()
-    }, this.rate)
+      if (!this.sink.disposed) {
+        this.reset()
+        this.talkback.request()
+      }
+    }, this.sink.rate)
   }
 
   reset() {
@@ -34,14 +36,19 @@ class PullRateTalkback implements Talkback {
 
 
 export class PullRateSink<T> implements Sink<T> {
+  disposed = false
+
   constructor(
     private readonly sink: Sink<T>,
-    private readonly rate: WaitNotifier,
+    readonly rate: WaitNotifier,
   ) { }
 
-  greet(talkback: Talkback) { this.sink.greet(new PullRateTalkback(talkback, this.rate)) }
+  greet(talkback: Talkback) { this.sink.greet(new PullRateTalkback(talkback, this)) }
   receive(t: T) { this.sink.receive(t) }
-  end(reason?: unknown) { this.sink.end(reason) }
+  end(reason?: unknown) {
+    this.disposed = true
+    this.sink.end(reason)
+  }
 }
 
 

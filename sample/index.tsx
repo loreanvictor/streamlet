@@ -10,14 +10,13 @@ import { pipe,
 } from '../src'
 
 
-const obs = pipe(
-  iterable([1, 2, 3, 4]),
-  pullrate(1000),
-  distinct,
-  stream,
-  tap(x => console.log(x)),
-  observe
+const o = pipe(
+  interval(1000),
+  map(i => pipe(interval(200), map(x => `${i}:${x}`))),
+  flatten,
+  tap(console.log),
+  observe,
 )
 
-setTimeout(() => obs.stop(), 3000)
-setTimeout(() => obs.start(), 5000)
+setTimeout(() => o.stop(), 2400)
+setTimeout(() => o.start(), 5000)

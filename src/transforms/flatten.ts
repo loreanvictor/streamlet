@@ -10,19 +10,20 @@ class FlattenedTalkback<T> implements Talkback {
   ) {}
 
   start() {
-    this.disposed = false;
-    (this.sink.innerTalkback || this.sink.outerTalkback)?.start()
+    this.disposed = false
+    this.sink.innerTalkback?.start()
+    this.sink.outerTalkback.start()
   }
 
   request() {
     this.requested = true;
-    (this.sink.innerTalkback || this.sink.outerTalkback)?.request()
+    (this.sink.innerTalkback || this.sink.outerTalkback).request()
   }
 
   stop() {
     this.disposed = true
     this.sink.innerTalkback?.stop()
-    this.sink.outerTalkback?.stop()
+    this.sink.outerTalkback.stop()
   }
 }
 
@@ -47,17 +48,13 @@ class FlattenedInnerSink<T> implements Sink<T> {
 
   end(reason?: unknown) {
     if (reason !== undefined) {
-      this.sink.outerTalkback?.stop()
+      this.sink.outerTalkback!.stop()
       this.sink.sink.end(reason)
     } else {
-      if (!this.sink.outerTalkback) {
-        this.sink.sink.end()
-      } else {
-        this.sink.innerTalkback =  undefined
-        if (!this.sink.talkback.disposed
-           && this.sink.talkback.requested) {
-          this.sink.outerTalkback?.request()
-        }
+      this.sink.innerTalkback = undefined
+      if (!this.sink.talkback.disposed
+          && this.sink.talkback.requested) {
+        this.sink.outerTalkback.request()
       }
     }
   }
@@ -65,7 +62,7 @@ class FlattenedInnerSink<T> implements Sink<T> {
 
 
 export class FlattenedSink<T> implements Sink<Source<T>> {
-  outerTalkback: Talkback | undefined
+  outerTalkback: Talkback
   innerTalkback: Talkback | undefined
   talkback: FlattenedTalkback<T>
 
@@ -87,17 +84,9 @@ export class FlattenedSink<T> implements Sink<Source<T>> {
   }
 
   end(reason?: unknown) {
-    if (reason !== undefined) {
-      this.innerTalkback?.stop()
-
-      this.sink.end(reason)
-    } else {
-      if (!this.innerTalkback) {
-        this.sink.end()
-      } else {
-        this.outerTalkback =  undefined
-      }
-    }
+    this.innerTalkback?.stop()
+    this.innerTalkback = undefined
+    this.sink.end(reason)
   }
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "streamlets",
-  "version": "0.0.13",
+  "version": "0.1.0",
   "description": "mini-streams",
   "main": "dist/es5/index.js",
   "module": "dist/es6/index.js",
