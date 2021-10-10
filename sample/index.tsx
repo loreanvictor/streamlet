@@ -11,11 +11,21 @@ import { pipe,
 
 
 pipe(
-  fetch('http://xkcd.com/info.0.json'),
-  pullrate(5000),
-  connectRate(1000),
-  tap(() => console.log('XKCD is online!')),
-  finalize(() => console.log('XKCD is offline!')),
-  retry,
+  iterable([
+    iterable([1, 2, 3]),
+    iterable([4, 5, 6]),
+  ]),
+  flatten,
+  tap(console.log),
   iterate
 )
+
+// pipe(
+//   fetch('http://xkcd.com/info.0.json'),
+//   pullrate(5000),
+//   connectRate(1000),
+//   tap(() => console.log('XKCD is online!')),
+//   finalize(() => console.log('XKCD is offline!')),
+//   retry,
+//   iterate
+// )
