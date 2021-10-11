@@ -58,5 +58,5 @@ export class Subject<T> extends DisconnectableSource<T> implements Sink<T>, Talk
 
   start() { this.talkback?.start() }
   request() { this.talkback?.request() }
-  stop() { this.talkback?.stop() }
+  stop(reason?: unknown) { this.talkback?.stop(reason) }
 }

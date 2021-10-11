@@ -1,4 +1,5 @@
 import { Sink, Source, Talkback } from '../types'
+import { Subject } from '../sources'
 
 
 class ReplayTalkback<T> implements Talkback {
@@ -11,7 +12,7 @@ class ReplayTalkback<T> implements Talkback {
   start() {
     this.talkback.start()
     if (this.source.emitted) {
-      this.sink.receive(this.source.last as T)
+      this.sink.receive(this.source.last)
     }
   }
 
@@ -56,6 +57,45 @@ export class ReplayedSource<T> implements Source<T> {
 }
 
 
-export function replay<T>(source: Source<T>) {
-  return new ReplayedSource(source)
+export class ReplayedSubject<T> extends ReplayedSource<T> implements Sink<T>, Talkback {
+  constructor(
+    private subject: Subject<T>,
+  ) {
+    super(subject)
+  }
+
+  greet(talkback: Talkback) {
+    this.subject.greet(talkback)
+  }
+
+  receive(data: T) {
+    this.subject.receive(data)
+  }
+
+  end(reason?: unknown) {
+    this.subject.end(reason)
+  }
+
+  start() {
+    this.subject.start()
+  }
+
+  request() {
+    this.subject.request()
+  }
+
+  stop(reason?: unknown) {
+    this.subject.stop(reason)
+  }
+}
+
+
+export function replay<T>(subject: Subject<T>): ReplayedSubject<T>
+export function replay<T>(source: Source<T>): ReplayedSource<T>
+export function replay<T>(source: Subject<T> | Source<T>) {
+  if (source instanceof Subject) {
+    return new ReplayedSubject(source)
+  } else {
+    return new ReplayedSource(source)
+  }
 }

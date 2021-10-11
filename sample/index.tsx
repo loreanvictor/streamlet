@@ -3,22 +3,21 @@
 import 'isomorphic-fetch'
 
 import { pipe,
-  interval, observe,tap, Subject, connect,
+  iterable, iterate, tap, share, pullrate,
 } from '../src'
 
 
-const sub = new Subject<number>()
-
+const shared = share(iterable([1, 2, 3, 4]))
 
 pipe(
-  interval(1000),
-  connect(sub),
-  tap(x => console.log(x)),
-  observe,
+  shared,
+  pullrate(1000),
+  tap(console.log),
+  iterate
 )
 
 pipe(
-  sub,
-  tap(x => console.log('SUB:: ' + x)),
-  observe,
+  shared,
+  tap(x => console.log('X:: ' + x)),
+  iterate,
 )
