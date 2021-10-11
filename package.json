@@ -1,6 +1,6 @@
 {
   "name": "streamlets",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "protocol and utilities for light-weight data streams",
   "keywords": ["stream", "reactive", "FRP", "observable", "iterable"],
   "main": "dist/es5/index.js",
