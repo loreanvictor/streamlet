@@ -3,7 +3,7 @@ import { Source, Sink, Talkback } from '../types'
 
 
 function isIterable<T>(t: Iterable<T> | Iterator<T>): t is Iterable<T> {
-  return t !== undefined && typeof Symbol !== undefined && (t as any)[Symbol.iterator] !== undefined
+  return t !== undefined && typeof Symbol !== 'undefined' && (t as any)[Symbol.iterator] !== undefined
 }
 
 
