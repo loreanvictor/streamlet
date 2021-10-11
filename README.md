@@ -11,6 +11,7 @@ npm i streamlets
 ```
 
 [![tests](https://img.shields.io/github/workflow/status/loreanvictor/streamlet/Test%20and%20Report%20Coverage?label=tests&logo=mocha&logoColor=green)](https://github.com/loreanvictor/streamlet/actions?query=workflow%3A%22Test+and+Report+Coverage%22)
+[![security](https://img.shields.io/github/workflow/status/loreanvictor/streamlet/CodeQL?label=security&logo=lgtm)](https://github.com/loreanvictor/streamlet/actions?query=workflow%3A%22CodeQL%22)
 [![coverage](https://app.codacy.com/project/badge/Coverage/95822ae988d14ef3957704b31372d24e)](https://www.codacy.com/gh/loreanvictor/streamlet/dashboard?utm_source=github.com&utm_medium=referral&utm_content=loreanvictor/streamlet&utm_campaign=Badge_Coverage)
 [![version](https://img.shields.io/npm/v/streamlets?logo=npm)](https://www.npmjs.com/package/streamlets)
 [![docs](https://img.shields.io/badge/%20-docs-blue?logo=read%20the%20docs&logoColor=white)](https://github.com/loreanvictor/streamlet/wiki)
