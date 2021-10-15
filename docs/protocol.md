@@ -52,26 +52,61 @@ interface Talkback {
 
 <br><br>
 
+# Definitions
+
+- A _source_ is any object satisfying the `Source` interface described above.
+- A _sink_ is any object satisfying the `Sink` interface described above.
+- A _talkback_ is any object satisfying the `Talkback` interface described above.
+- A _stream_ refers to the flow of data from a _source_ to a _sink_. When talking about a _stream_, the terms _the source_ and _the sink_ might be used to reference the _source_ and the _sink_ the flow of data from (and to) whom constitutes _the stream_.
+- _A source connects to a sink_, _a sink is connected to a source_, or _a sink and a source are connected_, when `.connect()` method on the source has been invoked
+  with the sink as its argument. _A connected sink (of a source)_ is a sink that was connected with the source.
+  ```ts
+  source.connect(sink)
+  ```
+- _A source greets a sink (with a talkback)_, or _a sink is greeted (by a source) (with a talkback)_, when the source invokes the `.greet()`
+  method of a given sink with given talkback as its argument.
+  ```ts
+  sink.greet(talkback)
+  ```
+- _A sink starts a stream_ or _a stream is started_, when the sink invokes the `.start()` method on the talkback a given source has greeted it with.
+  ```ts
+  talkback.start()
+  ```
+- _A source sends / emits (data) (to a sink)_, or _a sink receives data / emissions (from a source / stream)_, when the source invokes `.receive()` method on given sink.
+  ```ts
+  sink.receive(42)
+  ```
+- _A sink requests / pulls data (from a source / stream)_, when the sink invokes `.request()` method on the talkback it was greeted with by the source.
+  ```ts
+  talkback.request()
+  ```
+- _A source ends a stream_ when `.end()` method on the sink is called by the source. We say _a reason was provided_ if the method is called with an argument.
+  ```ts
+  sink.end(reason)
+  ```
+- _A sink stops a source / stream_, when the sink invokes `.stop()` method on the talkback it was greeted with by the source. We say _a reason was provided_ if the method is called with an argument.
+  ```ts
+  talkback.stop(reason)
+  ```
+
+<br><br>
+
 # Rules
 
-1. A source **MUST** greet a sink with a talkback after they are connected. A source **MAY** greet a connected sink synchronously or asynchronously.
-2. A source **MAY** send data or an end signal to a sink, **IF AND ONLY IF** all of the following hold:
+1. A source **MAY** greet a sink with a talkback after they are connected. A source **MAY** greet a connected sink synchronously or asynchronously. A source **MUST NOT** greet a sink more than once.
+
+1. A source **MAY** emit data **IF AND ONLY IF** all of the following conditions hold. A source **SHALL NOT** emit even if one of the following does not hold:
     - The sink was connected to the source.
     - The source has greeted the sink with a talkback.
-    - The sink has started the talkback at least once.
-    - The sink has not stopped the talkback after the last time it has started it.
-    - The source has not already sent an end signal to the sink.
-3. A source **MAY** provide additional reasons for the end signal (i.e. error). Similarly, a sink **MAY** provide additional reasons for why it is stopping the stream.
-4. A sink **MAY** request for more data using its talkback, **IF AND ONLY IF** all of the conditions of (2) hold.
+    - The sink has started the stream at least once.
+    - The sink has not stopped the stream after the last time it has started it.
+    - The source has not already ended the stream.
 
-The actions and steps discribed in these rules correspond to and are defined as method calls on sources, sinks and talkbacks:
+1. A sink **MAY** request data **IF AND ONLY IF** all of the conditions of (2) hold. The sink **SHALL NOT** request data even if one of the conditions of (2) does not hold.
 
-- Connecting a source and a sink happens by calling `.connect()` method of the source.
-- Greeting a sink with a talkback happens by calling `.greet()` method of the sink.
-- Starting a talkback (or the stream) happens by calling `.start()` method of the talkback.
-- Stopping the talkback (or the stream) happens by calling `.stop()` method of the talkback.
-- Ending the stream (or sending an end signal) happens by calling `.end()` method of the sink.
-- Requesting more data from the stream happens by calling `.request()` method of the talkback.
+1. A source **MAY** end a stream **IF AND ONLY IF** all of the conditions of (2) hold. The source **MAY** provide a reason (e.g. error). The source **SHALL NOT** end the stream even if one of the conditions of (2) does not hold.
+
+1. A sink **MAY** stop a stream **IF AND ONLY IF** all of the conditions of (2) hold. The sink **MAY** provide a reason (e.g. error). The sink **SHALL NOT** stop the stream even if one of the conditions of (2) does not hold.
 
 <br><br>
 
