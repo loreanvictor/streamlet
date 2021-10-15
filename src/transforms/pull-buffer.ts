@@ -1,49 +1,25 @@
 import { Source, Sink, Talkback, USourceFactory } from '../types'
 
 
-export class PullBufferTalkback<T> implements Talkback {
-  requested = false
-
-  constructor(
-    private sink: PullBufferSink<T>,
-    private talkback: Talkback,
-  ) {}
-
-  start() {
-    this.talkback.start()
-  }
-
-  request() {
-    if (!this.sink.pull()) {
-      this.requested = true
-      this.talkback.request()
-    }
-  }
-
-  stop(reason?: unknown) {
-    this.talkback.stop(reason)
-  }
-}
-
-
-export class PullBufferSink<T> implements Sink<T> {
+export class PullBufferSink<T> implements Sink<T>, Talkback {
   readonly buffer: T[] = []
-  private talkback: PullBufferTalkback<T>
   private ended = false
+  private requested = false
+  private talkback: Talkback
 
   constructor(
     private sink: Sink<T>,
-    private max: number = -1,
+    private max: number,
   ) {}
 
   greet(talkback: Talkback) {
-    this.talkback = new PullBufferTalkback(this, talkback)
-    this.sink.greet(this.talkback)
+    this.talkback = talkback
+    this.sink.greet(this)
   }
 
   receive(value: T) {
-    if (this.talkback.requested) {
-      this.talkback.requested = false
+    if (this.requested) {
+      this.requested = false
       this.sink.receive(value)
     } else {
       this.buffer.push(value)
@@ -73,6 +49,21 @@ export class PullBufferSink<T> implements Sink<T> {
     } else {
       this.sink.end(reason)
     }
+  }
+
+  start() {
+    this.talkback.start()
+  }
+
+  request() {
+    if (!this.pull()) {
+      this.requested = true
+      this.talkback.request()
+    }
+  }
+
+  stop(reason?: unknown) {
+    this.talkback.stop(reason)
   }
 }
 

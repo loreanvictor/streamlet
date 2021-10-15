@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 
 export function addListener<EventName extends keyof HTMLElementEventMap>
 (

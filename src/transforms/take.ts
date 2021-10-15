@@ -1,60 +1,48 @@
 import { Source, Sink, Talkback, USourceFactory, isSource } from '../types'
 
 
-export class TakeTalkback<T> implements Talkback {
-  constructor(
-    private sink: TakeSink<T>,
-  ) {}
-
-  start() {
-    if (this.sink.taken < this.sink.max) {
-      this.sink.sourceTalkback.start()
-    }
-  }
-
-  request() {
-    if (this.sink.taken < this.sink.max) {
-      this.sink.sourceTalkback.request()
-    }
-  }
-
-  stop(reason?: unknown) {
-    this.sink.sourceTalkback.stop(reason)
-  }
-}
-
-
-export class TakeSink<T> implements Sink<T> {
-  taken = 0;
-  sourceTalkback: Talkback;
-  talkback: TakeTalkback<T>;
+export class TakeSink<T> implements Sink<T>, Talkback {
+  taken = 0
+  talkback: Talkback
 
   constructor(
     private sink: Sink<T>,
     readonly max: number,
-  ) {
-    this.talkback = new TakeTalkback(this)
-  }
+  ) { }
 
   greet(talkback: Talkback) {
-    this.sourceTalkback = talkback
-    this.sink.greet(this.talkback)
+    this.talkback = talkback
+    this.sink.greet(this)
   }
 
   receive(t: T) {
-    if (this.taken < this.max) {
-      this.taken++
-      this.sink.receive(t)
+    this.taken++
+    this.sink.receive(t)
 
-      if (this.taken === this.max) {
-        this.sourceTalkback.stop()
-        this.sink.end()
-      }
+    if (this.taken >= this.max) {
+      this.talkback.stop()
+      this.sink.end()
     }
   }
 
   end(reason?: unknown) {
     this.sink.end(reason)
+  }
+
+  start() {
+    if (this.taken < this.max) {
+      this.talkback.start()
+    }
+  }
+
+  request() {
+    if (this.taken < this.max) {
+      this.talkback.request()
+    }
+  }
+
+  stop(reason?: unknown) {
+    this.talkback.stop(reason)
   }
 }
 
