@@ -11,6 +11,15 @@ export class CustomSink<T> implements Sink<T> {
 }
 
 
-export function sink<T>(def: Partial<Sink<T>>): Sink<T> {
-  return new CustomSink(def)
+export function sink<T>(def: Partial<Sink<T>>, base?: Sink<T>): Sink<T> {
+  if (base) {
+    return new CustomSink({
+      greet: tb => base.greet(tb),
+      receive: t => base.receive(t),
+      end: reason => base.end(reason),
+      ...def,
+    })
+  } else {
+    return new CustomSink(def)
+  }
 }

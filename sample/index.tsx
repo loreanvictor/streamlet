@@ -2,22 +2,21 @@
 
 import 'isomorphic-fetch'
 
-import { pipe,
-  iterable, iterate, tap, share, pullrate,
-} from '../src'
+import { pipe, Subject, interval, tap, map, connect, observe } from '../src'
 
-
-const shared = share(iterable([1, 2, 3, 4]))
+const subject = new Subject()
 
 pipe(
-  shared,
-  pullrate(1000),
+  interval(1000),
+  map((x) => x * 2),
   tap(console.log),
-  iterate
+  connect(subject)
 )
 
 pipe(
-  shared,
-  tap(x => console.log('X:: ' + x)),
-  iterate,
+  subject,
+  tap((x) => console.log('Also: ' + x)),
+  observe
 )
+
+subject.receive('Before timer')

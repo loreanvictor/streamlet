@@ -1,4 +1,4 @@
-import { DataMultiplexer, EndMultiplexer } from '..'
+import { DataMultiplexer, EndMultiplexer } from '../util'
 import { Source, Sink, Talkback, DisconnectableSource } from '../types'
 
 
@@ -91,6 +91,6 @@ export class SharedSource<T> extends DisconnectableSource<T> {
 }
 
 
-export function share<T>(source: Source<T>): SharedSource<T> {
+export function share<T>(source: Source<T>) {
   return new SharedSource(source)
 }
