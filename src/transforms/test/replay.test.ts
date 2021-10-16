@@ -164,4 +164,23 @@ describe('replay()', () => {
 
     cb2.should.have.been.calledOnce
   })
+
+  it('should trace values received by the subject even if there are no observers.', () => {
+    const cb = fake()
+    const replayed = replay(new Subject<number>())
+
+    replayed.receive(42)
+    replayed.last.should.equal(42)
+
+    replayed.receive(43)
+    replayed.last.should.equal(43)
+
+    pipe(
+      replayed,
+      tap(cb),
+      observe
+    )
+
+    cb.should.have.been.calledOnceWith(43)
+  })
 })

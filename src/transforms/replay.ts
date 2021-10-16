@@ -69,6 +69,8 @@ export class ReplayedSubject<T> extends ReplayedSource<T> implements Sink<T>, Ta
   }
 
   receive(data: T) {
+    this.last = data
+    this.emitted = true
     this.subject.receive(data)
   }
 
