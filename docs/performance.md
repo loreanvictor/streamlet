@@ -1,0 +1,300 @@
+<div align="center">
+
+<img src="/misc/logo-cutout.svg" width="128px"/>
+  
+# Performance of Streamlets
+
+</div>
+
+<br><br>
+
+Performance of some basic utilities in `streamlets` package is compared here to similar utilities on [Callbags](https://github.com/callbag/callbag)
+and [RxJS](https://github.com/ReactiveX/rxjs). Different scenarios mimicking common use-cases are used for this benchmarking, though it is notable that
+in case of reactive programming libraries and utilities, performance is not always the most important factor (since a major contributor in such flows
+is always time consumed by async computations anyways).
+
+Overall, Streamlets are as fast as Callbags (marginally faster in some cases) and noticably faster than RxJS. [Benchmark.js](https://benchmarkjs.com) is used
+for benchmarking, and the results displayed here were conducted on a MacBook Pro running macOS Catalina, and on [Node.js](https://nodejs.org/en/) (details below).
+
+<details><summary>Environment Details</summary>
+
+- **Hardware** \
+  MacBook Pro 15-inch, Mid 2015 \
+  2.2 GHz Quad-Core Intel Core i7 \
+  16GB Mem DDR3
+
+- **Runtime** \
+  macOS Catalina Version 10.15.5 \
+  Node.js v16.9.1 \
+  TypeScript v4.4.3 \
+  ts-node v9.0.0
+
+- **Packages** \
+  streamlets@0.2.1 \
+  rxjs@7.4.0 \
+  callbag-common@0.1.8 \
+  callbag-subject@2.1.0 \
+  benchmark@2.1.4
+
+</details>
+
+---
+
+### Scneario: Simple Usage
+
+<details><summary>Code</summary>
+
+```ts
+// Streamlets
+pipe(
+  of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+  map(x => x * 3),
+  filter(x => x % 2 === 0),
+  observe
+)
+```
+```ts
+// RxJS
+of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+  .pipe(
+    map(x => x * 3),
+    filter(x => x % 2 === 0)
+  )
+  .subscribe()
+```
+```ts
+// Callbags
+pipe(
+  of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+  map(x => x * 3),
+  filter(x => x % 2 === 0),
+  subscribe(() => {})
+)
+```
+</details>
+
+| Lib                  | Performance                    | Variance   | # of Runs |
+| -------------------- | ------------------------------ | ---------- | --------- |
+| Streamlets           | 2,213,525 ops/sec              |  ±0.52%    | 90        |
+| Callbags             | 1,830,351 ops/sec              |  ±39.45%   | 94        |
+| RxJS                 | 683,889 ops/sec                |  ±1.31%    | 89        |
+
+---
+
+### Scenario: Flattening
+
+<details><summary>Code</summary>
+
+```ts
+// Streamlets
+pipe(
+  of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+  map(x => pipe(
+    of(x, x, x * 2, x * 3),
+    filter(y => y % 2 === 0),
+  )),
+  flatten,
+  observe
+)
+```
+```ts
+// RxJS
+of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+  .pipe(
+    switchMap(x => of(x, x, x * 2, x * 3).pipe(
+      filter(y => y % 2 === 0),
+    ))
+  )
+  .subscribe()
+```
+```ts
+// Callbags
+pipe(
+  of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+  map(x => pipe(
+    of(x, x, x * 2, x * 3),
+    filter(y => y % 2 === 0)
+  )),
+  flatten,
+  subscribe(() => {})
+)
+```
+</details>
+
+| Lib                  | Performance                    | Variance   | # of Runs |
+| -------------------- | ------------------------------ | ---------- | --------- |
+| Streamlets           | 267,982 ops/sec                |  ±0.41%    | 92        |
+| Callbags             | 236,498 ops/sec                |  ±0.42%    | 97        |
+| RxJS                 | 99,264 ops/sec                 |  ±0.44%    | 93        |
+
+---
+
+### Scenario: Multicasting
+
+<details><summary>Code</summary>
+
+```ts
+// Streamlets
+const sub = new Subject<number>()
+
+const o = pipe(
+  sub,
+  map(x => pipe(
+    of(x, x, x * 2, x * 3),
+    filter(y => y % 2 === 0),
+  )),
+  flatten,
+)
+
+observe(o)
+observe(o)
+observe(o)
+observe(o)
+observe(o)
+observe(o)
+observe(o)
+observe(o)
+observe(o)
+
+for (let i = 0; i < 10; i++) { sub.receive(i) }
+sub.end()
+```
+```ts
+// RxJS
+const s = new Subject<number>()
+const o = s.pipe(
+  switchMap(x => of(x, x, x * 2, x * 3).pipe(
+    filter(y => y % 2 === 0),
+  ))
+)
+
+o.subscribe()
+o.subscribe()
+o.subscribe()
+o.subscribe()
+o.subscribe()
+o.subscribe()
+o.subscribe()
+o.subscribe()
+o.subscribe()
+
+for (let i = 0; i < 10; i++) { s.next(i) }
+s.complete()
+```
+```ts
+// Callbags
+const s = subject<number>()
+
+const o = pipe(
+  s,
+  cbmap(x => pipe(
+    cbof(x, x, x * 2, x * 3),
+    cbfilter(y => y % 2 === 0)
+  )),
+  cbflatten,
+)
+
+cbsubscribe(() => {})(o)
+cbsubscribe(() => {})(o)
+cbsubscribe(() => {})(o)
+cbsubscribe(() => {})(o)
+cbsubscribe(() => {})(o)
+cbsubscribe(() => {})(o)
+cbsubscribe(() => {})(o)
+cbsubscribe(() => {})(o)
+cbsubscribe(() => {})(o)
+
+for (let i = 0; i < 10; i++) { s(1, i) }
+s(2)
+```
+</details>
+
+| Lib                  | Performance                    | Variance   | # of Runs |
+| -------------------- | ------------------------------ | ---------- | --------- |
+| Streamlets           | 31,645 ops/sec                 |  ±0.41%    | 92        |
+| Callbags             | 23,160 ops/sec                 |  ±0.42%    | 95        |
+| RxJS                 | 9,827 ops/sec                  |  ±0.44%    | 91        |
+  
+---
+  
+### Scenario: Large Data
+
+<details><summary>Code</summary>
+
+```ts
+const data = [...Array(10_000).keys()]
+```
+```ts
+// Streamlets
+pipe(
+  of(...data),
+  map(x => pipe(
+    of(x, x, x * 2, x * 3),
+    filter(y => y % 2 === 0),
+  )),
+  flatten,
+  observe
+)
+```
+```ts
+// RxJS
+of(...data)
+  .pipe(
+    switchMap(x => of(x, x, x * 2, x * 3).pipe(
+      filter(y => y % 2 === 0),
+    ))
+  )
+  .subscribe()
+```
+```ts
+// Callbags
+pipe(
+  of(...data),
+  map(x => pipe(
+    of(x, x, x * 2, x * 3),
+    filter(y => y % 2 === 0)
+  )),
+  flatten,
+  subscribe(() => {})
+)
+```
+</details>
+  
+| Lib                  | Performance                    | Variance   | # of Runs |
+| -------------------- | ------------------------------ | ---------- | --------- |
+| Streamlets           | 250 ops/sec                    |  ±0.42%    | 89        |
+| Callbags             | 199 ops/sec                    |  ±0.42%    | 83        |
+| RxJS                 | 103 ops/sec                    |  ±0.44%    | 75        |
+
+---
+
+# Considerations
+  
+The benchmarking focuses on RxJS and Callbags as they are the closest analogues to Streamlets, with similar APIs. However, there are other
+reactive programming libraries out there (such as [MOST](https://github.com/cujojs/most) and [xstream](https://github.com/staltz/xstream) that
+can be compared at least in some cases.
+
+Due to their inherent differences though, these libraries were omitted from the benchmark, as it would make interpreting the results more difficult.
+For example xstream is generally slower than Callbags and Streamlets (faster than RxJS), but on multicasting
+it has a massive advantage, despite it actively discouraging subject-like behavior. This is due to the fact that xstream is designed
+around and supports only hot steams, so it excells at multicasting while it lags behind in scnearios where cold streams would
+do the trick.  
+
+<br>
+  
+# Replication
+
+```bash
+# clone this repo
+git clone git@github.com:loreanvictor/streamlet.git
+```
+```bash
+# install dependencies
+npm i
+```
+```bash
+# run the performance benchmark
+npm run bench:perf
+```
+
+<br><br>
