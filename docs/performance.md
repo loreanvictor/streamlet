@@ -85,7 +85,7 @@ pipe(
 
 ### Scenario: Flattening
 
-For this scenario, 10 values were emitted synchronously, each value mapped to another source / observable which emits 4 values synchronously and is filtered (simple arithmetics). The inner sources are then flattened and the whole stream is observed / subscribed to.
+For this scenario, 10 values were emitted synchronously, each value mapped to another source / observable which emits 4 values synchronously and is filtered (simple arithmetics). The outer source is then flattened and the whole stream is observed / subscribed to.
 
 <details><summary>Code</summary>
 
