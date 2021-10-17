@@ -73,7 +73,7 @@ pipe(
 ```
 </details>
 
-| Lib                  | Performance                    | Variance   | # of Runs |
+| Lib                  | Performance                    | RME        | # of Runs |
 | -------------------- | ------------------------------ | ---------- | --------- |
 | Streamlets           | 2,213,525 ops/sec              |  ±0.52%    | 90        |
 | Callbags             | 1,830,351 ops/sec              |  ±39.45%   | 94        |
