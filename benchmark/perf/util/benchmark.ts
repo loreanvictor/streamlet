@@ -7,7 +7,7 @@ export function benchmark(name: string, libs: { [lib: string]: () => void}) {
   const suite = new Benchmark.Suite(name)
   const results: [string, number, number][] = []
 
-  Object.entries(libs).forEach(([lib, impl]) => suite.add(lib, impl))
+  Object.entries(libs).sort(() => Math.random() > .5 ? 1 : -1).forEach(([lib, impl]) => suite.add(lib, impl))
   console.log(chalk`{blue perf}: {bold ${name}}`)
 
   suite
@@ -38,5 +38,5 @@ export function benchmark(name: string, libs: { [lib: string]: () => void}) {
         }
       ))
     })
-    .run({ async: true })
+    .run({ async: false })
 }
