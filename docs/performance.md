@@ -299,4 +299,6 @@ npm i
 npm run bench:perf
 ```
 
+You can also investigate and modify benchmarking codes in `benchmark/perf` folder.
+
 <br><br>
