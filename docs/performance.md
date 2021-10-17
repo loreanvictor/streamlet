@@ -127,9 +127,9 @@ pipe(
 
 | Lib                  | Performance                    | RME        | # of Runs |
 | -------------------- | ------------------------------ | ---------- | --------- |
-| Streamlets           | 267,982 ops/sec                |  ±0.41%    | 92        |
-| Callbags             | 236,498 ops/sec                |  ±0.42%    | 97        |
-| RxJS                 | 99,264 ops/sec                 |  ±0.44%    | 93        |
+| Streamlets           | 259,486 ops/sec                |  ±1.80%    | 90        |
+| Callbags             | 231,507 ops/sec                |  ±0.46%    | 90        |
+| RxJS                 | 99,086 ops/sec                 |  ±1.10%    | 90        |
 
 ---
 
@@ -217,9 +217,9 @@ s(2)
 
 | Lib                  | Performance                    | RME        | # of Runs |
 | -------------------- | ------------------------------ | ---------- | --------- |
-| Streamlets           | 31,645 ops/sec                 |  ±0.41%    | 92        |
-| Callbags             | 23,160 ops/sec                 |  ±0.42%    | 95        |
-| RxJS                 | 9,827 ops/sec                  |  ±0.44%    | 91        |
+| Streamlets           | 28,927 ops/sec                 |  ±0.25%    | 90        |
+| Callbags             | 21,553 ops/sec                 |  ±2.71%    | 92        |
+| RxJS                 | 10,159 ops/sec                 |  ±1.98%    | 91        |
   
 ---
   
@@ -270,9 +270,9 @@ pipe(
   
 | Lib                  | Performance                    | RME        | # of Runs |
 | -------------------- | ------------------------------ | ---------- | --------- |
-| Streamlets           | 250 ops/sec                    |  ±0.42%    | 89        |
-| Callbags             | 199 ops/sec                    |  ±0.42%    | 83        |
-| RxJS                 | 103 ops/sec                    |  ±0.44%    | 75        |
+| Streamlets           | 216 ops/sec                    |  ±1.27%    | 83        |
+| Callbags             | 199 ops/sec                    |  ±0.58%    | 83        |
+| RxJS                 | 107 ops/sec                    |  ±0.37%    | 77        |
 
 ---
 
