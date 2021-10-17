@@ -268,6 +268,8 @@ pipe(
 
 ---
 
+<br>
+  
 # Considerations
   
 The benchmarking focuses on RxJS and Callbags as they are the closest analogues to Streamlets, with similar APIs. However, there are other
