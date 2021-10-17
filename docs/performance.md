@@ -121,7 +121,7 @@ pipe(
 ```
 </details>
 
-| Lib                  | Performance                    | Variance   | # of Runs |
+| Lib                  | Performance                    | RME        | # of Runs |
 | -------------------- | ------------------------------ | ---------- | --------- |
 | Streamlets           | 267,982 ops/sec                |  ±0.41%    | 92        |
 | Callbags             | 236,498 ops/sec                |  ±0.42%    | 97        |
@@ -209,7 +209,7 @@ s(2)
 ```
 </details>
 
-| Lib                  | Performance                    | Variance   | # of Runs |
+| Lib                  | Performance                    | RME        | # of Runs |
 | -------------------- | ------------------------------ | ---------- | --------- |
 | Streamlets           | 31,645 ops/sec                 |  ±0.41%    | 92        |
 | Callbags             | 23,160 ops/sec                 |  ±0.42%    | 95        |
@@ -260,7 +260,7 @@ pipe(
 ```
 </details>
   
-| Lib                  | Performance                    | Variance   | # of Runs |
+| Lib                  | Performance                    | RME        | # of Runs |
 | -------------------- | ------------------------------ | ---------- | --------- |
 | Streamlets           | 250 ops/sec                    |  ±0.42%    | 89        |
 | Callbags             | 199 ops/sec                    |  ±0.42%    | 83        |
