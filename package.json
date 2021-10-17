@@ -1,6 +1,6 @@
 {
   "name": "streamlets",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "protocol and utilities for light-weight data streams",
   "keywords": [
     "stream",
@@ -12,9 +12,13 @@
   "main": "dist/es5/index.js",
   "module": "dist/es6/index.js",
   "types": "dist/es6/index.d.ts",
+  "targets": {
+    "main": false,
+    "module": false,
+    "types": false
+  },
   "scripts": {
     "start": "ts-node ./sample",
-    "bench:perf": "ts-node ./benchmark/perf",
     "test": "mocha -r ./conf/test src/**/*.test.ts src/**/*.test.tsx",
     "build-es5": "tsc -p conf/typescript/es5.json",
     "build-es6": "tsc -p conf/typescript/es6.json",
@@ -24,7 +28,10 @@
     "cov:gen": "nyc npm run test",
     "cov:view": "nyc npm run test && npm run cov:clean",
     "cov:travis": "nyc npm run test && npx codecov",
-    "cov:clean": "rm -fr ./.nyc_output && rm -fr ./coverage"
+    "cov:clean": "rm -fr ./.nyc_output && rm -fr ./coverage",
+    "bench:perf": "ts-node ./benchmark/perf",
+    "bench:mem": "node -r ts-node/register --expose-gc ./benchmark/mem",
+    "bench": "npm run bench:perf && npm run bench:mem"
   },
   "files": [
     "dist/es6",
@@ -45,6 +52,9 @@
   "devDependencies": {
     "@babel/core": "^7.15.5",
     "@babel/preset-env": "^7.15.6",
+    "@parcel/config-default": "^2.0.0",
+    "@parcel/core": "^2.0.0",
+    "@parcel/fs": "^2.0.0",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@types/benchmark": "^2.1.1",

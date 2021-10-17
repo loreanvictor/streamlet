@@ -23,10 +23,10 @@ export function benchmark(name: string, libs: { [lib: string]: () => void}) {
       console.log(table(
         results
           .sort((a, b) => b[1] - a[1])
-          .map(([lib, ops, variance]) => ([
+          .map(([lib, ops, rme]) => ([
             chalk`{bold ${lib}}`,
             chalk`{green.bold ${Benchmark.formatNumber(ops.toFixed(0) as any)}} ops/sec`,
-            chalk`{gray ±${Benchmark.formatNumber(variance.toFixed(2) as any) + '%'}}`,
+            chalk`{gray ±${Benchmark.formatNumber(rme.toFixed(2) as any) + '%'}}`,
           ])),
         {
           columns: {
