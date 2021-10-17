@@ -42,6 +42,8 @@ for benchmarking, and the results displayed here were conducted on a MacBook Pro
 
 ### Scneario: Simple Usage
 
+For this scenario, 10 values were emitted synchronously, mapped and filtered (simple arithmetics) and then observed / subscribed to.
+
 <details><summary>Code</summary>
 
 ```ts
@@ -82,6 +84,8 @@ pipe(
 ---
 
 ### Scenario: Flattening
+
+For this scenario, 10 values were emitted synchronously, each value mapped to another source / observable which emits 4 values synchronously and is filtered (simple arithmetics). The inner sources are then flattened and the whole stream is observed / subscribed to.
 
 <details><summary>Code</summary>
 
@@ -130,6 +134,8 @@ pipe(
 ---
 
 ### Scenario: Multicasting
+
+For this scenario, a flow similar to [the previous scenario](#scenario-flattening) is used, except the sources are subjects, and each is observed / subscribed to by 9 different observers / subscribers. Each subject then emits 10 values.
 
 <details><summary>Code</summary>
 
@@ -219,6 +225,8 @@ s(2)
   
 ### Scenario: Large Data
 
+For this scenario, a flow similar to [flattening scenario](#scenario-flattening) is used, except with 10,000 emitted values instead of 10.
+  
 <details><summary>Code</summary>
 
 ```ts
