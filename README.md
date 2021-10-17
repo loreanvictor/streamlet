@@ -66,19 +66,8 @@ The main differences between streamlets and aforementioned libraries are:
 - Streamlets and callbags handle both pullables and listenables, and anything in between. RxJS does not.
 - Streamlets support pausing / resuming by default. This [can be added](https://github.com/erikras/callbag-pausable) to callbags as well, not supported by the standard itself. RxJS does not support this.
 - Streamlets and callbags are pretty light-weight. RxJS operators and utilities are way heavier than both.
-
-<div align="center">
-
-primitive / utility        | Streamlet | Callbag | RxJS
--------------------------- | --------- | ------- | ------
-`interval()`               | 366B      | 200B    | 4.6kB
-`merge()`                  | 535B      | 336B    | 5.9kB
-`map()`                    | 390B      | 198B    | 3.5kB
-`flatten()` / `switchMap()`| 532B      | 288B    | 5.0kB
-
-</div>
-
-- I am hoping streamlets are at least as fast and consume much less memory than both RxJS observables and callbags. I need some benchmarking to make sure of this though.
+- Streamlets are as fast (marginally faster) than Callbags, and [noticably faster](https://github.com/loreanvictor/streamlet/blob/main/docs/performance.md) than RxJS.
+- I am hoping that Streamlets are lighter on memory than both Callbags and RxJS, but I need to do benchmarking to confirm this.
 
 <br><br>
 
