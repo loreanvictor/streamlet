@@ -282,12 +282,12 @@ pipe(
   
 This benchmark focuses on RxJS and Callbags as they are the closest analogues to Streamlets, with similar APIs. However, there are other
 reactive programming libraries out there (such as [MOST](https://github.com/cujojs/most) and [xstream](https://github.com/staltz/xstream)) that
-can be compared at least in some cases.
+are at least situationally comparable.
 
-Due to their inherent differences though, these libraries were omitted from the benchmark, as it would make interpreting the results more difficult.
+Due to their inherent differences though, these libraries were omitted from this benchmark, as it would make interpreting the results more difficult.
 For example xstream is generally slower than Callbags and Streamlets (faster than RxJS), but on multicasting
 it has a massive advantage, despite it actively discouraging subject-like behavior. This is due to the fact that xstream is designed
-around and supports only hot steams, so it excells at multicasting while it lags behind in scnearios where cold streams would
+around and supports only hot steams, so it excells at multicasting while it lags behind in scenarios where cold streams would
 do the trick.  
 
 <br>
