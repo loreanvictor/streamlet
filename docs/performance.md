@@ -280,8 +280,8 @@ pipe(
   
 # Considerations
   
-The benchmarking focuses on RxJS and Callbags as they are the closest analogues to Streamlets, with similar APIs. However, there are other
-reactive programming libraries out there (such as [MOST](https://github.com/cujojs/most) and [xstream](https://github.com/staltz/xstream) that
+This benchmark focuses on RxJS and Callbags as they are the closest analogues to Streamlets, with similar APIs. However, there are other
+reactive programming libraries out there (such as [MOST](https://github.com/cujojs/most) and [xstream](https://github.com/staltz/xstream)) that
 can be compared at least in some cases.
 
 Due to their inherent differences though, these libraries were omitted from the benchmark, as it would make interpreting the results more difficult.
