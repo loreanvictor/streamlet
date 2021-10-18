@@ -244,6 +244,74 @@ const subs = srcs.map(s => {
 
 ---
 
+### Scneario: Many Streams
+
+This is similar to [the previous scenario](#scenario-multicasting), except that transformations
+are applied per observer / subscriber.
+
+<details><summary>Code</summary>
+
+```ts
+// Streamlets
+const srcs = [...Array(500).keys()].map(() => new Subject<number>())
+const subs = srcs.map(s =>
+  [...Array(50).keys()].map(() => pipe(
+    s,
+    map(x => pipe(
+      of(x, x, x * 2, x * 3),
+      filter(y => y % 2 === 0),
+    )),
+    flatten,
+    observe
+  ))
+).flat();
+
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].forEach(x => {
+  srcs.forEach(s => s.receive(x))
+})
+```
+```ts
+// RxJS
+const srcs = [...Array(500).keys()].map(() => new Subject<number>())
+const subs = srcs.map(s =>
+  [...Array(50).keys()].map(() => s.pipe(
+    switchMap(x => of(x, x, x * 2, x * 3).pipe(filter(y => y % 2 === 0))),
+  ).subscribe())
+).flat();
+
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].forEach(x => {
+  srcs.forEach(s => s.next(x))
+})
+```
+```ts
+// Callbags
+const srcs = [...Array(500).keys()].map(() => subject<number>())
+const subs = srcs.map(s =>
+  [...Array(50).keys()].map(() => pipe(
+    s,
+    map(x => pipe(
+      of(x, x, x * 2, x * 3),
+      filter(y => y % 2 === 0),
+    )),
+    flatten,
+    subscribe(() => {})
+  ))
+).flat();
+
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].forEach(x => {
+  srcs.forEach(s => s(1, x))
+})
+```
+</details>
+
+| Lib                  | Heap Usage                     | RME        | # of Runs |
+| -------------------- | ------------------------------ | ---------- | --------- |
+| Streamlets           | 12.34MB                        |  ±0.22%    | 32        |
+| Callbags             | 26.90MB                        |  ±0.15%    | 32        |
+| RxJS                 | 304.64MB                       |  ±0.04%    | 32        |
+
+---
+
 <br>
 
 # Replication
