@@ -37,6 +37,8 @@ The results displayed here were conducted on a MacBook Pro running macOS Catalin
 
 </details>
 
+<img width="1013" alt="Screen Shot 2021-10-18 at 3 57 17 PM" src="https://user-images.githubusercontent.com/13572283/137745592-b84d8e1b-0cf1-4b7d-934a-6d1714f2b826.png">
+
 ---
 
 ### Scneario: Simple Usage
