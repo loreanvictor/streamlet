@@ -327,7 +327,7 @@ git clone git@github.com:loreanvictor/streamlet.git
 npm i
 ```
 ```bash
-# run the performance benchmark
+# run the memory benchmark
 npm run bench:mem
 ```
 
