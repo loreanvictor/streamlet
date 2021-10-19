@@ -63,11 +63,11 @@ If you find this useful, you most probably want to use [RxJS](https://rxjs.dev/)
 If you are into these kinds of experiments, checkout [the callbag standard](https://github.com/callbag/callbag) as well.
 The main differences between streamlets and aforementioned libraries are:
 
-- Streamlets and callbags handle both pullables and listenables, and anything in between. RxJS does not.
-- Streamlets support pausing / resuming by default. This [can be added](https://github.com/erikras/callbag-pausable) to callbags as well, not supported by the standard itself. RxJS does not support this.
-- Streamlets and callbags [are pretty light-weight](https://github.com/loreanvictor/streamlet/blob/main/docs/bundle.md). RxJS operators and utilities [are way heavier than both](https://github.com/loreanvictor/streamlet/blob/main/docs/bundle.md).
-- Streamlets are [as fast (in some cases marginally faster)](https://github.com/loreanvictor/streamlet/blob/main/docs/performance.md) than Callbags, and [noticably faster](https://github.com/loreanvictor/streamlet/blob/main/docs/performance.md) than RxJS.
-- Streamlets [use less memory](https://github.com/loreanvictor/streamlet/blob/main/docs/memory.md) than both Callbags and RxJS.
+- ↕️ Streamlets and callbags handle both pullables and listenables, and anything in between. RxJS does not.
+- ⏯️ Streamlets support pausing / resuming by default. This [can be added](https://github.com/erikras/callbag-pausable) to callbags as well, not supported by the standard itself. RxJS does not support this.
+- 📦 Streamlets and callbags [are pretty light-weight](https://github.com/loreanvictor/streamlet/blob/main/docs/bundle.md). RxJS operators and utilities [are way heavier than both](https://github.com/loreanvictor/streamlet/blob/main/docs/bundle.md).
+- 🚀 Streamlets are [as fast (in some cases marginally faster)](https://github.com/loreanvictor/streamlet/blob/main/docs/performance.md) than Callbags, and [noticably faster](https://github.com/loreanvictor/streamlet/blob/main/docs/performance.md) than RxJS.
+- 🧠 Streamlets [use less memory](https://github.com/loreanvictor/streamlet/blob/main/docs/memory.md) than both Callbags and RxJS.
 
 <br><br>
 
