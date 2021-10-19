@@ -38,6 +38,8 @@ for benchmarking, and the results displayed here were conducted on a MacBook Pro
 
 </details>
 
+<img width="1013" alt="Screen Shot 2021-10-18 at 3 41 43 PM" src="https://user-images.githubusercontent.com/13572283/137743863-950f77bd-e2d7-4fd2-a6a5-c1f3fefd7225.png">
+
 ---
 
 ### Scneario: Simple Usage
