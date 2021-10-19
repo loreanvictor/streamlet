@@ -9,12 +9,16 @@
 <br><br>
 
 Performance of some basic utilities in `streamlets` package is compared here to similar utilities on [Callbags](https://github.com/callbag/callbag)
-and [RxJS](https://github.com/ReactiveX/rxjs). Different scenarios mimicking common use-cases are used for this benchmarking, though it is notable that
-in case of reactive programming libraries and utilities, performance is not always the most important factor (since a major contributor in such flows
-is always time consumed by async computations anyways).
+and [RxJS](https://github.com/ReactiveX/rxjs). Different scenarios mimicking common use-cases are used for this benchmarking.
 
-Overall, Streamlets are as fast as Callbags (marginally faster in some cases) and noticably faster than RxJS. [Benchmark.js](https://benchmarkjs.com) is used
-for benchmarking, and the results displayed here were conducted on a MacBook Pro running macOS Catalina, and on [Node.js](https://nodejs.org/en/) (details below).
+> It is notable that in context of FRP libraries, performance of sync operations is NOT always the primary concern, since in a lot of use cases
+> most time is consumed by async operations (for example waiting for user input or API response).
+
+<br>
+
+Overall, Streamlets are as fast as Callbags (marginally faster in some cases) and noticably faster than RxJS Observables.
+[Benchmark.js](https://benchmarkjs.com) is used for benchmarking, and the results displayed here were conducted on a MacBook Pro 
+running macOS Catalina, and on [Node.js](https://nodejs.org/en/) (details below).
 
 <details><summary>Environment Details</summary>
 
