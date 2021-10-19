@@ -11,7 +11,7 @@
 Memory usage of some basic utilities in `streamlets` package is compared here to similar utilities on [Callbags](https://github.com/callbag/callbag)
 and [RxJS](https://github.com/ReactiveX/rxjs). Different scenarios mimicking common use-cases are used for this benchmarking.
 
-Overall, Streamlets consume less memory compared to Callbags and noticably less memory than RxJS. Benchmarking is conducted via monitoring
+Overall, Streamlets consume less memory compared to Callbags and noticably less memory than RxJS Observables. Benchmarking is conducted via monitoring
 heap usage (`process.memoryUsage().heapUsed`) before and after each scenario was executed, with some warm up rounds for further stabilization.
 The results displayed here were conducted on a MacBook Pro running macOS Catalina, and on [Node.js](https://nodejs.org/en/) (details below).
 
@@ -41,7 +41,7 @@ The results displayed here were conducted on a MacBook Pro running macOS Catalin
 
 ---
 
-### Scneario: Simple Usage
+### Scenario: Simple Usage
 
 For this scenario, 10,000 subjects were created, mapped and filtered (simple arithmetics), and then observed (subscribed to). Each subject
 then emits 10 values.
@@ -105,7 +105,7 @@ const subs = srcs.map(s =>
 
 ---
   
-### Scneario: Flattening
+### Scenario: Flattening
 
 For this scenario, 10,000 subjects were created, whose emissions are mapped to inner sources / observables each emitting 4 values synchronously, which are
 subsequently filtered (simple arithmetic). The outer sources are then flattened, and the subjects emit 10 values each.
@@ -174,7 +174,7 @@ const subs = srcs.map(s =>
 
 ---
   
-### Scneario: Multicasting
+### Scenario: Multicasting
 
 For this scenario, the same flow as [the previous scenario](#scenario-flattening) is used with 500 hundred subjects, who are then observed / subscribed to
 50 times each. The subjects then similarly emit 10 values each.
@@ -246,7 +246,7 @@ const subs = srcs.map(s => {
 
 ---
 
-### Scneario: Many Streams
+### Scenario: Many Streams
 
 This is similar to [the previous scenario](#scenario-multicasting), except that transformations
 are applied per observer / subscriber.
