@@ -222,3 +222,5 @@ npm run bench:bundle
 ```
 
 You can also investigate and modify benchmarking codes by cloning [this reository](https://github.com/loreanvictor/streamlet-bundle-size-benchmark).
+
+<br><br>
