@@ -8,25 +8,26 @@
 
 <br><br>
 
-Streamlet protocol is a protocol for handling data/event streams. It lays down interfaces for some [primitive constructs](#primitive-constructs)
+Streamlet protocol is a protocol for handling data/event streams. It establishes interfaces for some [primary concepts](#primary-concepts)
 necessary for handling streams, and some [rules](#rules) of how such primitives should interact with each other. This allows exceeding extensibility as
 tools and libraries implementing these interfaces and following the rules of the protocol can seamlessly work together.
 
-The protocol is designed for handling all models of reactive programming: push, pull, push-pull, or any combination of them. It allows you to handle
-iterables (lists, arrays, generators, etc) the same way as you would listenables (events, timers, network streams, etc).
+The protocol is designed for handling all models of reactive programming: push, pull, push-pull, or any combination of them. It enables communicating with
+iterables (lists, arrays, generators, etc) the same way as listenables (events, timers, network streams, etc) or hybrid streams.
 
-The protocol also allows and standardizes data streams that can be stopped and restarted (paused and resumed) at will. The protocol DOES NOT require
-or guarantee that any data stream following the protocol will have that capability though, as it is up to implementations to support that. However
-the protocol does in effect encourage supporting this capability and makes it rather easy to implement.
+The protocol also provides a standardized method of stopping and restarting streams (in effect, pausing and resuming). The protocol DOES NOT require
+or guarantee that any data stream following the protocol will have that capability though, as it is up to implementations to support that. For example,
+a source might decide to shut down the stream after it receives its first stop signal from the sink. However
+the protocol does encourage supporting this capability and makes it rather easy to implement.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document
 are to be interpreted as described in [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
 
 <br><br>
 
-# Primitive Constructs
+# Primary Concepts
 
-Streamlets are made up of three primary primitives:
+Streamlets are made up of three primary concepts:
 
 - **Sources**, who generate data (or respond with data when requested)
 - **Sinks**, who consume data (and can ask for more data)
@@ -57,22 +58,22 @@ interface Talkback {
 - A _source_ is any object satisfying the `Source` interface described above.
 - A _sink_ is any object satisfying the `Sink` interface described above.
 - A _talkback_ is any object satisfying the `Talkback` interface described above.
-- A _stream_ refers to the flow of data from a _source_ to a _sink_. When talking about a _stream_, the terms _the source_ and _the sink_ might be used to reference the _source_ and the _sink_ the flow of data from (and to) whom constitutes _the stream_.
+- A _stream_ refers to the flow of data from a _source_ to a _sink_. When talking about a _stream_, the terms _the source_ might be used to reference the source which the _stream_ represents the flow of data from, and _the sink_ might beused to reference the sink which the _stream_ represents the flow of data to.
 - _A source connects to a sink_, _a sink is connected to a source_, or _a sink and a source are connected_, when `.connect()` method on the source has been invoked
   with the sink as its argument. _A connected sink (of a source)_ is a sink that was connected with the source.
   ```ts
   source.connect(sink)
   ```
 - _A source greets a sink (with a talkback)_, or _a sink is greeted (by a source) (with a talkback)_, when the source invokes the `.greet()`
-  method of a given sink with given talkback as its argument.
+  method of a connected sink with given talkback as its argument.
   ```ts
   sink.greet(talkback)
   ```
-- _A sink starts a stream_ or _a stream is started_, when the sink invokes the `.start()` method on the talkback a given source has greeted it with.
+- _A sink starts a stream_ or _a stream is started_, when the sink invokes the `.start()` method on the talkback the source has greeted it with.
   ```ts
   talkback.start()
   ```
-- _A source sends / emits (data) (to a sink)_, or _a sink receives data / emissions (from a source / stream)_, when the source invokes `.receive()` method on given sink.
+- _A source sends / emits (data) (to a sink)_, or _a sink receives data / emissions (from a source / stream)_, when the source invokes `.receive()` method on a connected sink.
   ```ts
   sink.receive(42)
   ```
@@ -93,7 +94,7 @@ interface Talkback {
 
 # Rules
 
-1. A source **MAY** greet a sink with a talkback after they are connected. A source **MAY** greet a connected sink synchronously or asynchronously. A source **MUST NOT** greet a sink more than once.
+1. A source **MAY** greet a sink with a talkback after they are connected. A source **MAY** greet a connected sink synchronously or asynchronously. A source **MUST NOT** greet a sink more than once. A source **MUST NOT** greet a sink it was not connected to.
 
 1. A source **MAY** emit data **IF AND ONLY IF** all of the following conditions hold. A source **SHALL NOT** emit even if one of the following does not hold:
     - The sink was connected to the source.
