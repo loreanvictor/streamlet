@@ -20,7 +20,7 @@ npm i streamlets
 [![coverage](https://img.shields.io/codecov/c/github/loreanvictor/streamlet?logo=codecov)](https://codecov.io/gh/loreanvictor/streamlet)
 -->
 
-Streamlet is [a protocol](https://github.com/loreanvictor/streamlet/blob/main/docs/protocol.md) for handling streams of data.
+Streamlet is [a protocol](https://github.com/loreanvictor/streamlet/blob/main/docs/protocol.md) for handling streams of data / events.
 
 - ↕️ It allows for handling pullables (i.e. iterables), listenables (i.e. observables) and anything in between.
 - ⛓️ It allows for handling synchronous and asynchronous data sources.
