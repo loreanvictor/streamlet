@@ -11,8 +11,9 @@ export * from './concat'
 export * from './retry'
 export * from './pullrate'
 export * from './stream'
-export * from './pull-buffer'
+export * from './buffer'
 export * from './distinct'
 export * from './connect-rate'
+export * from './pull-after'
 
 

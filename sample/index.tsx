@@ -4,12 +4,12 @@ import 'isomorphic-fetch'
 
 import sleep from 'sleep-promise'
 
-import { interval, next, pullBuffer } from '../src'
+import { interval, next, backpress } from '../src'
 
 const f = async () => {
-  for await (const x of next(pullBuffer(interval(500)))) {
+  for await (const x of next(backpress(interval(500)))) {
     console.log(x)
-    await sleep(1000)
+    await sleep(250)
   }
 }
 

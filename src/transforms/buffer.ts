@@ -1,7 +1,7 @@
 import { Source, Sink, Talkback, USourceFactory } from '../types'
 
 
-export class PullBufferSink<T> implements Sink<T>, Talkback {
+export class BufferingSink<T> implements Sink<T>, Talkback {
   readonly buffer: T[] = []
   private ended = false
   private requested = false
@@ -68,24 +68,24 @@ export class PullBufferSink<T> implements Sink<T>, Talkback {
 }
 
 
-export class PullBufferSource<T> implements Source<T> {
+export class BufferedSource<T> implements Source<T> {
   constructor(
     private source: Source<T>,
     private max: number = -1,
   ) {}
 
   connect(sink: Sink<T>) {
-    this.source.connect(new PullBufferSink(sink, this.max))
+    this.source.connect(new BufferingSink(sink, this.max))
   }
 }
 
 
-export function pullBuffer(max?: number): USourceFactory
-export function pullBuffer<T>(source: Source<T>, max?: number): Source<T>
-export function pullBuffer<T>(source?: Source<T> | number, max?: number): Source<T> | USourceFactory {
+export function buffer(max?: number): USourceFactory
+export function buffer<T>(source: Source<T>, max?: number): Source<T>
+export function buffer<T>(source?: Source<T> | number, max?: number): Source<T> | USourceFactory {
   if (source !== undefined && typeof source !== 'number') {
-    return new PullBufferSource(source, max)
+    return new BufferedSource(source, max)
   } else {
-    return <U>(src: Source<U>) => pullBuffer(src, source as number)
+    return <U>(src: Source<U>) => buffer(src, source as number)
   }
 }

@@ -1,6 +1,6 @@
 import { fake } from 'sinon'
 
-import { pullBuffer } from '../pull-buffer'
+import { buffer } from '../buffer'
 import { Subject } from '../../sources'
 import { tap, observe, finalize } from '../../sinks'
 import { pipe } from '../../util'
@@ -14,7 +14,7 @@ describe('pullBuffer()', () => {
 
     const o = pipe(
       src,
-      pullBuffer(3),
+      buffer(3),
       tap(cb),
       finalize(cb2),
       observe
@@ -57,7 +57,7 @@ describe('pullBuffer()', () => {
 
     pipe(
       src,
-      pullBuffer,
+      buffer,
       finalize(cb),
       observe
     )
@@ -72,7 +72,7 @@ describe('pullBuffer()', () => {
 
     const o = pipe(
       src,
-      pullBuffer(3),
+      buffer(3),
       tap(cb),
       observe
     )

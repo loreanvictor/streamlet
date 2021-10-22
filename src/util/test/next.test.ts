@@ -3,7 +3,7 @@ import sleep from 'sleep-promise'
 
 import { next } from '../next'
 import { of, interval } from '../../sources'
-import { take, map, pullBuffer } from '../../transforms'
+import { take, map, buffer } from '../../transforms'
 import { pipe, source, talkback } from '../../util'
 
 
@@ -98,7 +98,7 @@ describe('next()', () => {
     const clock = useFakeTimers()
 
     const f = async () => {
-      for await (const x of pipe(interval(100), pullBuffer, take(4), next)) {
+      for await (const x of pipe(interval(100), buffer, take(4), next)) {
         cb(x)
         await sleep(100)
       }
