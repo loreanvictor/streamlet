@@ -1,21 +1,11 @@
 import { Sink, Source, Talkback } from '../types'
-import { share } from '../transforms'
+import { Deferred } from './deferred'
 
 
 export class NotEnoughEmissionsError extends Error {
   constructor(public readonly expected: number, public readonly actual: number) {
     super(`Expected at least ${expected > 0 ? expected : 1} emissions, but got ${actual}`)
   }
-}
-
-
-class Deferred<T> {
-  resolve: (value: T | PromiseLike<T>) => void
-  reject: (reason?: any) => void
-  promise = new Promise((resolve, reject) => {
-    this.resolve = resolve
-    this.reject = reject
-  })
 }
 
 
@@ -83,21 +73,5 @@ export function nth<T>(source: Source<T> | number, target?: number) {
     source.connect(sink)
 
     return sink.deferred.promise
-  }
-}
-
-
-export async function* next<T>(source: Source<T>) {
-  const shared = share(source)
-  while (true) {
-    try {
-      yield await first(shared)
-    } catch (e) {
-      if (e instanceof NotEnoughEmissionsError) {
-        return
-      } else {
-        throw e
-      }
-    }
   }
 }

@@ -1,6 +1,6 @@
 import { fake, useFakeTimers } from 'sinon'
 
-import { first, last, nth, next } from '../nth'
+import { first, last, nth } from '../nth'
 import { pipe, source, talkback } from '../../util'
 import { of, interval } from '../../sources'
 import { map, take } from '../../transforms'
@@ -131,48 +131,3 @@ describe('nth()', () => {
     clock.restore()
   })
 })
-
-
-describe('next()', () => {
-  it('should allow async iteration over given source.', async () => {
-    const cb = fake()
-    const clock = useFakeTimers()
-
-    const fn = async () => {
-      for await (const x of next(of(1, 2, 3))) {
-        cb(x)
-      }
-    }
-
-    fn()
-    await clock.tickAsync(0)
-
-    cb.should.have.been.calledThrice
-    cb.should.have.been.calledWith(1)
-    cb.should.have.been.calledWith(2)
-    cb.should.have.been.calledWith(3)
-
-    clock.restore()
-  })
-
-  it('should pass down the errors.', async () => {
-    const cb = fake()
-    const cb2 = fake()
-    const clock = useFakeTimers()
-
-    const fn = async () => {
-      for await (const x of pipe(of(1), map(() => { throw new Error() }), next)) {
-        cb(x)
-      }
-    }
-
-    fn().catch(cb2)
-    await clock.tickAsync(0)
-
-    cb.should.not.have.been.called
-    cb2.should.have.been.calledOnce
-
-    clock.restore()
-  })
-})
-

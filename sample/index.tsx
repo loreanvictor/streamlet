@@ -2,12 +2,14 @@
 
 import 'isomorphic-fetch'
 
-import { of, next } from '../src'
+import sleep from 'sleep-promise'
 
+import { interval, next, pullBuffer } from '../src'
 
 const f = async () => {
-  for await (const x of next(of(1, 2, 3))) {
+  for await (const x of next(pullBuffer(interval(500)))) {
     console.log(x)
+    await sleep(1000)
   }
 }
 

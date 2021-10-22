@@ -1,6 +1,6 @@
 {
   "name": "streamlets",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "protocol and utilities for light-weight data streams",
   "keywords": [
     "stream",
@@ -83,6 +83,7 @@
     "rxjs": "^7.4.0",
     "sinon": "^11.1.2",
     "sinon-chai": "^3.7.0",
+    "sleep-promise": "^9.1.0",
     "table": "^6.7.2",
     "test-callbag-jsx": "^0.4.1",
     "ts-loader": "^9.2.5",
