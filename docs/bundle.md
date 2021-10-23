@@ -29,7 +29,7 @@ select utilities, simple web-apps importing them were auto-generated and bundled
   Node.js v16.9.1
 
 - **Packages** \
-  streamlets@0.2.1 \
+  streamlets@0.4.0 \
   rxjs@7.4.0 \
   callbag-common@0.1.8 \
   callbag-retry@1.0.0 \
@@ -40,7 +40,7 @@ select utilities, simple web-apps importing them were auto-generated and bundled
 
 </details>
 
-<img width="1209" alt="Screen Shot 2021-10-19 at 4 54 54 PM" src="https://user-images.githubusercontent.com/13572283/137949931-d461e738-3cd5-4e53-82a0-c1e2bef1652d.png">
+<img width="1209" alt="Screen Shot 2021-10-23 at 9 01 39 AM" src="https://user-images.githubusercontent.com/13572283/138546317-41d2ded9-8711-4a06-9d88-20c4f29e0761.png">
 
 ---
 
@@ -86,7 +86,7 @@ pipe(
 
 | Lib                  | Bundle Size        | Bundle Size (Gzipped) | Build Time |
 | -------------------- | ------------------ | --------------------- | ---------- |
-| Streamlets           | 2.36KB             | 813B                  | 673ms      |
+| Streamlets           | 3.24KB             | 1.08B                 | 700ms      |
 | Callbags             | 768B               | 448B                  | 657ms      |
 | RxJS                 | 11.69KB            | 4.06KB                | 971m       |
 
@@ -182,7 +182,7 @@ pipe(
 
 | Lib                  | Bundle Size        | Bundle Size (Gzipped) | Build Time |
 | -------------------- | ------------------ | --------------------- | ---------- |
-| Streamlets           | 7.59KB             | 1.99KB                | 769ms      |
+| Streamlets           | 7.92KB             | 2.14KB                | 801ms      |
 | Callbags             | 2.44KB             | 1.09KB                | 1678ms     |
 | RxJS                 | 21.76KB            | 7.16KB                | 1212ms     |
 
