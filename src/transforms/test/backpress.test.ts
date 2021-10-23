@@ -3,7 +3,7 @@ import { fake, useFakeTimers } from 'sinon'
 import { backpress } from '../backpress'
 import { interval } from '../../sources'
 import { tap, finalize, iterate } from '../../sinks'
-import { pullrate, map } from '../../transforms'
+import { pullrate, map } from '..'
 import { pipe } from '../../util'
 
 

@@ -1,6 +1,6 @@
 {
   "name": "streamlets",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "protocol and utilities for light-weight data streams",
   "keywords": [
     "stream",
@@ -31,7 +31,7 @@
     "cov:clean": "rm -fr ./.nyc_output && rm -fr ./coverage",
     "bench:perf": "ts-node ./benchmark/perf",
     "bench:mem": "node -r ts-node/register --expose-gc ./benchmark/mem",
-    "bench:bundle": "cd /tmp && git clone git@github.com:loreanvictor/streamlet-bundle-size-benchmark.git >/dev/null 2>/dev/null && cd streamlet-bundle-size-benchmark && npm i >/dev/null 2>/dev/null && npm start && cd .. && rm -fr ./streamlet-bundle-size-benchmark",
+    "bench:bundle": "cd /tmp && rm -fr ./streamlet-bundle-size-benchmark && git clone git@github.com:loreanvictor/streamlet-bundle-size-benchmark.git >/dev/null 2>/dev/null && cd streamlet-bundle-size-benchmark && rm -fr ./package-lock.json && npm i >/dev/null 2>/dev/null && npm start && cd .. && rm -fr ./streamlet-bundle-size-benchmark",
     "bench": "npm run bench:perf && npm run bench:mem && npm run bench:bundle"
   },
   "files": [

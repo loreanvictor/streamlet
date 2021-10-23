@@ -9,7 +9,7 @@ import { interval, next, backpress } from '../src'
 const f = async () => {
   for await (const x of next(backpress(interval(500)))) {
     console.log(x)
-    await sleep(250)
+    await sleep(600)
   }
 }
 

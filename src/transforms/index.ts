@@ -14,6 +14,5 @@ export * from './stream'
 export * from './buffer'
 export * from './distinct'
 export * from './connect-rate'
+export * from './backpress'
 export * from './pull-after'
-
-
