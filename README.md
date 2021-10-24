@@ -65,6 +65,7 @@ The main differences between streamlets and aforementioned libraries are:
 
 - ↕️ Streamlets and callbags handle both pullables and listenables, and anything in between. RxJS does not.
 - ⏯️ Streamlets support pausing / resuming by default. This [can be added](https://github.com/erikras/callbag-pausable) to callbags as well, not supported by the standard itself. RxJS does not support this.
+- 🚧 Streamlets [can handle backpressure in a more nuanced way](https://github.com/loreanvictor/streamlet/wiki/handling-backpressure), since sinks can communicate to sources their data needs, and can pause/resume them.
 - 📦 Streamlets [fall between Callbags and RxJS operators and utilities](https://github.com/loreanvictor/streamlet/blob/main/docs/bundle.md) in terms of bundle size consumption, leaning more towards the more light-weight side. A simple app would be `~500B` with Callbags, `~1KB` with Streamlets and `~4KB` with RxJS.
 - 🚀 Streamlets are [as fast (in some cases marginally faster)](https://github.com/loreanvictor/streamlet/blob/main/docs/performance.md) than Callbags, and [noticably faster](https://github.com/loreanvictor/streamlet/blob/main/docs/performance.md) than RxJS. Note that performance of FRP libraries is generally not
 the bottle neck in apps that use them, since they are used to handle async operations which are typically way costlier.
