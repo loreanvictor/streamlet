@@ -1,8 +1,9 @@
-import { fake } from 'sinon'
+import { fake, useFakeTimers } from 'sinon'
 
 import { transform } from '../custom-transform'
 import { Source } from '../../types'
-import { Subject } from '../../sources'
+import { Subject, interval, combine } from '../../sources'
+import { distinct, scan, map } from '../../transforms'
 import { observe, tap } from '../../sinks'
 import { source, sink, pipe } from '../../util'
 
@@ -59,5 +60,51 @@ describe('transform()', () => {
 
     src.receive(3)
     cb.should.have.been.calledWith(9)
+  })
+
+  it('should support transforms with a second source argument if minargs is provided.', () => {
+    const clock = useFakeTimers()
+
+    const sample: {
+      (notifier: Source<unknown>): (<U>(src: Source<U>) => Source<U>)
+      <T>(src: Source<T>, notifier: Source<unknown>): Source<T>
+    } = transform(<T>(src: Source<T>, notifier: Source<unknown>) => {
+      const counter = scan(notifier, c => c + 1, 0)
+      const combined = combine(src, counter)
+      const sampled = distinct(combined, (a, b) => a[1] === b[1])
+
+      return map(sampled, ([t]) => t)
+    }, 2)
+
+    const cb = fake()
+
+    const sub = new Subject<number>()
+    const timer = interval(100)
+
+    pipe(
+      sub,
+      sample(timer),
+      tap(x => cb(x)),
+      observe
+    )
+
+    sub.receive(1)
+    sub.receive(2)
+
+    cb.should.not.have.been.called
+
+    clock.tick(100)
+    cb.should.have.been.calledOnceWith(2)
+
+    sub.receive(3)
+    sub.receive(4)
+
+    cb.should.have.been.calledOnce
+
+    clock.tick(100)
+    cb.should.have.been.calledTwice
+    cb.should.have.been.calledWith(4)
+
+    clock.restore()
   })
 })

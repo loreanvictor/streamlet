@@ -5,7 +5,7 @@ import { combine } from '../combine'
 import { Subject, iterable, interval } from '../../sources'
 import { pipe, source } from '../../util'
 import { map } from '../../transforms'
-import { tap, finalize, observe, observeLater, Observation } from '../../sinks'
+import { tap, finalize, iterate, observe, observeLater, Observation } from '../../sinks'
 
 
 describe('combine()', () => {
@@ -175,5 +175,20 @@ describe('combine()', () => {
         observe,
       ).request()
     }).not.to.throw()
+  })
+
+  it('should emit distinct array objects.', () => {
+    const cb = fake()
+
+    pipe(
+      combine(
+        iterable([1, 2]),
+        iterable(['a', 'b'])
+      ),
+      tap(cb),
+      iterate
+    )
+
+    cb.firstCall.firstArg.should.not.equal(cb.secondCall.firstArg)
   })
 })

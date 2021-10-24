@@ -82,7 +82,7 @@ class CombinedTalkback<T> implements Talkback {
 
     this.buffer[index] = data
     if (this.bufferCounter === this.sources.length) {
-      this.sink.receive(this.buffer as T[])
+      this.sink.receive([...this.buffer as T[]])
     }
   }
 

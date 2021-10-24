@@ -2,8 +2,8 @@ import { fake, useFakeTimers } from 'sinon'
 import sleep from 'sleep-promise'
 
 import { pullAfter } from '../pull-after'
-import { pipe } from '../../util'
-import { iterable } from '../../sources'
+import { pipe, source, talkback } from '../../util'
+import { iterable, interval } from '../../sources'
 import { map } from '../../transforms'
 import { tap, observe, finalize } from '../../sinks'
 
@@ -92,5 +92,34 @@ describe('pullAfter()', () => {
     cb.should.have.been.calledOnce
     cb.should.have.been.calledWith(1)
     cb2.should.have.been.calledOnce
+  })
+
+  it('should not pull if the source has ended in the meanwhile.', () => {
+    const cb = fake()
+    const cb2 = fake()
+    const clock = useFakeTimers()
+
+    const src = source(sink => {
+      sink.greet(talkback({
+        start() {
+          sink.receive(42)
+          sink.end()
+        },
+        request: cb
+      }))
+    })
+
+    pipe(
+      src,
+      pullAfter(() => interval(100)),
+      tap(cb2),
+      observe
+    )
+
+    clock.tick(100)
+    cb2.should.have.been.calledOnce
+    cb.should.have.been.calledOnce
+
+    clock.restore()
   })
 })
