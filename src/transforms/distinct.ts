@@ -44,6 +44,12 @@ export class DistinctSource<T> implements Source<T> {
 }
 
 
+// TODO: I would love some better typing, so that this can be used in a curried
+// manner as well:
+// ```ts
+// pipe(src, distinct, ...)
+// pipe(src, distinct(erq), ...)
+// ```
 export function distinct<T>(source: Source<T>, equals: Equals<T> = _shallowEq) {
   return new DistinctSource(source, equals)
 }

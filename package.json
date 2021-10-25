@@ -1,6 +1,6 @@
 {
   "name": "streamlets",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "protocol and utilities for light-weight data streams",
   "keywords": [
     "stream",
