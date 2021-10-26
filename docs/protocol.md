@@ -107,6 +107,12 @@ interface Talkback {
 
 1. A source **MAY** end a stream **IF AND ONLY IF** all of the conditions of (2) hold. The source **MAY** provide a reason (e.g. error). The source **SHALL NOT** end the stream even if one of the conditions of (2) does not hold.
 
+1. A sink **MAY** start a stream **IF AND ONLY IF** all of the following conditions hold. A sink **SHALL NOT** start the stream even if one of the following does not hold:
+    - The sink was connected to the source.
+    - The sink was greeted by the source.
+    - The sink has not started the stream yet, or it has stopped the stream after the last time it has started it.
+    - The source has not already ended the stream.
+
 1. A sink **MAY** stop a stream **IF AND ONLY IF** all of the conditions of (2) hold. The sink **MAY** provide a reason (e.g. error). The sink **SHALL NOT** stop the stream even if one of the conditions of (2) does not hold.
 
 <br><br>
