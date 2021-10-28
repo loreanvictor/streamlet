@@ -159,4 +159,63 @@ describe('flatten()', () => {
       pipe(new Subject(), flatten, observe).stop()
     }).to.not.throw()
   })
+
+  it('should not end until the last inner source has ended.', () => {
+    const cb = fake()
+    const cb2 = fake()
+
+    const a = new Subject()
+    const b = new Subject()
+    const c = new Subject()
+
+    pipe(
+      of(a, b, c),
+      flatten,
+      tap(cb),
+      finalize(cb2),
+      iterate
+    )
+
+    a.receive(1)
+    b.receive(2)
+    c.receive(3)
+    cb.should.have.been.calledOnceWith(3)
+    cb2.should.not.have.been.called
+
+    a.end()
+    b.end()
+    cb2.should.not.have.been.called
+
+    c.end()
+    cb2.should.have.been.calledOnce
+  })
+
+  it('should end properly when the outer source ends while there is no inner source.', () => {
+    const cb = fake()
+    const cb2 = fake()
+
+    const outer = new Subject()
+    const a = new Subject()
+    const b = new Subject()
+
+    pipe(
+      outer,
+      flatten,
+      tap(cb),
+      finalize(cb2),
+      observe
+    )
+
+    outer.receive(a)
+    outer.receive(b)
+    a.receive(1)
+    b.receive(2)
+    cb.should.have.been.calledOnceWith(2)
+
+    b.end()
+    cb2.should.not.have.been.called
+
+    outer.end(42)
+    cb2.should.have.been.calledOnceWith(42)
+  })
 })

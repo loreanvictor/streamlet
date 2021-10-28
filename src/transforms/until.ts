@@ -39,7 +39,7 @@ class UntilGateSink<T> implements Sink<T>, Talkback {
 
   stop(reason?: unknown) {
     this.shouldStart = false
-    this.talkback?.stop(reason)
+    this.talkback!.stop(reason)
   }
 }
 

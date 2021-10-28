@@ -52,7 +52,9 @@ class FlattenedInnerSink<T> implements Sink<T> {
       this.sink.sink.end(reason)
     } else {
       this.sink.innerTalkback = undefined
-      if (!this.sink.talkback.disposed
+      if (this.sink.ended) {
+        this.sink.sink.end()
+      } else if (!this.sink.talkback.disposed
           && this.sink.talkback.requested) {
         this.sink.outerTalkback.request()
       }
@@ -65,6 +67,7 @@ export class FlattenedSink<T> implements Sink<Source<T>> {
   outerTalkback: Talkback
   innerTalkback: Talkback | undefined
   talkback: FlattenedTalkback<T>
+  ended = false
 
   constructor(
     readonly sink: Sink<T>,
@@ -84,9 +87,16 @@ export class FlattenedSink<T> implements Sink<Source<T>> {
   }
 
   end(reason?: unknown) {
-    this.innerTalkback?.stop()
-    this.innerTalkback = undefined
-    this.sink.end(reason)
+    if (reason !== undefined) {
+      this.innerTalkback?.stop(reason)
+      this.innerTalkback = undefined
+      this.sink.end(reason)
+    } else {
+      this.ended = true
+      if (!this.innerTalkback) {
+        this.sink.end()
+      }
+    }
   }
 }
 
