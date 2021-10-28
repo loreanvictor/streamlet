@@ -58,7 +58,7 @@ interface Talkback {
 - A _source_ is any object satisfying the `Source` interface described above.
 - A _sink_ is any object satisfying the `Sink` interface described above.
 - A _talkback_ is any object satisfying the `Talkback` interface described above.
-- A _stream_ refers to the flow of data from a _source_ to a _sink_. When talking about a _stream_, the terms _the source_ might be used to reference the source which the _stream_ represents the flow of data from, and _the sink_ might beused to reference the sink which the _stream_ represents the flow of data to.
+- A _stream_ refers to the flow of data from a _source_ to a _sink_. When talking about a _stream_, _the source_ might be used to reference the source which the _stream_ represents the flow of data from, and _the sink_ might be used to reference the sink which the _stream_ represents the flow of data to.
 - _A source connects to a sink_, _a sink is connected to a source_, or _a sink and a source are connected_, when `.connect()` method on the source has been invoked
   with the sink as its argument. _A connected sink (of a source)_ is a sink that was connected with the source.
   ```ts
@@ -106,6 +106,12 @@ interface Talkback {
 1. A sink **MAY** request data **IF AND ONLY IF** all of the conditions of (2) hold. The sink **SHALL NOT** request data even if one of the conditions of (2) does not hold.
 
 1. A source **MAY** end a stream **IF AND ONLY IF** all of the conditions of (2) hold. The source **MAY** provide a reason (e.g. error). The source **SHALL NOT** end the stream even if one of the conditions of (2) does not hold.
+
+1. A sink **MAY** start a stream **IF AND ONLY IF** all of the following conditions hold. A sink **SHALL NOT** start the stream even if one of the following does not hold:
+    - The sink was connected to the source.
+    - The sink was greeted by the source.
+    - The sink has not started the stream yet, or it has stopped the stream after the last time it has started it.
+    - The source has not already ended the stream.
 
 1. A sink **MAY** stop a stream **IF AND ONLY IF** all of the conditions of (2) hold. The sink **MAY** provide a reason (e.g. error). The sink **SHALL NOT** stop the stream even if one of the conditions of (2) does not hold.
 
