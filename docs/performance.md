@@ -42,7 +42,8 @@ running macOS Catalina, and on [Node.js](https://nodejs.org/en/) (details below)
 
 </details>
 
-<img width="1013" alt="Screen Shot 2021-10-18 at 3 41 43 PM" src="https://user-images.githubusercontent.com/13572283/137743863-950f77bd-e2d7-4fd2-a6a5-c1f3fefd7225.png">
+<img width="1010" alt="Screen Shot 2021-10-30 at 10 28 30 PM" src="https://user-images.githubusercontent.com/13572283/139557534-9e1da456-5215-444d-851e-1c53099250b6.png">
+
 
 ---
 
@@ -83,9 +84,9 @@ pipe(
 
 | Lib                  | Performance                    | RME        | # of Runs |
 | -------------------- | ------------------------------ | ---------- | --------- |
-| Streamlets           | 2,213,525 ops/sec              |  ±0.52%    | 90        |
-| Callbags             | 1,830,351 ops/sec              |  ±39.45%   | 94        |
-| RxJS                 | 683,889 ops/sec                |  ±1.31%    | 89        |
+| Streamlets           | 2,181,748 ops/sec              |  ±0.47%    | 92        |
+| Callbags             | 2,210,324 ops/sec              |  ±0.55%    | 95        |
+| RxJS                 | 667,889 ops/sec                |  ±0.47%    | 91        |
 
 ---
 
