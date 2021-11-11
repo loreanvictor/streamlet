@@ -17,6 +17,7 @@ export class Notification<T> implements Sink<T>, Talkback {
     this.talkback?.stop()
   }
 
+  // TODO: add error handling (throw received errors)
   end() {}
 
   start() {}

@@ -126,4 +126,20 @@ describe('observeLater()', () => {
     obs.request()
     start.should.have.been.calledOnce
   })
+
+  it('should start when `.start()` was invoked before being greeted.', () => {
+    const clock = useFakeTimers()
+
+    const start = fake()
+    const src = source(sink => setTimeout(() => sink.greet(talkback({ start })), 10))
+    const obs = observeLater(src)
+
+    start.should.not.have.been.called
+    obs.start()
+    start.should.not.have.been.called
+    clock.tick(10)
+    start.should.have.been.calledOnce
+
+    clock.restore()
+  })
 })

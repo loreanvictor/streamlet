@@ -98,6 +98,18 @@ describe('iterate()', () => {
       iter.stop()
     }).to.not.throw()
   })
+
+  it('should not stop the stream more than once.', () => {
+    const stop = fake()
+    const src = source(sink => sink.greet(talkback({ stop })))
+
+    const iter = iterate(src)
+    iter.start()
+    iter.stop()
+    iter.stop()
+
+    stop.should.have.been.calledOnce
+  })
 })
 
 
@@ -121,5 +133,21 @@ describe('iterateLater()', () => {
     start.should.not.have.been.called
     iter.request()
     start.should.have.been.calledOnce
+  })
+
+  it('should start when `.start()` was invoked before being greeted.', () => {
+    const clock = useFakeTimers()
+
+    const start = fake()
+    const src = source(sink => setTimeout(() => sink.greet(talkback({ start })), 10))
+    const it = iterateLater(src)
+
+    start.should.not.have.been.called
+    it.start()
+    start.should.not.have.been.called
+    clock.tick(10)
+    start.should.have.been.calledOnce
+
+    clock.restore()
   })
 })

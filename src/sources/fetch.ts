@@ -30,8 +30,10 @@ class FetchTalkback implements Talkback {
         this.sink.receive(response)
       })
       .catch(error => {
-        this.controller = undefined
-        this.sink.end(error)
+        if (!this.controller?.signal.aborted) {
+          this.controller = undefined
+          this.sink.end(error)
+        }
       })
   }
 

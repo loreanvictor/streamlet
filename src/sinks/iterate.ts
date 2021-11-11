@@ -13,6 +13,8 @@ export class Iteration<T> implements Sink<T>, Talkback {
 
       if (this.autostart) {
         this.start()
+      } else if (this.started) {
+        this.talkback.start()
       }
     }
   }
@@ -26,21 +28,26 @@ export class Iteration<T> implements Sink<T>, Talkback {
     this.talkback?.request()
   }
 
-  end() {}
+  end() {
+    this.started = false
+    this.talkback = undefined
+  }
 
   start(req = true) {
-    if (!this.started && this.talkback) {
+    if (!this.started) {
       this.started = true
-      this.talkback.start()
+      this.talkback?.start()
       if (req) {
-        this.talkback.request()
+        this.talkback?.request()
       }
     }
   }
 
   stop() {
-    this.started = false
-    this.talkback?.stop()
+    if (this.started) {
+      this.started = false
+      this.talkback?.stop()
+    }
   }
 }
 
