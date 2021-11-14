@@ -3,7 +3,8 @@ import { fake, useFakeTimers } from 'sinon'
 import { take } from '../take'
 import { of, Subject, iterable, interval } from '../../sources'
 import { tap, finalize, observe, iterate } from '../../sinks'
-import { pipe } from '../../util'
+import { Talkback, Sink } from '../../types'
+import { pipe, connect} from '../../util'
 
 
 describe('take()', () => {
@@ -62,11 +63,22 @@ describe('take()', () => {
     const cb = fake()
     const clock = useFakeTimers()
 
+    class Gazer implements Sink<any>, Talkback {
+      talkback: Talkback
+
+      greet(tb: Talkback) { (this.talkback = tb).start() }
+      receive() {}
+      end() {}
+      start() { this.talkback.start() }
+      request() { this.talkback.request() }
+      stop() { this.talkback.stop() }
+    }
+
     const o = pipe(
       interval(100),
       take(3),
       tap(cb),
-      observe
+      connect(new Gazer()),
     )
 
     clock.tick(100)

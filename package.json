@@ -1,6 +1,6 @@
 {
   "name": "streamlets",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "protocol and utilities for light-weight data streams",
   "keywords": [
     "stream",
@@ -60,6 +60,7 @@
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@types/benchmark": "^2.1.1",
     "@types/chai": "^4.2.21",
+    "@types/chai-as-promised": "^7.1.4",
     "@types/estree": "^0.0.47",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.9.1",
@@ -71,6 +72,7 @@
     "callbag-common": "^0.1.8",
     "callbag-subject": "^2.1.0",
     "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
     "chalk": "^4.1.2",
     "eslint": "^7.32.0",
     "fetch-mock": "^9.11.0",

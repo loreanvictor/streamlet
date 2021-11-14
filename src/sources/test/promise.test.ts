@@ -3,7 +3,8 @@ import { expect } from 'chai'
 
 import { promise } from '../promise'
 import { pipe } from '../../util'
-import { tap, finalize, observe } from '../../sinks'
+import { share } from '../../transforms'
+import { tap, finalize, observe, observeLater } from '../../sinks'
 
 
 describe('promise()', () => {
@@ -84,6 +85,24 @@ describe('promise()', () => {
     await clock.nextAsync()
 
     cb.should.not.have.been.called
+
+    clock.restore()
+  })
+
+  it('should immediately end the sink when its internal promise has already resolved.', async () => {
+    const cb = fake()
+    const cb2 = fake()
+    const clock = useFakeTimers()
+
+    const src = share(promise(Promise.resolve(42)))
+    observe(src)
+
+    await clock.nextAsync()
+
+    const ob = pipe(src, tap(cb), finalize(cb2), observeLater)
+    ob.start()
+    cb.should.not.have.been.called
+    cb2.should.have.been.calledOnce
 
     clock.restore()
   })

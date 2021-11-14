@@ -1,8 +1,10 @@
 import { fake, useFakeTimers } from 'sinon'
+import { expect } from 'chai'
 import network from 'fetch-mock'
 
 import { fetch$ } from '../fetch'
-import { pipe } from '../../util'
+import { Talkback } from '../../types'
+import { pipe, sink, connect } from '../../util'
 import { tap, observe, finalize, observeLater } from '../../sinks'
 
 
@@ -128,6 +130,38 @@ describe('fetch()', () => {
 
     obs.stop()
     await clock.nextAsync()
+    cb.should.not.have.been.called
+
+    network.restore()
+    clock.restore()
+  })
+
+  it('should be cool with redundant stops after it has ended.', async () => {
+    const cb = fake()
+    const clock = useFakeTimers()
+    network.get('http://example.com/', {throws: new Error('test')})
+
+    const naggy = () => {
+      let tb: Talkback
+
+      return sink({
+        greet: t => (tb = t).start(),
+        end: () => {
+          try {
+            tb.stop()
+          } catch {
+            cb()
+          }
+        }
+      })
+    }
+
+    const src = fetch$('http://example.com/')
+    await expect((async () => {
+      connect(src, naggy())
+      await clock.nextAsync()
+    })()).eventually.to.not.be.rejected
+
     cb.should.not.have.been.called
 
     network.restore()

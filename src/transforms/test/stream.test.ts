@@ -4,7 +4,8 @@ import { stream } from '../stream'
 import { iterable, of } from '../../sources'
 import { pullrate } from '../../transforms'
 import { tap, observe, iterate } from '../../sinks'
-import { pipe, source, talkback } from '../../util'
+import { Talkback } from '../../types'
+import { pipe, source, talkback, sink, connect } from '../../util'
 
 
 describe('stream()', () => {
@@ -104,10 +105,24 @@ describe('stream()', () => {
       }))
     })
 
+    const spammer = () => {
+      let tb: Talkback
+
+      return sink({
+        greet(tb_) {
+          (tb = tb_).start()
+          tb.request()
+        },
+
+        receive: () => tb.request(),
+        end: () => tb.request(),
+      })
+    }
+
     pipe(
       src,
       stream,
-      iterate
+      connect(spammer())
     )
 
     cb.should.not.have.been.called
