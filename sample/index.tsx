@@ -2,15 +2,17 @@
 
 import 'isomorphic-fetch'
 
-import sleep from 'sleep-promise'
+import { interval, batch, expr, pipe, tap, map, observe } from '../src'
 
-import { interval, next, backpress } from '../src'
 
-const f = async () => {
-  for await (const x of next(backpress(interval(500)))) {
-    console.log(x)
-    await sleep(600)
-  }
-}
+const a = interval(500)
+const b = interval(1000)
 
-f()
+
+pipe(
+  expr($ => $(a) + $(b)),
+  batch(),
+  tap(x => console.log(x)),
+  observe
+)
+
