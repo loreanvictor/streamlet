@@ -2,7 +2,7 @@
 
 import 'isomorphic-fetch'
 
-import { interval, batch, expr, pipe, tap, map, observe } from '../src'
+import { interval, batch, memo, pipe, tap, map, observe } from '../src'
 
 
 const a = interval(500)
@@ -10,7 +10,7 @@ const b = interval(1000)
 
 
 pipe(
-  expr($ => $(a) + $(b)),
+  memo($ => $(a) + $(b)),
   batch(),
   tap(x => console.log(x)),
   observe

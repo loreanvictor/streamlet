@@ -8,15 +8,15 @@ export type ExprFunc<R> = ($: TrackFunc, _: TrackFunc) => R
 
 class TrackingNotEmitted extends Error {}
 
-class MaskMultiplexer extends Multiplexer<unknown, void, Tracking<unknown>> {
-  constructor(trackings: Tracking<unknown>[]) { super(trackings, true) }
-  act(tracking: Tracking<unknown>) { tracking.seen = false }
+class MaskMultiplexer extends Multiplexer<unknown, void, ExprTracking<unknown>> {
+  constructor(trackings: ExprTracking<unknown>[]) { super(trackings, true) }
+  act(tracking: ExprTracking<unknown>) { tracking.seen = false }
 }
 
 
-class StartMultiplexer extends Multiplexer<unknown, void, Tracking<unknown>> {
-  constructor(trackings: Tracking<unknown>[]) { super(trackings, true) }
-  act(tracking: Tracking<unknown>) {
+class StartMultiplexer extends Multiplexer<unknown, void, ExprTracking<unknown>> {
+  constructor(trackings: ExprTracking<unknown>[]) { super(trackings, true) }
+  act(tracking: ExprTracking<unknown>) {
     if (tracking.talkback && !tracking.disposed) {
       tracking.talkback.start()
     }
@@ -24,9 +24,9 @@ class StartMultiplexer extends Multiplexer<unknown, void, Tracking<unknown>> {
 }
 
 
-class StopMultiplexer extends Multiplexer<unknown, Tracking<unknown> | void, Tracking<unknown>> {
-  constructor(trackings: Tracking<unknown>[]) { super(trackings, true) }
-  act(tracking: Tracking<unknown>, exempt?: Tracking<unknown>) {
+class StopMultiplexer extends Multiplexer<unknown, ExprTracking<unknown> | void, ExprTracking<unknown>> {
+  constructor(trackings: ExprTracking<unknown>[]) { super(trackings, true) }
+  act(tracking: ExprTracking<unknown>, exempt?: ExprTracking<unknown>) {
     if (tracking !== exempt && tracking.talkback && !tracking.disposed) {
       tracking.talkback.stop()
     }
@@ -34,13 +34,13 @@ class StopMultiplexer extends Multiplexer<unknown, Tracking<unknown> | void, Tra
 }
 
 
-class RequestMultiplexer extends Multiplexer<unknown, void, Tracking<unknown>> {
-  constructor(trackings: Tracking<unknown>[]) { super(trackings, true) }
-  act(tracking: Tracking<unknown>) { tracking.talkback?.request() }
+class RequestMultiplexer extends Multiplexer<unknown, void, ExprTracking<unknown>> {
+  constructor(trackings: ExprTracking<unknown>[]) { super(trackings, true) }
+  act(tracking: ExprTracking<unknown>) { tracking.talkback?.request() }
 }
 
 
-class Tracking<T> implements Sink<T> {
+export class ExprTracking<T> implements Sink<T> {
   talkback: Talkback | undefined
   value: T
   seen = true
@@ -79,11 +79,11 @@ class Tracking<T> implements Sink<T> {
 }
 
 
-class ExprTalkback<R> implements Talkback {
+export class ExprTalkback<R> implements Talkback {
   initial = true
 
-  trackings: Tracking<unknown>[] = []
-  trackmap = new WeakMap<Source<unknown>, Tracking<unknown>>()
+  trackings: ExprTracking<unknown>[] = []
+  trackmap = new WeakMap<Source<unknown>, ExprTracking<unknown>>()
   activeTrack: TrackFunc
   passiveTrack: TrackFunc
 
@@ -112,13 +112,13 @@ class ExprTalkback<R> implements Talkback {
     }
   }
 
-  run(tracking?: Tracking<unknown>) {
+  run(tracking?: ExprTracking<unknown>) {
     this.maskMux.send()
     try {
       const value = this.source._expr(this.activeTrack, this.passiveTrack)
 
       if (!this.disposed && (!tracking || tracking.seen)) {
-        this.sink.receive(value)
+        this.delegate(value)
       }
     } catch (error) {
       if (!this.disposed && !(error instanceof TrackingNotEmitted)) {
@@ -127,30 +127,7 @@ class ExprTalkback<R> implements Talkback {
     }
   }
 
-  connect<T>(source: Source<T>, active: boolean): Tracking<T> {
-    let tracking = this.trackmap.get(source) as Tracking<T>
-    if (!tracking) {
-      tracking = new Tracking(source, active, this)
-      this.trackings.push(tracking)
-      this.trackmap.set(source, tracking)
-      source.connect(tracking)
-    }
-
-    return tracking
-  }
-
-  track<T>(source: Source<T>, active: boolean) {
-    const tracking = this.connect(source, active)
-    tracking.seen = true
-
-    if (!tracking.emitted) {
-      throw new TrackingNotEmitted()
-    }
-
-    return tracking.value
-  }
-
-  error(reason: unknown, source?: Tracking<unknown>) {
+  error(reason: unknown, source?: ExprTracking<unknown>) {
     this.disposed = true
     this.sink.end(reason)
     this.stopMux.send(source)
@@ -171,6 +148,37 @@ class ExprTalkback<R> implements Talkback {
 
   stop() {
     this.stopMux.send()
+  }
+
+  protected delegate(value: R) {
+    this.sink.receive(value)
+  }
+
+  protected startTracking<T>(source: Source<T>, active: boolean): ExprTracking<T> {
+    return new ExprTracking(source, active, this)
+  }
+
+  protected connect<T>(source: Source<T>, active: boolean): ExprTracking<T> {
+    let tracking = this.trackmap.get(source) as ExprTracking<T>
+    if (!tracking) {
+      tracking = this.startTracking(source, active)
+      this.trackings.push(tracking)
+      this.trackmap.set(source, tracking)
+      source.connect(tracking)
+    }
+
+    return tracking
+  }
+
+  protected track<T>(source: Source<T>, active: boolean) {
+    const tracking = this.connect(source, active)
+    tracking.seen = true
+
+    if (!tracking.emitted) {
+      throw new TrackingNotEmitted()
+    }
+
+    return tracking.value
   }
 }
 
