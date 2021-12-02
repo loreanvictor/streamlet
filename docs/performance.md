@@ -200,22 +200,22 @@ const s = subject<number>()
 
 const o = pipe(
   s,
-  cbmap(x => pipe(
-    cbof(x, x, x * 2, x * 3),
-    cbfilter(y => y % 2 === 0)
+  map(x => pipe(
+    of(x, x, x * 2, x * 3),
+    filter(y => y % 2 === 0)
   )),
-  cbflatten,
+  flatten,
 )
 
-cbsubscribe(() => {})(o)
-cbsubscribe(() => {})(o)
-cbsubscribe(() => {})(o)
-cbsubscribe(() => {})(o)
-cbsubscribe(() => {})(o)
-cbsubscribe(() => {})(o)
-cbsubscribe(() => {})(o)
-cbsubscribe(() => {})(o)
-cbsubscribe(() => {})(o)
+subscribe(() => {})(o)
+subscribe(() => {})(o)
+subscribe(() => {})(o)
+subscribe(() => {})(o)
+subscribe(() => {})(o)
+subscribe(() => {})(o)
+subscribe(() => {})(o)
+subscribe(() => {})(o)
+subscribe(() => {})(o)
 
 for (let i = 0; i < 10; i++) { s(1, i) }
 s(2)
