@@ -34,15 +34,15 @@ running macOS Catalina, and on [Node.js](https://nodejs.org/en/) (details below)
   ts-node v9.0.0
 
 - **Packages** \
-  streamlets@0.2.1 \
-  rxjs@7.4.0 \
+  streamlets@0.4.7 \
+  rxjs@7.5.4 \
   callbag-common@0.1.8 \
   callbag-subject@2.1.0 \
   benchmark@2.1.4
 
 </details>
 
-<img width="1010" alt="Screen Shot 2021-10-30 at 10 28 30 PM" src="https://user-images.githubusercontent.com/13572283/139557534-9e1da456-5215-444d-851e-1c53099250b6.png">
+<img width="1002" alt="Screen Shot 2022-02-10 at 2 12 26 PM" src="https://user-images.githubusercontent.com/13572283/153415382-92688d62-c58f-42b1-b380-d124c8cd4e66.png">
 
 
 ---
@@ -84,9 +84,9 @@ pipe(
 
 | Lib                  | Performance                    | RME        | # of Runs |
 | -------------------- | ------------------------------ | ---------- | --------- |
-| Streamlets           | 2,181,748 ops/sec              |  ±0.47%    | 92        |
-| Callbags             | 2,210,324 ops/sec              |  ±0.55%    | 95        |
-| RxJS                 | 667,889 ops/sec                |  ±0.47%    | 91        |
+| Streamlets           | 2,224,961 ops/sec              |  ±0.40%    | 91        |
+| Callbags             | 2,251,072 ops/sec              |  ±0.24%    | 94        |
+| RxJS                 | 688,200 ops/sec                |  ±0.30%    | 97        |
 
 ---
 
@@ -134,9 +134,9 @@ pipe(
 
 | Lib                  | Performance                    | RME        | # of Runs |
 | -------------------- | ------------------------------ | ---------- | --------- |
-| Streamlets           | 259,486 ops/sec                |  ±1.80%    | 90        |
-| Callbags             | 231,507 ops/sec                |  ±0.46%    | 90        |
-| RxJS                 | 99,086 ops/sec                 |  ±1.10%    | 90        |
+| Streamlets           | 272,670 ops/sec                |  ±0.27%    | 95        |
+| Callbags             | 225,194 ops/sec                |  ±0.16%    | 93        |
+| RxJS                 | 96,322 ops/sec                 |  ±0.42%    | 92        |
 
 ---
 
@@ -224,9 +224,9 @@ s(2)
 
 | Lib                  | Performance                    | RME        | # of Runs |
 | -------------------- | ------------------------------ | ---------- | --------- |
-| Streamlets           | 28,927 ops/sec                 |  ±0.25%    | 90        |
-| Callbags             | 21,553 ops/sec                 |  ±2.71%    | 92        |
-| RxJS                 | 10,159 ops/sec                 |  ±1.98%    | 91        |
+| Streamlets           | 28,744 ops/sec                 |  ±0.39%    | 94        |
+| Callbags             | 22,811 ops/sec                 |  ±0.17%    | 95        |
+| RxJS                 | 9,857 ops/sec                  |  ±0.20%    | 97        |
   
 ---
   
@@ -277,9 +277,9 @@ pipe(
   
 | Lib                  | Performance                    | RME        | # of Runs |
 | -------------------- | ------------------------------ | ---------- | --------- |
-| Streamlets           | 216 ops/sec                    |  ±1.27%    | 83        |
-| Callbags             | 199 ops/sec                    |  ±0.58%    | 83        |
-| RxJS                 | 107 ops/sec                    |  ±0.37%    | 77        |
+| Streamlets           | 230 ops/sec                    |  ±0.24%    | 88        |
+| Callbags             | 199 ops/sec                    |  ±0.28%    | 83        |
+| RxJS                 | 103 ops/sec                    |  ±0.26%    | 75        |
 
 ---
 
