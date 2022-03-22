@@ -1,7 +1,7 @@
 import { fake, useFakeTimers } from 'sinon'
 import { expect } from 'chai'
 
-import { of, interval, iterable } from '../../sources'
+import { Subject, of, interval, iterable } from '../../sources'
 import { pipe, source, talkback } from '../../util'
 import { notify } from '../notify'
 
@@ -68,6 +68,23 @@ describe('notify', () => {
     expect(() => {
       notif.request()
       notif.stop()
+      notif.start()
+      notif.request()
     }).to.not.throw()
+  })
+
+  it('should be pausable / resumable.', () => {
+    const src = new Subject()
+    const cb = fake()
+
+    const notif = notify(src, cb)
+
+    notif.stop()
+    src.receive('A')
+    cb.should.not.have.been.called
+
+    notif.start()
+    src.receive('B')
+    cb.should.have.been.calledOnceWith('B')
   })
 })

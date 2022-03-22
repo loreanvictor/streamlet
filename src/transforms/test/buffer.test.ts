@@ -6,7 +6,7 @@ import { tap, observe, finalize } from '../../sinks'
 import { pipe } from '../../util'
 
 
-describe('pullBuffer()', () => {
+describe('buffer()', () => {
   it('should buffer incoming emissions and wait for them to be pulled.', () => {
     const cb = fake()
     const cb2 = fake()

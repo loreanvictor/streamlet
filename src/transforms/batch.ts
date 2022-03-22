@@ -15,7 +15,7 @@ class ReleaseMultiplexer<I, O> extends Multiplexer<I, void, BatchedSink<I, O>> {
 export class BatchedSink<I, O=I> implements Sink<I>, Talkback {
   talkback: Talkback
   last?: O
-  task: Promise<void> | undefined = undefined
+  hasTask = false
 
   constructor(
     readonly source: BatchedSource<I, O>,
@@ -30,22 +30,21 @@ export class BatchedSink<I, O=I> implements Sink<I>, Talkback {
   receive(value: I) {
     this.last = this.source.select(value, this.last)
 
-    if (!this.task) {
-      this.task = Promise.resolve().then(() => {
-        this.release()
-      })
+    if (!this.hasTask) {
+      this.hasTask = true
+      Promise.resolve().then(() => this.release())
     }
   }
 
   release() {
-    if (this.task) {
-      this.task = undefined
+    if (this.hasTask) {
+      this.hasTask = false
       this.sink.receive(this.last!)
     }
   }
 
   end(reason?: unknown) {
-    this.task = undefined
+    this.hasTask = false
     this.source.unplug(this)
     this.sink.end(reason)
   }
@@ -60,7 +59,7 @@ export class BatchedSink<I, O=I> implements Sink<I>, Talkback {
   }
 
   stop(reason?: unknown) {
-    this.task = undefined
+    this.hasTask = false
     this.source.unplug(this)
     this.talkback.stop(reason)
   }
