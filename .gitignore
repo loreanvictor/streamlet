@@ -105,3 +105,6 @@ dist
 
 # VSCode workspace files
 *.code-workspace
+
+# I don't know what kind of file is this
+.DS_Store
