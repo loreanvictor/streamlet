@@ -1,7 +1,7 @@
-import { terser } from 'rollup-plugin-terser';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
+import { terser } from 'rollup-plugin-terser'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
 
-import base from './base';
+import base from './base'
 
 
 export default Object.assign(base, {
@@ -18,4 +18,4 @@ export default Object.assign(base, {
       format: 'es'
     }
   ]
-});
+})

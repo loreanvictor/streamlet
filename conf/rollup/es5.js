@@ -1,15 +1,15 @@
-import babel from '@rollup/plugin-babel';
-import { terser } from 'rollup-plugin-terser';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
+import babel from '@rollup/plugin-babel'
+import { terser } from 'rollup-plugin-terser'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
 
-import base from './base';
+import base from './base'
 
 
 export default Object.assign(base, {
   plugins: [
     babel({
       exclude: 'node_modules/**',
-      presets: ["@babel/preset-env"],
+      presets: ['@babel/preset-env'],
     }),
     terser(),
     nodeResolve(),
@@ -17,4 +17,4 @@ export default Object.assign(base, {
   output: Object.assign(base.output, {
     file: 'dist/bundles/streamlet.es5.min.js',
   }),
-});
+})

@@ -1,6 +1,6 @@
 {
   "name": "streamlets",
-  "version": "0.4.8",
+  "version": "0.5.0",
   "description": "protocol and utilities for light-weight data streams",
   "keywords": [
     "stream",
@@ -9,7 +9,7 @@
     "observable",
     "iterable"
   ],
-  "main": "dist/es5/index.js",
+  "main": "dist/commonjs/index.js",
   "module": "dist/es6/index.js",
   "types": "dist/es6/index.d.ts",
   "targets": {
@@ -20,9 +20,9 @@
   "scripts": {
     "start": "ts-node ./sample",
     "test": "mocha -r ./conf/test src/**/*.test.ts src/**/*.test.tsx",
-    "build-es5": "tsc -p conf/typescript/es5.json",
+    "build-commonjs": "tsc -p conf/typescript/commonjs.json",
     "build-es6": "tsc -p conf/typescript/es6.json",
-    "build": "npm run build-es5 && npm run build-es6",
+    "build": "npm run build-commonjs && npm run build-es6",
     "pack": "rollup -c conf/rollup/es6.js && rollup -c conf/rollup/es5.js",
     "cov:inst": "nyc instrument --compact false src .instrumented",
     "cov:gen": "nyc npm run test",
@@ -36,7 +36,7 @@
   },
   "files": [
     "dist/es6",
-    "dist/es5",
+    "dist/commonjs",
     "dist/bundles"
   ],
   "repository": {
