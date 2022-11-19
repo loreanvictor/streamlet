@@ -5,6 +5,7 @@ import { Multiplexer } from '../util'
 export type TrackFunc = {
   <T>(source: Source<T>): T
   n<T>(source: Source<T>): T | undefined
+  on(...sources: Source<unknown>[]): void
 }
 export type ExprFunc<R> = ($: TrackFunc, _: TrackFunc) => R
 
@@ -84,6 +85,7 @@ export class ExprTracking<T> implements Sink<T> {
 export class ExprTalkback<R> implements Talkback {
   initial = true
   midInitialRun = false
+  defaultActive = true
 
   trackings: ExprTracking<unknown>[] = []
   trackmap = new WeakMap<Source<unknown>, ExprTracking<unknown>>()
@@ -102,11 +104,16 @@ export class ExprTalkback<R> implements Talkback {
     readonly source: ExprSource<R>,
     readonly sink: Sink<R>,
   ) {
-    this.activeTrack = (src => this.track(src, true)) as TrackFunc
+    this.activeTrack = (src => this.track(src, this.defaultActive)) as TrackFunc
     this.passiveTrack = (src => this.track(src, false)) as TrackFunc
 
-    this.activeTrack.n = src => this.track(src, true, true)
+    this.activeTrack.n = src => this.track(src, this.defaultActive, true)
     this.passiveTrack.n = src => this.track(src, false, true)
+
+    this.activeTrack.on = this.passiveTrack.on = (...sources) => {
+      this.defaultActive = false
+      sources.forEach(src => this.track(src, true))
+    }
   }
 
   start() {
@@ -126,6 +133,7 @@ export class ExprTalkback<R> implements Talkback {
     }
 
     this.maskMux.send()
+
     try {
       const value = this.source._expr(this.activeTrack, this.passiveTrack)
 

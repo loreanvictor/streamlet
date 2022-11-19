@@ -373,4 +373,39 @@ describe('expr()', () => {
     b.receive('b')
     cb.should.have.been.calledOnceWith('A:b')
   })
+
+  it('should support explicit tracking.', () => {
+    const cb = fake()
+
+    const a = new Subject<number>()
+    const b = new Subject<number>()
+    const c = new Subject<number>()
+
+    observe(expr($ => {
+      $.on(a, b)
+
+      cb($(a) * $(b) + $(c))
+    }))
+
+    a.receive(1)
+    b.receive(2)
+    c.receive(3)
+
+    a.receive(1)
+
+    cb.should.have.been.calledOnceWith(5)
+    cb.resetHistory()
+
+    c.receive(4)
+
+    cb.should.not.have.been.called
+
+    a.receive(3)
+
+    cb.should.have.been.calledOnceWith(10)
+
+    b.receive(1)
+
+    cb.should.have.been.calledWith(7)
+  })
 })
