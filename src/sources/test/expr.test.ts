@@ -4,7 +4,7 @@ import { expect } from 'chai'
 import { expr } from '../expr'
 import { Subject, iterable, interval } from '../../sources'
 import { pipe, source, talkback } from '../../util'
-import { take } from '../../transforms'
+import { replay, take } from '../../transforms'
 import { tap, finalize, observe } from '../../sinks'
 import { Source } from '../../types'
 
@@ -291,5 +291,86 @@ describe('expr()', () => {
 
     c.receive(4)
     cb.should.have.been.calledOnceWith(4)
+  })
+
+  it('should handle observables that emit on observation precisely.', () => {
+    const cb = fake()
+
+    const a = replay(new Subject<string>())
+    a.receive('X')
+
+    observe(expr($ => cb($(a))))
+
+    cb.should.have.been.calledOnce
+  })
+
+  it('should handle nullish start on active tracking.', () => {
+    const cb = fake()
+
+    const a = new Subject<string>()
+    const b = new Subject<string>()
+
+    a.receive('X')
+
+    observe(expr($ => cb(($.n(a) ?? 'A') + ':' + ($.n(b) ?? 'B'))))
+
+    cb.should.have.been.calledOnceWith('A:B')
+
+    a.receive('a')
+    cb.should.have.been.calledWith('a:B')
+
+    b.receive('b')
+    cb.should.have.been.calledWith('a:b')
+  })
+
+  it('should handle nullish start tracking with non-nullish start tracking properly.', () => {
+    const cb = fake()
+
+    const a = new Subject<string>()
+    const b = new Subject<string>()
+
+    a.receive('X')
+
+    observe(expr($ => cb(($.n(a) ?? 'A') + ':' + ($(b) ?? 'B'))))
+
+    cb.should.not.have.been.called
+
+    b.receive('b')
+    cb.should.have.been.calledOnceWith('A:b')
+
+    a.receive('a')
+    cb.should.have.been.calledWith('a:b')
+  })
+
+  it('should ignore nullish tracking for sources who emit on observation.', () => {
+    const cb = fake()
+
+    const a = replay(new Subject<string>())
+    const b = new Subject<string>()
+
+    a.receive('X')
+    observe(expr($ => cb(($.n(a) ?? 'A') + ':' + ($.n(b) ?? 'B'))))
+
+    cb.should.have.been.calledOnceWith('X:B')
+
+    a.receive('a')
+    cb.should.have.been.calledWith('a:B')
+
+    b.receive('b')
+    cb.should.have.been.calledWith('a:b')
+  })
+
+  it('should support nullish start for passive tracking as well.', () => {
+    const cb = fake()
+
+    const a = new Subject<string>()
+    const b = new Subject<string>()
+
+    observe(expr(($, _) => cb((_.n(a) ?? 'A') + ':' + ($(b) ?? 'B'))))
+
+    cb.should.not.have.been.called
+
+    b.receive('b')
+    cb.should.have.been.calledOnceWith('A:b')
   })
 })

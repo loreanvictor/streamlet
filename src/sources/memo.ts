@@ -26,7 +26,7 @@ export class MemoTalkback<R> extends ExprTalkback<R> {
   }
 
   protected startTracking<T>(source: Source<T>, active: boolean): MemoTracking<T> {
-    return new MemoTracking<T>(source, active, this)
+    return new MemoTracking<T>(active, this)
   }
 }
 

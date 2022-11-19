@@ -2,7 +2,10 @@ import { Source, Sink, Talkback } from '../types'
 import { Multiplexer } from '../util'
 
 
-export type TrackFunc = <T>(source: Source<T>) => T
+export type TrackFunc = {
+  <T>(source: Source<T>): T
+  n<T>(source: Source<T>): T | undefined
+}
 export type ExprFunc<R> = ($: TrackFunc, _: TrackFunc) => R
 
 
@@ -48,7 +51,6 @@ export class ExprTracking<T> implements Sink<T> {
   emitted = false
 
   constructor(
-    readonly source: Source<T>,
     readonly active: boolean,
     private exprTalkback: ExprTalkback<unknown>
   ) {}
@@ -81,6 +83,7 @@ export class ExprTracking<T> implements Sink<T> {
 
 export class ExprTalkback<R> implements Talkback {
   initial = true
+  midInitialRun = false
 
   trackings: ExprTracking<unknown>[] = []
   trackmap = new WeakMap<Source<unknown>, ExprTracking<unknown>>()
@@ -99,8 +102,11 @@ export class ExprTalkback<R> implements Talkback {
     readonly source: ExprSource<R>,
     readonly sink: Sink<R>,
   ) {
-    this.activeTrack = src => this.track(src, true)
-    this.passiveTrack = src => this.track(src, false)
+    this.activeTrack = (src => this.track(src, true)) as TrackFunc
+    this.passiveTrack = (src => this.track(src, false)) as TrackFunc
+
+    this.activeTrack.n = src => this.track(src, true, true)
+    this.passiveTrack.n = src => this.track(src, false, true)
   }
 
   start() {
@@ -113,6 +119,12 @@ export class ExprTalkback<R> implements Talkback {
   }
 
   run(tracking?: ExprTracking<unknown>) {
+    if (!tracking) {
+      this.midInitialRun = true
+    } else if (this.midInitialRun) {
+      return
+    }
+
     this.maskMux.send()
     try {
       const value = this.source._expr(this.activeTrack, this.passiveTrack)
@@ -125,6 +137,8 @@ export class ExprTalkback<R> implements Talkback {
         this.error(error)
       }
     }
+
+    this.midInitialRun = false
   }
 
   error(reason: unknown, source?: ExprTracking<unknown>) {
@@ -155,7 +169,7 @@ export class ExprTalkback<R> implements Talkback {
   }
 
   protected startTracking<T>(source: Source<T>, active: boolean): ExprTracking<T> {
-    return new ExprTracking(source, active, this)
+    return new ExprTracking(active, this)
   }
 
   protected connect<T>(source: Source<T>, active: boolean): ExprTracking<T> {
@@ -170,12 +184,18 @@ export class ExprTalkback<R> implements Talkback {
     return tracking
   }
 
-  protected track<T>(source: Source<T>, active: boolean) {
+  protected track<T>(source: Source<T>, active: boolean): T
+  protected track<T>(source: Source<T>, active: boolean, nullish: true): T | undefined
+  protected track<T>(source: Source<T>, active: boolean, nullish = false) {
     const tracking = this.connect(source, active)
     tracking.seen = true
 
     if (!tracking.emitted) {
-      throw new TrackingNotEmitted()
+      if (nullish) {
+        return undefined
+      } else {
+        throw new TrackingNotEmitted()
+      }
     }
 
     return tracking.value
