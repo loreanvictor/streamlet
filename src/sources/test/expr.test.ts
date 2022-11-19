@@ -6,6 +6,7 @@ import { Subject, iterable, interval } from '../../sources'
 import { pipe, source, talkback } from '../../util'
 import { take } from '../../transforms'
 import { tap, finalize, observe } from '../../sinks'
+import { Source } from '../../types'
 
 
 describe('expr()', () => {
@@ -262,5 +263,33 @@ describe('expr()', () => {
 
     b.receive(7)
     cb.should.not.have.been.called
+  })
+
+  it('should flatten higher order observables.', () => {
+    const cb = fake()
+
+    const a = new Subject<Source<number>>()
+    observe(expr($ => cb($($(a)))))
+
+    const b = new Subject<number>()
+    b.receive(1)
+    a.receive(b)
+
+    cb.should.not.have.been.called
+
+    b.receive(2)
+    cb.should.have.been.calledOnceWith(2)
+
+    b.receive(3)
+    cb.should.have.been.calledWith(3)
+    cb.resetHistory()
+
+    const c = new Subject<number>()
+    a.receive(c)
+
+    cb.should.not.have.been.called
+
+    c.receive(4)
+    cb.should.have.been.calledOnceWith(4)
   })
 })
