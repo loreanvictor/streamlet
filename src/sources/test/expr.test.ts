@@ -1,7 +1,7 @@
 import { fake, useFakeTimers } from 'sinon'
 import { expect } from 'chai'
 
-import { expr } from '../expr'
+import { expr, SKIP } from '../expr'
 import { Subject, iterable, interval } from '../../sources'
 import { pipe, source, talkback } from '../../util'
 import { replay, take } from '../../transforms'
@@ -407,5 +407,33 @@ describe('expr()', () => {
     b.receive(1)
 
     cb.should.have.been.calledWith(7)
+  })
+
+  it('should allow skipping values.', () => {
+    const cb = fake()
+
+    const a = new Subject<number>()
+    const e = expr($ => {
+      if ($(a) % 2 === 0) {
+        return SKIP
+      } else {
+        return $(a)
+      }
+    })
+
+    pipe(
+      e,
+      tap(cb),
+      observe,
+    )
+
+    a.receive(1)
+    cb.should.have.been.calledOnceWith(1)
+
+    a.receive(2)
+    cb.should.have.been.calledOnce
+
+    a.receive(3)
+    cb.should.have.been.calledWith(3)
   })
 })

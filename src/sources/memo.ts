@@ -1,5 +1,5 @@
 import { Source, Sink } from '../types'
-import { ExprFunc, ExprTracking, ExprTalkback } from './expr'
+import { ExprFunc, ExprTracking, ExprTalkback, SKIP } from './expr'
 
 
 export class MemoTracking<T> extends ExprTracking<T> {
@@ -17,8 +17,8 @@ export class MemoTalkback<R> extends ExprTalkback<R> {
   last: R
   emitted = false
 
-  protected delegate(value: R) {
-    if (!this.emitted || value !== this.last) {
+  protected delegate(value: R | typeof SKIP) {
+    if (value !== SKIP && (!this.emitted || value !== this.last)) {
       this.emitted = true
       this.last = value
       super.delegate(value)

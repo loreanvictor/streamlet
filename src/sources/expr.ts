@@ -2,12 +2,15 @@ import { Source, Sink, Talkback } from '../types'
 import { Multiplexer } from '../util'
 
 
+export const SKIP = Symbol('SKIP')
+
+
 export type TrackFunc = {
   <T>(source: Source<T>): T
   n<T>(source: Source<T>): T | undefined
   on(...sources: Source<unknown>[]): void
 }
-export type ExprFunc<R> = ($: TrackFunc, _: TrackFunc) => R
+export type ExprFunc<R> = ($: TrackFunc, _: TrackFunc) => R | typeof SKIP
 
 
 class TrackingNotEmitted extends Error {}
@@ -172,8 +175,10 @@ export class ExprTalkback<R> implements Talkback {
     this.stopMux.send()
   }
 
-  protected delegate(value: R) {
-    this.sink.receive(value)
+  protected delegate(value: R | typeof SKIP) {
+    if (value !== SKIP) {
+      this.sink.receive(value)
+    }
   }
 
   protected startTracking<T>(source: Source<T>, active: boolean): ExprTracking<T> {

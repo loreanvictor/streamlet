@@ -4,6 +4,7 @@ import { memo } from '../memo'
 import { Subject } from '../subject'
 import { pipe } from '../../util'
 import { tap, observe } from '../../sinks'
+import { SKIP } from '../expr'
 
 
 describe('memo()', () => {
@@ -54,5 +55,36 @@ describe('memo()', () => {
 
     cb.should.have.been.calledTwice
     cb.secondCall.should.have.been.calledWith(2)
+  })
+
+  it('should also consider skips.', () => {
+    const cb = fake()
+
+    const a = new Subject<number>()
+    const e = memo($ => {
+      if ($(a) % 2 === 0) {
+        return SKIP
+      } else {
+        return $(a)
+      }
+    })
+
+    pipe(
+      e,
+      tap(cb),
+      observe,
+    )
+
+    a.receive(1)
+    cb.should.have.been.calledOnceWith(1)
+
+    a.receive(2)
+    cb.should.have.been.calledOnce
+
+    a.receive(1)
+    cb.should.have.been.calledOnce
+
+    a.receive(3)
+    cb.should.have.been.calledWith(3)
   })
 })
