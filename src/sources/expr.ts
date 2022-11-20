@@ -10,7 +10,7 @@ export type TrackFunc = {
   n<T>(source: Source<T>): T | undefined
   on(...sources: Source<unknown>[]): void
 }
-export type ExprFunc<R> = ($: TrackFunc, _: TrackFunc) => R | typeof SKIP
+export type ExprFunc<R> = ($: TrackFunc, _: TrackFunc) => R | typeof SKIP | Promise<R | typeof SKIP>
 
 
 class TrackingNotEmitted extends Error {}
@@ -89,6 +89,7 @@ export class ExprTalkback<R> implements Talkback {
   initial = true
   midInitialRun = false
   defaultActive = true
+  syncToken: undefined | Symbol
 
   trackings: ExprTracking<unknown>[] = []
   trackmap = new WeakMap<Source<unknown>, ExprTracking<unknown>>()
@@ -128,7 +129,7 @@ export class ExprTalkback<R> implements Talkback {
     }
   }
 
-  run(tracking?: ExprTracking<unknown>) {
+  async run(tracking?: ExprTracking<unknown>) {
     if (!tracking) {
       this.midInitialRun = true
     } else if (this.midInitialRun) {
@@ -138,7 +139,16 @@ export class ExprTalkback<R> implements Talkback {
     this.maskMux.send()
 
     try {
-      const value = this.source._expr(this.activeTrack, this.passiveTrack)
+      const res = this.source._expr(this.activeTrack, this.passiveTrack)
+
+      const syncToken = Symbol()
+      this.syncToken = syncToken
+
+      const value = res instanceof Promise ? await res : res
+
+      if (this.syncToken !== syncToken) {
+        return
+      }
 
       if (!this.disposed && (!tracking || tracking.seen)) {
         this.delegate(value)

@@ -436,4 +436,59 @@ describe('expr()', () => {
     a.receive(3)
     cb.should.have.been.calledWith(3)
   })
+
+  it('should support async functions.', async () => {
+    const cb = fake()
+    const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
+
+    const a = new Subject<number>()
+    const e = expr(async $ => {
+      await sleep($(a))
+
+      return $(a) * 2
+    })
+
+    pipe(
+      e,
+      tap(cb),
+      observe,
+    )
+
+    await sleep(1)
+    a.receive(10)
+    await sleep(10)
+
+    cb.should.have.been.calledOnceWith(20)
+
+    a.receive(20)
+    await sleep(20)
+
+    cb.should.have.been.calledWith(40)
+  })
+
+  it('should flatten async re-runs.', async () => {
+    const cb = fake()
+    const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
+
+    const a = new Subject<number>()
+    const e = expr(async $ => {
+      await sleep($(a))
+
+      return $(a) * 2
+    })
+
+    pipe(
+      e,
+      tap(cb),
+      observe,
+    )
+
+    await sleep(1)
+    a.receive(30)
+    await sleep(10)
+    a.receive(10)
+    await sleep(40)
+
+    cb.should.have.been.calledOnceWith(20)
+  })
 })
