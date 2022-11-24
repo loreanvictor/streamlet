@@ -1,7 +1,7 @@
 import { fake, useFakeTimers } from 'sinon'
 import { expect } from 'chai'
 
-import { expr, SKIP } from '../expr'
+import { expr, ExprFunc, SKIP } from '../expr'
 import { Subject, iterable, interval } from '../../sources'
 import { pipe, source, talkback } from '../../util'
 import { replay, take } from '../../transforms'
@@ -490,5 +490,30 @@ describe('expr()', () => {
     await sleep(40)
 
     cb.should.have.been.calledOnceWith(20)
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+
+    const a = new Subject<number>()
+    const b = new Subject<number>()
+
+    const a2: ExprFunc<number> = $ => $(a) * 2
+    pipe(
+      expr($ => $(a2) + $(b)),
+      tap(cb),
+      observe,
+    )
+
+    a.receive(1)
+    b.receive(2)
+
+    cb.should.have.been.calledOnceWith(4)
+
+    a.receive(2)
+    cb.should.have.been.calledWith(6)
+
+    b.receive(3)
+    cb.should.have.been.calledWith(7)
   })
 })

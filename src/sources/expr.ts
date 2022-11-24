@@ -6,11 +6,23 @@ export const SKIP = Symbol('SKIP')
 
 
 export type TrackFunc = {
-  <T>(source: Source<T>): T
-  n<T>(source: Source<T>): T | undefined
+  <T>(source: Sourceable<T>): T
+  n<T>(source: Sourceable<T>): T | undefined
   on(...sources: Source<unknown>[]): void
 }
-export type ExprFunc<R> = ($: TrackFunc, _: TrackFunc) => R | typeof SKIP | Promise<R | typeof SKIP>
+export type ExprFunc<R = unknown> = ($: TrackFunc, _: TrackFunc) => R | typeof SKIP | Promise<R | typeof SKIP>
+export type Sourceable<T> = Source<T> | ExprFunc<T>
+
+
+export function from<T>(_sourceable: Sourceable<T>): Source<T> {
+  if (typeof _sourceable === 'function') {
+    (_sourceable as any).__expr__ ??= expr(_sourceable)
+
+    return (_sourceable as any).__expr__
+  }
+
+  return _sourceable
+}
 
 
 class TrackingNotEmitted extends Error {}
@@ -207,10 +219,10 @@ export class ExprTalkback<R> implements Talkback {
     return tracking
   }
 
-  protected track<T>(source: Source<T>, active: boolean): T
-  protected track<T>(source: Source<T>, active: boolean, nullish: true): T | undefined
-  protected track<T>(source: Source<T>, active: boolean, nullish = false) {
-    const tracking = this.connect(source, active)
+  protected track<T>(source: Sourceable<T>, active: boolean): T
+  protected track<T>(source: Sourceable<T>, active: boolean, nullish: true): T | undefined
+  protected track<T>(source: Sourceable<T>, active: boolean, nullish = false) {
+    const tracking = this.connect(from(source), active)
     tracking.seen = true
 
     if (!tracking.emitted) {

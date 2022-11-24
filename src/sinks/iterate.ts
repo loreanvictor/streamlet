@@ -1,4 +1,5 @@
-import { Sink, Source, Talkback } from '../types'
+import { Sink, Talkback } from '../types'
+import { from, Sourceable } from '../sources/expr'
 
 
 export class Iteration<T> implements Sink<T>, Talkback {
@@ -52,17 +53,17 @@ export class Iteration<T> implements Sink<T>, Talkback {
 }
 
 
-export function iterate<T>(source: Source<T>): Iteration<T> {
+export function iterate<T>(source: Sourceable<T>): Iteration<T> {
   const iteration = new Iteration<T>()
-  source.connect(iteration)
+  from(source).connect(iteration)
 
   return iteration
 }
 
 
-export function iterateLater<T>(source: Source<T>): Iteration<T> {
+export function iterateLater<T>(source: Sourceable<T>): Iteration<T> {
   const iteration = new Iteration<T>(false)
-  source.connect(iteration)
+  from(source).connect(iteration)
 
   return iteration
 }

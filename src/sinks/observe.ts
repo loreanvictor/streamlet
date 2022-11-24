@@ -1,4 +1,5 @@
-import { Talkback, Sink, Source } from '../types'
+import { Talkback, Sink } from '../types'
+import { from, Sourceable } from '../sources/expr'
 
 
 export class Observation<T> implements Sink<T>, Talkback {
@@ -46,17 +47,17 @@ export class Observation<T> implements Sink<T>, Talkback {
   }
 }
 
-export function observe<T>(source: Source<T>): Observation<T> {
+export function observe<T>(source: Sourceable<T>): Observation<T> {
   const observation = new Observation<T>()
-  source.connect(observation)
+  from(source).connect(observation)
 
   return observation
 }
 
 
-export function observeLater<T>(source: Source<T>): Observation<T> {
+export function observeLater<T>(source: Sourceable<T>): Observation<T> {
   const observation = new Observation<T>(false)
-  source.connect(observation)
+  from(source).connect(observation)
 
   return observation
 }

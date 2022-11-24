@@ -110,6 +110,20 @@ describe('iterate()', () => {
 
     stop.should.have.been.calledOnce
   })
+
+  it('should support expressions.', () => {
+    const a = iterable([1, 2])
+    const b = iterable([3, 4])
+
+    const cb = fake()
+
+    iterate($ => cb($(a) + $(b)))
+
+    cb.should.have.been.calledThrice
+    cb.should.have.been.calledWith(4)
+    cb.should.have.been.calledWith(5)
+    cb.should.have.been.calledWith(6)
+  })
 })
 
 
@@ -149,5 +163,22 @@ describe('iterateLater()', () => {
     start.should.have.been.calledOnce
 
     clock.restore()
+  })
+
+  it('should support expressions.', () => {
+    const a = iterable([1, 2])
+    const b = iterable([3, 4])
+
+    const cb = fake()
+
+    const i = iterateLater($ => cb($(a) + $(b)))
+
+    cb.should.not.have.been.called
+
+    i.start()
+    cb.should.have.been.calledThrice
+    cb.should.have.been.calledWith(4)
+    cb.should.have.been.calledWith(5)
+    cb.should.have.been.calledWith(6)
   })
 })

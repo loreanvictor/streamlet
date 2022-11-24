@@ -104,6 +104,17 @@ describe('observe()', () => {
       obs.stop()
     }).to.not.throw()
   })
+
+  it('should handle an expr.', () => {
+    const a = of(2)
+    const b = of(3)
+
+    const cb = fake()
+
+    observe($ => cb($(a) + $(b)))
+
+    cb.should.have.been.calledOnceWith(5)
+  })
 })
 
 describe('observeLater()', () => {
@@ -141,5 +152,18 @@ describe('observeLater()', () => {
     start.should.have.been.calledOnce
 
     clock.restore()
+  })
+
+  it('should observe an expression.', () => {
+    const a = of(2)
+    const b = of(3)
+
+    const cb = fake()
+
+    const o = observeLater($ => cb($(a) + $(b)))
+
+    cb.should.not.have.been.called
+    o.start()
+    cb.should.have.been.calledOnceWith(5)
   })
 })
