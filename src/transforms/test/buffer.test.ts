@@ -4,6 +4,7 @@ import { buffer } from '../buffer'
 import { Subject } from '../../sources'
 import { tap, observe, finalize } from '../../sinks'
 import { pipe } from '../../util'
+import { TrackFunc } from '../../types'
 
 
 describe('buffer()', () => {
@@ -91,5 +92,26 @@ describe('buffer()', () => {
     cb.should.have.been.calledTwice
     cb.firstCall.should.have.been.calledWith(1)
     cb.secondCall.should.have.been.calledWith(3)
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+
+    const a = new Subject<number>()
+
+    const o = pipe(
+      ($: TrackFunc) => $(a) * 2,
+      buffer,
+      tap(cb),
+      observe,
+    )
+
+    a.receive(1)
+    a.receive(2)
+
+    cb.should.not.have.been.called
+
+    o.request()
+    cb.should.have.been.calledOnceWith(2)
   })
 })

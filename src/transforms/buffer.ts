@@ -1,4 +1,5 @@
-import { Source, Sink, Talkback, USourceFactory } from '../types'
+import { Source, Sink, Talkback, USourceableFactory, Sourceable } from '../types'
+import { from } from '../sources/expr'
 
 
 export class BufferingSink<T> implements Sink<T>, Talkback {
@@ -80,12 +81,12 @@ export class BufferedSource<T> implements Source<T> {
 }
 
 
-export function buffer(max?: number): USourceFactory
-export function buffer<T>(source: Source<T>, max?: number): Source<T>
-export function buffer<T>(source?: Source<T> | number, max?: number): Source<T> | USourceFactory {
+export function buffer(max?: number): USourceableFactory
+export function buffer<T>(source: Sourceable<T>, max?: number): Source<T>
+export function buffer<T>(source?: Sourceable<T> | number, max?: number): Source<T> | USourceableFactory {
   if (source !== undefined && typeof source !== 'number') {
-    return new BufferedSource(source, max)
+    return new BufferedSource(from(source), max)
   } else {
-    return <U>(src: Source<U>) => buffer(src, source as number)
+    return <U>(src: Sourceable<U>) => buffer(src, source as number)
   }
 }
