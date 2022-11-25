@@ -1,5 +1,5 @@
-import { Source, Sink } from '../types'
-import { ExprFunc, ExprTracking, ExprTalkback, SKIP } from './expr'
+import { Source, Sink, ExprFunc, SKIP } from '../types'
+import { ExprTracking, ExprTalkback } from './expr'
 
 
 export class MemoTracking<T> extends ExprTracking<T> {

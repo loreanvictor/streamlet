@@ -4,7 +4,7 @@ import { memo } from '../memo'
 import { Subject } from '../subject'
 import { pipe } from '../../util'
 import { tap, observe } from '../../sinks'
-import { SKIP } from '../expr'
+import { SKIP } from '../../types'
 
 
 describe('memo()', () => {

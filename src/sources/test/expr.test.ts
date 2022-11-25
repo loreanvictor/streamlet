@@ -1,12 +1,12 @@
 import { fake, useFakeTimers } from 'sinon'
 import { expect } from 'chai'
 
-import { expr, ExprFunc, SKIP } from '../expr'
-import { Subject, iterable, interval } from '../../sources'
+import { expr } from '../expr'
+import { Subject, of, iterable, interval } from '../../sources'
 import { pipe, source, talkback } from '../../util'
-import { replay, take } from '../../transforms'
+import { replay, take, append } from '../../transforms'
 import { tap, finalize, observe } from '../../sinks'
-import { Source } from '../../types'
+import { Source, ExprFunc, SKIP } from '../../types'
 
 
 describe('expr()', () => {
@@ -515,5 +515,38 @@ describe('expr()', () => {
 
     b.receive(3)
     cb.should.have.been.calledWith(7)
+  })
+
+  it('should work with sources that end synchronously upon first run.', () => {
+    const cb = fake()
+
+    const a = of(2)
+
+    pipe(
+      expr($ => $(a) * 2),
+      tap(cb),
+      observe,
+    )
+
+    cb.should.have.been.calledOnceWith(4)
+  })
+
+  it('should also handle final values properly.', () => {
+    const cb = fake()
+
+    const s = new Subject<number>()
+    const a = append(s, of(2))
+
+    pipe(
+      expr($ => $(a) * 2),
+      tap(cb),
+      observe,
+    )
+
+    s.receive(1)
+    cb.should.have.been.calledOnceWith(2)
+
+    s.end()
+    cb.should.have.been.calledWith(4)
   })
 })

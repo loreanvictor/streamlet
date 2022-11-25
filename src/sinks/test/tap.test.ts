@@ -3,6 +3,7 @@ import { of, interval } from '../../sources'
 import { source, sink, connect, pipe } from '../../util'
 import { tap } from '../tap'
 import { observe } from '../observe'
+import { TrackFunc } from '../../types'
 
 
 describe('tap()', () => {
@@ -48,5 +49,20 @@ describe('tap()', () => {
     pipe(src, tap(fake()), connect(snk))
 
     end.should.have.been.calledWith(42)
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+
+    const a = of(1)
+    const b = of(2)
+
+    pipe(
+      ($: TrackFunc) => $(a) + $(b),
+      tap(cb),
+      observe
+    )
+
+    cb.should.have.been.calledWith(3)
   })
 })

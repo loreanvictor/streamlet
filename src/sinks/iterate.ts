@@ -1,5 +1,5 @@
-import { Sink, Talkback } from '../types'
-import { from, Sourceable } from '../sources/expr'
+import { Sink, Talkback, Sourceable } from '../types'
+import { from } from '../sources/expr'
 
 
 export class Iteration<T> implements Sink<T>, Talkback {

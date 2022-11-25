@@ -1,6 +1,6 @@
 export * from './base'
+export * from './expr'
 export * from './disconnectable'
 export * from './dispose'
 export * from './unwrap'
 export * from './util'
-

@@ -1,5 +1,5 @@
-import { Talkback, Sink } from '../types'
-import { from, Sourceable } from '../sources/expr'
+import { Talkback, Sink, Sourceable } from '../types'
+import { from } from '../sources/expr'
 
 
 export class Observation<T> implements Sink<T>, Talkback {

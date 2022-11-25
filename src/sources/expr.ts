@@ -1,17 +1,6 @@
-import { Source, Sink, Talkback } from '../types'
+import { Source, Sink, Talkback, Sourceable, TrackFunc, SKIP, ExprFunc } from '../types'
 import { Multiplexer } from '../util'
 
-
-export const SKIP = Symbol('SKIP')
-
-
-export type TrackFunc = {
-  <T>(source: Sourceable<T>): T
-  n<T>(source: Sourceable<T>): T | undefined
-  on(...sources: Source<unknown>[]): void
-}
-export type ExprFunc<R = unknown> = ($: TrackFunc, _: TrackFunc) => R | typeof SKIP | Promise<R | typeof SKIP>
-export type Sourceable<T> = Source<T> | ExprFunc<T>
 
 
 export function from<T>(_sourceable: Sourceable<T>): Source<T> {
@@ -142,6 +131,9 @@ export class ExprTalkback<R> implements Talkback {
   }
 
   async run(tracking?: ExprTracking<unknown>) {
+    // 👉 if a source emits synchronously during the initial run,
+    // then it will issue an unnecessary re-execution.
+    // this flag prevents that.
     if (!tracking) {
       this.midInitialRun = true
     } else if (this.midInitialRun) {
@@ -158,11 +150,20 @@ export class ExprTalkback<R> implements Talkback {
 
       const value = res instanceof Promise ? await res : res
 
+      // 👉 if sync token is not in sync, then another run has started
+      // in the meantime, and we should disregard value of this run.
       if (this.syncToken !== syncToken) {
         return
       }
 
-      if (!this.disposed && (!tracking || tracking.seen)) {
+      // 👉 if all sources end synchronously during initial run, the initial value
+      // should be emitted despite the fact that the expr is disposed of. in other cases,
+      // we should only emit when we are not disposed of, and either it is the initial run (an async one)
+      // or the tracking that initiated the run is used in the expression.
+      if (
+        (!tracking && !(res instanceof Promise)) ||
+        (!this.disposed && (!tracking || tracking.seen))
+      ) {
         this.delegate(value)
       }
     } catch (error) {

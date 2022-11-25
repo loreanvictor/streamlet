@@ -1,4 +1,5 @@
-import { Handler, Sink, Source, SourceFactory, USourceFactory, Talkback } from '../types'
+import { Handler, Sink, Source, Sourceable, SourceableFactory, USourceableFactory, Talkback } from '../types'
+import { from } from '../sources/expr'
 
 
 export class TappedSink<T> implements Sink<T> {
@@ -34,13 +35,13 @@ export class TappedSource<T> implements Source<T> {
 }
 
 
-export function tap<T>(op: Handler<T>): SourceFactory<T>
-export function tap(op: Handler<any>): USourceFactory
-export function tap<T>(source: Source<T>, op: Handler<T>): Source<T>
-export function tap<T>(source: Source<T> | Handler<T>, op?: Handler<T>): SourceFactory<T> | Source<T> {
+export function tap<T>(op: Handler<T>): SourceableFactory<T>
+export function tap(op: Handler<any>): USourceableFactory
+export function tap<T>(source: Sourceable<T>, op: Handler<T>): Source<T>
+export function tap<T>(source: Sourceable<T> | Handler<T>, op?: Handler<T>): SourceableFactory<T> | Source<T> {
   if (op !== undefined) {
-    return new TappedSource(source as Source<T>, op)
+    return new TappedSource(from(source as Sourceable<T>), op)
   } else {
-    return (src: Source<T>) => tap(src, source as Handler<T>)
+    return (src: Sourceable<T>) => tap(src, source as Handler<T>)
   }
 }
