@@ -1,10 +1,11 @@
 import { fake, useFakeTimers } from 'sinon'
 
 import { backpress } from '../backpress'
-import { interval } from '../../sources'
-import { tap, finalize, iterate } from '../../sinks'
+import { interval, Subject } from '../../sources'
+import { tap, finalize, iterate, observe } from '../../sinks'
 import { pullrate, map } from '..'
 import { pipe } from '../../util'
+import { TrackFunc } from '../../types'
 
 
 describe('backpress()', () => {
@@ -77,6 +78,35 @@ describe('backpress()', () => {
     cb2.should.have.been.calledOnce
 
     clock.restore()
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+
+    const a = new Subject<number>()
+
+    const o = pipe(
+      ($: TrackFunc) => $(a) * 2,
+      backpress,
+      tap(x => cb(x)),
+      observe,
+    )
+
+    a.receive(1)
+    cb.should.not.have.been.called
+
+    o.request()
+    cb.should.have.been.calledOnceWith(2)
+
+    a.receive(2)
+    cb.should.have.been.calledOnce
+
+    o.request()
+    cb.should.have.been.calledOnce
+
+    a.receive(3)
+    cb.should.have.been.calledTwice
+    cb.should.have.been.calledWith(6)
   })
 })
 

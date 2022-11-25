@@ -1,4 +1,5 @@
-import { Source, Sink, Talkback } from '../types'
+import { Source, Sourceable, Sink, Talkback } from '../types'
+import { from } from '../sources/expr'
 
 
 export class BackPressingSink<T> implements Sink<T>, Talkback {
@@ -69,6 +70,6 @@ export class BackPressedSource<T> implements Source<T> {
 }
 
 
-export function backpress<T>(source: Source<T>) {
-  return new BackPressedSource(source)
+export function backpress<T>(source: Sourceable<T>) {
+  return new BackPressedSource(from(source))
 }
