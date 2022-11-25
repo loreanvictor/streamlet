@@ -32,15 +32,10 @@ Streamlet is [a protocol](https://github.com/loreanvictor/streamlet/blob/main/do
 The `streamlets` package includes typings and tools built around this protocol.
 
 ```js
-import { pipe, interval, tap, observe } from 'streamlets'
+import { interval, observe } from 'streamlets'
 
-const obs = 
-  pipe(
-    interval(1000),
-    tap(console.log),
-    observe,
-  )
-
+const timer = interval(1000)
+const obs = observe($ => console.log($(timer)))
 
 setTimeout(() => obs.stop(), 2000)
 setTimeout(() => obs.start(), 4000)
