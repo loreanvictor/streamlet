@@ -15,3 +15,4 @@ export type USourceableFactory = <T>(source: Sourceable<T>) => Source<T>
 export type SourceFactory<T, S extends Source<T> = Source<T>> = (source: Source<T>) => S
 export type SourceableFactory<T, S extends Source<T> = Source<T>> = (source: Sourceable<T>) => S
 export type SinkFactory<T, S extends Sink<T> = Sink<T>> = (source: Source<T>) => S
+export type SourceableSinkFactory<T, S extends Sink<T> = Sink<T>> = (source: Sourceable<T>) => S

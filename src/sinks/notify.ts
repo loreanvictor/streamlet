@@ -1,4 +1,5 @@
-import { Source, Sink, Talkback, Handler, SinkFactory } from '../types'
+import { Source, Sink, Talkback, Handler, Sourceable, SourceableSinkFactory } from '../types'
+import { from } from '../sources/expr'
 
 
 export class Notification<T> implements Sink<T>, Talkback {
@@ -25,11 +26,11 @@ export class Notification<T> implements Sink<T>, Talkback {
 }
 
 
-export function notify<T>(handler: Handler<T>): SinkFactory<T, Notification<T>>
-export function notify<T>(source: Source<T>, handler: Handler<T>): Notification<T>
-export function notify<T>(source: Handler<T> | Source<T>, handler?: Handler<T>) {
+export function notify<T>(handler: Handler<T>): SourceableSinkFactory<T, Notification<T>>
+export function notify<T>(source: Sourceable<T>, handler: Handler<T>): Notification<T>
+export function notify<T>(source: Handler<T> | Sourceable<T>, handler?: Handler<T>) {
   if (handler !== undefined) {
-    const src = source as Source<T>
+    const src = from(source as Sourceable<T>)
     const notification = new Notification(handler)
     src.connect(notification)
 

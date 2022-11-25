@@ -1,4 +1,5 @@
-import { Sink, Source, Talkback, SourceFactory, Handler } from '../types'
+import { Sink, Source, Talkback, Sourceable, SourceableFactory, Handler } from '../types'
+import { from } from '../sources/expr'
 
 
 export class FinalizedSink<T> implements Sink<T> {
@@ -34,12 +35,13 @@ export class FinalizedSource<T> implements Source<T> {
 }
 
 
-export function finalize<T>(op: Handler<unknown>): SourceFactory<T>
-export function finalize<T>(source: Source<T>, op: Handler<unknown>): Source<T>
-export function finalize<T>(source: Source<T> | Handler<unknown>, op?: Handler<unknown>): SourceFactory<T> | Source<T> {
+export function finalize<T>(op: Handler<unknown>): SourceableFactory<T>
+export function finalize<T>(source: Sourceable<T>, op: Handler<unknown>): Source<T>
+export function finalize<T>(source: Sourceable<T> | Handler<unknown>, op?: Handler<unknown>):
+  SourceableFactory<T> | Source<T> {
   if (op !== undefined) {
-    return new FinalizedSource(source as Source<T>, op)
+    return new FinalizedSource(from(source as Sourceable<T>), op)
   } else {
-    return (src: Source<T>) => finalize(src, source as Handler<unknown>)
+    return (src: Sourceable<T>) => finalize(src, source as Handler<unknown>)
   }
 }

@@ -1,7 +1,10 @@
 import { fake } from 'sinon'
 
+import { Subject } from '../../sources'
+import { TrackFunc } from '../../types'
 import { pipe, source, talkback, sink, connect } from '../../util'
 import { finalize } from '../finalize'
+import { observe } from '../observe'
 
 
 describe('finalize()', () => {
@@ -23,5 +26,31 @@ describe('finalize()', () => {
     receive.should.have.been.calledWith('A')
     op.should.have.been.calledBefore(end)
     op.should.have.been.calledWith(42)
+  })
+
+  it('should support expressions.', () => {
+    const op = fake()
+    const cb = fake()
+
+    const a = new Subject<number>()
+
+    pipe(
+      ($: TrackFunc) => cb($(a) * 2),
+      finalize(op),
+      observe,
+    )
+
+    cb.should.not.have.been.called
+    op.should.not.have.been.called
+
+    a.receive(1)
+    a.receive(2)
+
+    cb.should.have.been.calledTwice
+    op.should.not.have.been.called
+
+    a.end()
+
+    op.should.have.been.calledOnce
   })
 })

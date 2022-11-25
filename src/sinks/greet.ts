@@ -1,4 +1,5 @@
-import { Sink, Source, Talkback, SourceFactory, Handler } from '../types'
+import { Sink, Source, Talkback, Handler, Sourceable, SourceableFactory } from '../types'
+import { from } from '../sources/expr'
 
 
 export class GreetedSink<T> implements Sink<T> {
@@ -34,12 +35,13 @@ export class GreetedSource<T> implements Source<T> {
 }
 
 
-export function greet<T>(op: Handler<Talkback>): SourceFactory<T>
-export function greet<T>(source: Source<T>, op: Handler<Talkback>): Source<T>
-export function greet<T>(source: Source<T> | Handler<Talkback>, op?: Handler<Talkback>): SourceFactory<T> | Source<T> {
+export function greet<T>(op: Handler<Talkback>): SourceableFactory<T>
+export function greet<T>(source: Sourceable<T>, op: Handler<Talkback>): Source<T>
+export function greet<T>(source: Sourceable<T> | Handler<Talkback>, op?: Handler<Talkback>):
+  SourceableFactory<T> | Source<T> {
   if (op !== undefined) {
-    return new GreetedSource(source as Source<T>, op)
+    return new GreetedSource(from(source as Sourceable<T>), op)
   } else {
-    return (src: Source<T>) => greet(src, source as Handler<Talkback>)
+    return (src: Sourceable<T>) => greet(src, source as Handler<Talkback>)
   }
 }

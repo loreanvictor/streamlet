@@ -87,4 +87,15 @@ describe('notify', () => {
     src.receive('B')
     cb.should.have.been.calledOnceWith('B')
   })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+    const a = new Subject<number>()
+
+    notify($ => $(a) * 2, cb)
+
+    a.receive(1)
+    a.receive(2)
+    cb.should.have.been.calledOnceWith(2)
+  })
 })
