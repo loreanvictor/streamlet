@@ -1,5 +1,6 @@
-import { Source, Talkback, Sink, SourceFactory, isSource } from '../types'
+import { Source, Talkback, Sink, SourceFactory, isSourceable, Sourceable, SourceableFactory } from '../types'
 import { wait, stopWaiting, WaitNotifier, Waiting, WaitIndicator, resolveWait } from '../util/wait'
+import { from } from '../sources/expr'
 
 
 export class DebouncedSink<T> implements Sink<T> {
@@ -66,15 +67,15 @@ export class DebouncedSource<T> implements Source<T> {
 }
 
 
-export function debounce<T>(notif: WaitNotifier | WaitIndicator<T>): SourceFactory<T>
-export function debounce<T>(source: Source<T>, notif: WaitNotifier | WaitIndicator<T>): Source<T>
+export function debounce<T>(notif: WaitNotifier | WaitIndicator<T>): SourceableFactory<T>
+export function debounce<T>(source: Sourceable<T>, notif: WaitNotifier | WaitIndicator<T>): Source<T>
 export function debounce<T>(
-  source: Source<T> | WaitNotifier | WaitIndicator<T>,
+  source: Sourceable<T> | WaitNotifier | WaitIndicator<T>,
   notif?: WaitNotifier | WaitIndicator<T>
 ): SourceFactory<T> | Source<T> {
-  if (isSource(source) && !!notif) {
-    return new DebouncedSource(source, notif!)
+  if (isSourceable(source) && !!notif) {
+    return new DebouncedSource(from(source), notif)
   } else {
-    return (src: Source<T>) => debounce(src, source)
+    return (src: Sourceable<T>) => debounce(src, source as WaitNotifier | WaitIndicator<T>)
   }
 }

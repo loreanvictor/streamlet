@@ -1,4 +1,4 @@
-import { Source } from './base'
+import { Source, isSource } from './base'
 
 
 export const SKIP = Symbol('SKIP')
@@ -11,3 +11,9 @@ export type TrackFunc = {
 }
 export type ExprFunc<R = unknown> = ($: TrackFunc, _: TrackFunc) => R | typeof SKIP | Promise<R | typeof SKIP>
 export type Sourceable<T> = Source<T> | ExprFunc<T>
+
+
+
+export function isSourceable<T>(thing: unknown): thing is Sourceable<T> {
+  return isSource(thing) || typeof thing === 'function'
+}
