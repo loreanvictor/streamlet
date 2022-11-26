@@ -93,6 +93,27 @@ describe('prepend()', () => {
 
     clock.restore()
   })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+
+    const a = new Subject<number>()
+
+    pipe(
+      of(1, 2),
+      prepend($ => $(a) * 2),
+      tap(cb),
+      observe
+    )
+
+    cb.should.not.have.been.called
+    a.receive(4)
+    cb.should.have.been.calledOnceWith(8)
+    a.end()
+    cb.should.have.been.calledThrice
+    cb.getCall(1).should.have.been.calledWith(1)
+    cb.getCall(2).should.have.been.calledWith(2)
+  })
 })
 
 
@@ -186,6 +207,27 @@ describe('append()', () => {
 
     clock.restore()
   })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+
+    const a = new Subject<number>()
+
+    pipe(
+      of(1, 2),
+      append($ => $(a) * 2),
+      tap(cb),
+      observe
+    )
+
+    cb.should.have.been.calledTwice
+    cb.should.have.been.calledWith(1)
+    cb.should.have.been.calledWith(2)
+
+    a.receive(4)
+    cb.should.have.been.calledThrice
+    cb.should.have.been.calledWith(8)
+  })
 })
 
 
@@ -275,5 +317,21 @@ describe('concat()', () => {
     cb.getCall(2).should.have.been.calledWith(1)
 
     clock.restore()
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+    const a = of(1, 2, 3)
+    const b = of(4, 5, 6)
+
+    pipe(
+      concat($ => $(a) * 10, $ => $(b) - 1),
+      tap(cb),
+      observe
+    )
+
+    cb.should.have.been.calledTwice
+    cb.should.have.been.calledWith(30)
+    cb.should.have.been.calledWith(5)
   })
 })

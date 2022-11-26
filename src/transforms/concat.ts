@@ -1,4 +1,5 @@
-import { Source, Sink, Talkback, SourceFactory } from '../types'
+import { Source, Sink, Talkback, Sourceable, SourceableFactory } from '../types'
+import { from } from '../sources/expr'
 
 
 export class ConcatenatedSink<T> implements Sink<T>, Talkback {
@@ -83,41 +84,41 @@ export class AppendedSource<T> implements Source<T> {
 }
 
 
-export function prepend<T>(prepended: Source<T>): SourceFactory<T>
-export function prepend<T>(prepended: Source<T>[]): SourceFactory<T>
-export function prepend<T>(source: Source<T>, prepended: Source<T>): Source<T>
-export function prepend<T>(source: Source<T>, prepended: Source<T>[]): Source<T>
-export function prepend<T>(source: Source<T> | Source<T>[], prepended?: Source<T> | Source<T>[])
-: Source<T> | SourceFactory<T> {
+export function prepend<T>(prepended: Sourceable<T>): SourceableFactory<T>
+export function prepend<T>(prepended: Sourceable<T>[]): SourceableFactory<T>
+export function prepend<T>(source: Sourceable<T>, prepended: Sourceable<T>): Source<T>
+export function prepend<T>(source: Sourceable<T>, prepended: Sourceable<T>[]): Source<T>
+export function prepend<T>(source: Sourceable<T> | Sourceable<T>[], prepended?: Sourceable<T> | Sourceable<T>[])
+: Source<T> | SourceableFactory<T> {
   if (Array.isArray(source)) {
-    return (src: Source<T>) => prepend(src, source)
+    return (src: Sourceable<T>) => prepend(src, source)
   } else if (!prepended) {
-    return (src: Source<T>) => prepend(src, [source])
+    return (src: Sourceable<T>) => prepend(src, [source])
   } else if (!Array.isArray(prepended)) {
-    return new PrependedSource(source, [prepended])
+    return new PrependedSource(from(source), [from(prepended)])
   } else {
-    return new PrependedSource(source, prepended!)
+    return new PrependedSource(from(source), prepended!.map(from))
   }
 }
 
-export function append<T>(appended: Source<T>): SourceFactory<T>
-export function append<T>(appended: Source<T>[]): SourceFactory<T>
-export function append<T>(source: Source<T>, appended: Source<T>): Source<T>
-export function append<T>(source: Source<T>, appended: Source<T>[]): Source<T>
-export function append<T>(source: Source<T> | Source<T>[], appended?: Source<T> | Source<T>[])
-: Source<T> | SourceFactory<T> {
+export function append<T>(appended: Sourceable<T>): SourceableFactory<T>
+export function append<T>(appended: Sourceable<T>[]): SourceableFactory<T>
+export function append<T>(source: Sourceable<T>, appended: Sourceable<T>): Source<T>
+export function append<T>(source: Sourceable<T>, appended: Sourceable<T>[]): Source<T>
+export function append<T>(source: Sourceable<T> | Sourceable<T>[], appended?: Sourceable<T> | Sourceable<T>[])
+: Source<T> | SourceableFactory<T> {
   if (Array.isArray(source)) {
-    return (src: Source<T>) => append(src, source)
+    return (src: Sourceable<T>) => append(src, source)
   } else if (!appended) {
-    return (src: Source<T>) => append(src, [source])
+    return (src: Sourceable<T>) => append(src, [source])
   } else if (!Array.isArray(appended)) {
-    return new AppendedSource(source, [appended])
+    return new AppendedSource(from(source), [from(appended)])
   } else {
-    return new AppendedSource(source, appended!)
+    return new AppendedSource(from(source), appended!.map(from))
   }
 }
 
 
-export function concat<T>(...sources: Source<T>[]) {
+export function concat<T>(...sources: Sourceable<T>[]) {
   return append(sources[0], sources.slice(1))
 }
