@@ -1,4 +1,5 @@
-import { Source, Sink, USourceFactory } from '../types'
+import { from } from '../sources/expr'
+import { Source, Sink, USourceableFactory, Sourceable } from '../types'
 import { wait, stopWaiting, Waiting, WaitNotifier } from '../util'
 
 
@@ -33,12 +34,12 @@ export class ConnectRateSource<T> implements Source<T> {
 }
 
 
-export function connectRate(rate: WaitNotifier): USourceFactory
-export function connectRate<T>(source: Source<T>, rate: WaitNotifier): Source<T>
-export function connectRate<T>(source: Source<T> | WaitNotifier, rate?: WaitNotifier): Source<T> | USourceFactory {
+export function connectRate(rate: WaitNotifier): USourceableFactory
+export function connectRate<T>(source: Sourceable<T>, rate: WaitNotifier): Source<T>
+export function connectRate<T>(source: Sourceable<T> | WaitNotifier, rate?: WaitNotifier): Source<T> | USourceableFactory {
   if (rate !== undefined) {
-    return new ConnectRateSource(source as Source<T>, rate)
+    return new ConnectRateSource(from(source as Sourceable<T>), rate)
   } else {
-    return <U>(src: Source<U>) => connectRate(src, source as WaitNotifier)
+    return <U>(src: Sourceable<U>) => connectRate(src, source as WaitNotifier)
   }
 }
