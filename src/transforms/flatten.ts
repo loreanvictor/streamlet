@@ -1,4 +1,5 @@
-import { Talkback, Source, Sink } from '../types'
+import { from } from '../sources/expr'
+import { Talkback, Source, Sourceable, Sink } from '../types'
 
 
 class FlattenedTalkback<T> implements Talkback {
@@ -63,7 +64,7 @@ class FlattenedInnerSink<T> implements Sink<T> {
 }
 
 
-export class FlattenedSink<T> implements Sink<Source<T>> {
+export class FlattenedSink<T> implements Sink<Sourceable<T>> {
   outerTalkback: Talkback
   innerTalkback: Talkback | undefined
   talkback: FlattenedTalkback<T>
@@ -80,10 +81,10 @@ export class FlattenedSink<T> implements Sink<Source<T>> {
     this.sink.greet(this.talkback)
   }
 
-  receive(innerSource: Source<T>) {
+  receive(innerSource: Sourceable<T>) {
     this.innerTalkback?.stop()
     this.innerTalkback = undefined
-    innerSource.connect(new FlattenedInnerSink(this))
+    from(innerSource).connect(new FlattenedInnerSink(this))
   }
 
   end(reason?: unknown) {
@@ -103,7 +104,7 @@ export class FlattenedSink<T> implements Sink<Source<T>> {
 
 export class FlattenedSource<T> implements Source<T> {
   constructor(
-    private source: Source<Source<T>>
+    private source: Source<Sourceable<T>>
   ) { }
 
   connect(sink: Sink<T>) {
@@ -112,6 +113,6 @@ export class FlattenedSource<T> implements Source<T> {
 }
 
 
-export function flatten<T>(source: Source<Source<T>>): Source<T> {
-  return new FlattenedSource(source)
+export function flatten<T>(source: Sourceable<Sourceable<T>>): Source<T> {
+  return new FlattenedSource(from(source))
 }

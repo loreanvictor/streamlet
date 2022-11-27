@@ -218,4 +218,17 @@ describe('flatten()', () => {
     outer.end(42)
     cb2.should.have.been.calledOnceWith(42)
   })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+
+    pipe(
+      () => () => 2,
+      flatten,
+      tap(cb),
+      observe,
+    )
+
+    cb.should.have.been.calledOnceWith(2)
+  })
 })
