@@ -3,7 +3,7 @@ import { fake, useFakeTimers } from 'sinon'
 import { transform } from '../custom-transform'
 import { Source } from '../../types'
 import { Subject, interval, combine } from '../../sources'
-import { distinct, scan, map } from '../../transforms'
+import { distinctBy, scan, map } from '../../transforms'
 import { observe, tap } from '../../sinks'
 import { source, sink, pipe } from '../../util'
 
@@ -71,7 +71,7 @@ describe('transform()', () => {
     } = transform(<T>(src: Source<T>, notifier: Source<unknown>) => {
       const counter = scan(notifier, c => c + 1, 0)
       const combined = combine(src, counter)
-      const sampled = distinct(combined, (a, b) => a[1] === b[1])
+      const sampled = distinctBy(combined, (a, b) => a[1] === b[1])
 
       return map(sampled, ([t]) => t)
     }, 2)

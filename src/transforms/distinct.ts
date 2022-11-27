@@ -1,4 +1,5 @@
-import { Source, Talkback, Sink, Equals } from '../types'
+import { Source, Talkback, Sink, Equals, Sourceable, SourceableFactory } from '../types'
+import { from } from '../sources/expr'
 
 
 function _shallowEq<T>(a: T, b: T): boolean {
@@ -35,7 +36,7 @@ export class DistinctSink<T> implements Sink<T> {
 export class DistinctSource<T> implements Source<T> {
   constructor(
     readonly source: Source<T>,
-    readonly equals: Equals<T>,
+    readonly equals: Equals<T> = _shallowEq,
   ) { }
 
   connect(sink: Sink<T>) {
@@ -44,12 +45,17 @@ export class DistinctSource<T> implements Source<T> {
 }
 
 
-// TODO: I would love some better typing, so that this can be used in a curried
-// manner as well:
-// ```ts
-// pipe(src, distinct, ...)
-// pipe(src, distinct(erq), ...)
-// ```
-export function distinct<T>(source: Source<T>, equals: Equals<T> = _shallowEq) {
-  return new DistinctSource(source, equals)
+export function distinct<T>(source: Sourceable<T>) : Source<T> {
+  return new DistinctSource(from(source))
+}
+
+
+export function distinctBy<T>(equals: Equals<T>): SourceableFactory<T>
+export function distinctBy<T>(source: Sourceable<T>, equals: Equals<T>): Source<T>
+export function distinctBy<T>(source: Sourceable<T> | Equals<T>, equals?: Equals<T>): Source<T> | SourceableFactory<T> {
+  if (equals) {
+    return new DistinctSource(from(source as Sourceable<T>), equals)
+  } else {
+    return (src: Sourceable<T>) => new DistinctSource(from(src), source as Equals<T>)
+  }
 }

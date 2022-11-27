@@ -1,4 +1,5 @@
-import { Source, Sink, Talkback, isSource } from '../types'
+import { from } from '../sources/expr'
+import { Source, Sink, Talkback, Sourceable } from '../types'
 import { Multiplexer } from '../util'
 
 
@@ -94,17 +95,18 @@ export class BatchedSource<I, O = I> implements Source<O> {
 }
 
 
-export function batch(): <I>(source: Source<I>) => BatchedSource<I, I>
-export function batch<I>(source: Source<I>): BatchedSource<I>
-export function batch<I, O>(select: BatchSelector<I, O>): (src: Source<I>) => BatchedSource<I, O>
-export function batch<I, O>(source: Source<I>, select?: BatchSelector<I, O>): BatchedSource<I, O>
-export function batch<I, O = I>(
-  source?: Source<I> | BatchSelector<I, O>,
-  select?: BatchSelector<I, O>
-): BatchedSource<I, O> | ((src: Source<I>) => BatchedSource<I, O>) {
-  if (isSource(source)) {
-    return new BatchedSource(source, select)
+export function batch<I>(source: Sourceable<I>): BatchedSource<I> {
+  return new BatchedSource(from(source))
+}
+
+
+export function batchBy<I, O>(select: BatchSelector<I, O>): (source: Sourceable<I>) => BatchedSource<I, O>
+export function batchBy<I, O>(source: Sourceable<I>, select: BatchSelector<I, O>): BatchedSource<I, O>
+export function batchBy<I, O>(source: Sourceable<I> | BatchSelector<I, O>, select?: BatchSelector<I, O>):
+  BatchedSource<I, O> | ((src: Sourceable<I>) => BatchedSource<I, O>) {
+  if (select) {
+    return new BatchedSource(from(source as Sourceable<I>), select!)
   } else {
-    return (src: Source<I>) => batch(src, source)
+    return (src: Sourceable<I>) => new BatchedSource(from(src), source as BatchSelector<I, O>)
   }
 }

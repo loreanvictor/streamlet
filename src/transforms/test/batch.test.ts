@@ -1,6 +1,6 @@
 import { fake, useFakeTimers } from 'sinon'
 
-import { batch } from '../batch'
+import { batch, batchBy } from '../batch'
 import { Subject, iterable } from '../../sources'
 import { pipe } from '../../util'
 import { tap, finalize, observe } from '../../sinks'
@@ -36,7 +36,7 @@ describe('batch()', () => {
     const src = new Subject<number>()
     pipe(
       src,
-      batch((i, b?: number[]) => b ? [...b, i] : [i]),
+      batchBy((i, b?: number[]) => b ? [...b, i] : [i]),
       tap(x => cb(x)),
       observe
     )
@@ -113,7 +113,8 @@ describe('batch()', () => {
     const src = new Subject()
 
     const o = pipe(
-      batch(src),
+      src,
+      batch,
       tap(cb),
       observe
     )
@@ -144,7 +145,7 @@ describe('batch()', () => {
 
     const o = pipe(
       iterable([41, 42, 43]),
-      batch(),
+      batch,
       tap(cb),
       observe
     )
@@ -155,6 +156,50 @@ describe('batch()', () => {
     await clock.nextAsync()
 
     cb.should.have.been.calledOnceWith(42)
+
+    clock.restore()
+  })
+
+  it('should support expressions.', async () => {
+    const clock = useFakeTimers()
+    const cb = fake()
+
+    const src = new Subject<number>()
+    pipe(
+      batch($ => $(src) * 2),
+      tap(x => cb(x)),
+      observe
+    )
+
+    src.receive(40)
+    src.receive(41)
+    src.receive(42)
+
+    await clock.nextAsync()
+
+    cb.should.have.been.calledOnceWith(84)
+
+    clock.restore()
+  })
+
+  it('should support expressions when using a selector.', async () => {
+    const clock = useFakeTimers()
+    const cb = fake()
+
+    const src = new Subject<number>()
+    pipe(
+      batchBy($ => $(src) * 2, (next, prev) => prev ?? next),
+      tap(x => cb(x)),
+      observe
+    )
+
+    src.receive(40)
+    src.receive(41)
+    src.receive(42)
+
+    await clock.nextAsync()
+
+    cb.should.have.been.calledOnceWith(80)
 
     clock.restore()
   })
