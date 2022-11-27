@@ -4,6 +4,7 @@ import { filter } from '../filter'
 import { pipe, source, talkback } from '../../util'
 import { Subject } from '../../sources'
 import { finalize, tap, observe } from '../../sinks'
+import { TrackFunc } from '../../types'
 
 
 describe('filter()', () => {
@@ -56,5 +57,23 @@ describe('filter()', () => {
 
     cb.should.not.have.been.called
     cb2.should.have.been.calledOnce
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+    const a = new Subject<number>()
+
+    pipe(
+      ($: TrackFunc) => $(a) + 1,
+      filter(x => x % 2 === 0),
+      tap(cb),
+      observe
+    )
+
+    a.receive(2)
+    cb.should.not.have.been.called
+
+    a.receive(3)
+    cb.should.have.been.calledWith(4)
   })
 })
