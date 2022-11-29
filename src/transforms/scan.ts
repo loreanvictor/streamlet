@@ -1,4 +1,6 @@
-import { Source, Talkback, Sink, Accumulator, SourceMapping, isSource, SourceFactory } from '../types'
+import { from } from '../sources/expr'
+import { Source, Talkback, Sink, Accumulator, SourceableFactory,
+  Sourceable, SourceableMapping, isSourceable } from '../types'
 
 
 const _UNSET = {}
@@ -54,15 +56,15 @@ export class ScannedSource<I, O> implements Source<O> {
 }
 
 
-export function scan<T>(accumulator: Accumulator<T>): SourceFactory<T>
-export function scan<T>(source: Source<T>, accumulator: Accumulator<T>): Source<T>
-export function scan<I, O>(accumulator: Accumulator<I, O>, initial: O): SourceMapping<I, O>
-export function scan<I, O>(source: Source<I>, accumulator: Accumulator<I, O>, initial: O): Source<O>
-export function scan<I, O>(source: Source<I> | Accumulator<I, O>, accumulator?: Accumulator<I, O> | O, initial?: O)
-  : SourceMapping<I, O> | Source<O> {
-  if (isSource(source)) {
-    return new ScannedSource(source, accumulator! as Accumulator<I, O>, initial)
+export function scan<T>(accumulator: Accumulator<T>): SourceableFactory<T>
+export function scan<T>(source: Sourceable<T>, accumulator: Accumulator<T>): Source<T>
+export function scan<I, O>(accumulator: Accumulator<I, O>, initial: O): SourceableMapping<I, O>
+export function scan<I, O>(source: Sourceable<I>, accumulator: Accumulator<I, O>, initial: O): Source<O>
+export function scan<I, O>(source: Sourceable<I> | Accumulator<I, O>, accumulator?: Accumulator<I, O> | O, initial?: O)
+  : SourceableMapping<I, O> | Source<O> {
+  if (isSourceable(source) && accumulator !== undefined) {
+    return new ScannedSource(from(source), accumulator! as Accumulator<I, O>, initial)
   } else {
-    return (src: Source<I>) => scan(src, source, accumulator as O)
+    return (src: Sourceable<I>) => scan(src, source as Accumulator<I, O>, accumulator as O)
   }
 }

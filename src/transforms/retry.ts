@@ -1,4 +1,5 @@
-import { Source, Sink, Talkback, isSource } from '../types'
+import { from } from '../sources'
+import { Source, Sink, Talkback, USourceableFactory, Sourceable, isSourceable } from '../types'
 
 
 export class RetryingSink<T> implements Sink<T>, Talkback {
@@ -67,12 +68,12 @@ export class RetryingSource<T> implements Source<T> {
 }
 
 
-export function retry(max?: number): <U>(source: Source<U>) => Source<U>
-export function retry<T>(source: Source<T>, max?: number): Source<T>
-export function retry<T>(source?: Source<T> | number, max?: number): Source<T> | (<U>(src: Source<U>) => Source<U>) {
-  if (isSource(source)) {
-    return new RetryingSource(source, max)
+export function retry(max?: number): USourceableFactory
+export function retry<T>(source: Sourceable<T>, max?: number): Source<T>
+export function retry<T>(source?: Sourceable<T> | number, max?: number): Source<T> | USourceableFactory{
+  if (isSourceable(source)) {
+    return new RetryingSource(from(source), max)
   } else {
-    return <U>(src: Source<U>) => retry(src, source as number)
+    return <U>(src: Sourceable<U>) => retry(src, source as number)
   }
 }

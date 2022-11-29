@@ -5,6 +5,7 @@ import { pipe, source, talkback } from '../../util'
 import { Subject, interval, iterable } from '../../sources'
 import { take, pullrate } from '../../transforms'
 import { observe, iterate, tap, finalize } from '../../sinks'
+import { TrackFunc } from '../../types'
 
 
 describe('until()', () => {
@@ -219,5 +220,38 @@ describe('until()', () => {
     cb.should.have.been.calledWith(2)
     cb.should.have.been.calledWith(3)
     cb2.should.have.been.calledOnceWith(42)
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+    const cb2 = fake()
+
+    const src = new Subject<number>()
+    const gate = new Subject()
+
+    pipe(
+      ($: TrackFunc) => $(src) * 2,
+      until($ => $(gate)),
+      tap(x => cb(x)),
+      finalize(cb2),
+      observe,
+    )
+
+    src.receive(1)
+    cb.should.have.been.calledOnceWith(2)
+
+    gate.receive('HOLA')
+    gate.receive(42)
+    cb.should.have.been.calledOnceWith(2)
+
+    src.receive(2)
+    cb.should.have.been.calledTwice
+    cb.should.have.been.calledWith(4)
+
+    gate.end()
+    cb2.should.have.been.calledOnce
+
+    src.receive(3)
+    cb.should.have.been.calledTwice
   })
 })

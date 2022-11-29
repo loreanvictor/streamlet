@@ -4,6 +4,7 @@ import { scan } from '../scan'
 import { Subject } from '../../sources'
 import { pipe } from '../../util'
 import { tap, finalize, observe } from '../../sinks'
+import { TrackFunc } from '../../types'
 
 
 describe('scan()', () => {
@@ -80,5 +81,23 @@ describe('scan()', () => {
     src.end(42)
     cb.should.not.have.been.called
     cb2.should.have.been.calledOnceWith(42)
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+    const src = new Subject<number>()
+
+    pipe(
+      ($: TrackFunc) => $(src) * 2,
+      scan((acc, x) => acc + x),
+      tap(cb),
+      observe,
+    )
+
+    src.receive(2)
+    cb.should.have.been.calledOnceWith(4)
+
+    src.receive(3)
+    cb.should.have.been.calledWith(10)
   })
 })

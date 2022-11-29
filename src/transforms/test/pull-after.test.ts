@@ -6,6 +6,7 @@ import { pipe, source, talkback } from '../../util'
 import { iterable, interval } from '../../sources'
 import { map } from '../../transforms'
 import { tap, observe, finalize } from '../../sinks'
+import { TrackFunc } from '../../types'
 
 
 describe('pullAfter()', () => {
@@ -119,6 +120,28 @@ describe('pullAfter()', () => {
     clock.tick(100)
     cb2.should.have.been.calledOnce
     cb.should.have.been.calledOnce
+
+    clock.restore()
+  })
+
+  it('should pull after given task is done.', async () => {
+    const cb = fake()
+    const clock = useFakeTimers()
+    const a = iterable([1, 2, 3])
+
+    pipe(
+      ($: TrackFunc) => $(a) * 2,
+      pullAfter(async () => await sleep(100)),
+      tap(cb),
+      observe
+    )
+
+    cb.should.have.been.calledOnce
+    cb.should.have.been.calledWith(2)
+
+    await clock.tickAsync(100)
+    cb.should.have.been.calledTwice
+    cb.should.have.been.calledWith(4)
 
     clock.restore()
   })

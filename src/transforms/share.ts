@@ -1,5 +1,6 @@
 import { DataMultiplexer, EndMultiplexer } from '../util'
-import { Source, Sink, Talkback, DisconnectableSource } from '../types'
+import { Source, Sink, Talkback, DisconnectableSource, Sourceable } from '../types'
+import { from } from '../sources/expr'
 
 
 class SharedTalkback<T> implements Talkback {
@@ -91,6 +92,6 @@ export class SharedSource<T> extends DisconnectableSource<T> {
 }
 
 
-export function share<T>(source: Source<T>) {
-  return new SharedSource(source)
+export function share<T>(source: Sourceable<T>) {
+  return new SharedSource(from(source))
 }

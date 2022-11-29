@@ -1,4 +1,5 @@
-import { Source, Sink, Talkback, SourceFactory, USourceFactory } from '../types'
+import { from } from '../sources/expr'
+import { Source, Sink, Talkback, Sourceable, USourceableFactory, SourceableFactory } from '../types'
 import { wait, WaitNotifier } from '../util'
 
 
@@ -63,14 +64,14 @@ export class PullingAfterSource<T> implements Source<T> {
 }
 
 
-export function pullAfter(task: NoArgTask): USourceFactory
-export function pullAfter<T>(task: Task<T>): SourceFactory<T>
-export function pullAfter<T>(source: Source<T>, task: Task<T> | NoArgTask): Source<T>
-export function pullAfter<T>(source: Source<T> | Task<T> | NoArgTask, task?: Task<T> | NoArgTask)
-: Source<T> | SourceFactory<T> | USourceFactory {
+export function pullAfter(task: NoArgTask): USourceableFactory
+export function pullAfter<T>(task: Task<T>): SourceableFactory<T>
+export function pullAfter<T>(source: Sourceable<T>, task: Task<T> | NoArgTask): Source<T>
+export function pullAfter<T>(source: Sourceable<T> | Task<T> | NoArgTask, task?: Task<T> | NoArgTask)
+: Source<T> | SourceableFactory<T> | USourceableFactory {
   if (task !== undefined) {
-    return new PullingAfterSource<T>(source as Source<T>, task)
+    return new PullingAfterSource<T>(from(source as Sourceable<T>), task)
   } else {
-    return (src: Source<T>) => pullAfter<T>(src, source as Task<T>)
+    return (src: Sourceable<T>) => pullAfter<T>(src, source as Task<T>)
   }
 }

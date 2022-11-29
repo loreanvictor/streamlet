@@ -5,6 +5,7 @@ import { pipe, source, talkback } from '../../util'
 import { Subject, interval } from '../../sources'
 import { tap, finalize, observe } from '../../sinks'
 import { expect } from 'chai'
+import { TrackFunc } from '../../types'
 
 
 describe('throttle()', () => {
@@ -122,6 +123,33 @@ describe('throttle()', () => {
 
       cb.should.have.been.calledOnce
     }).to.not.throw()
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+    const clock = useFakeTimers()
+
+    const src = new Subject<number>()
+    pipe(
+      ($: TrackFunc) => $(src) * 2,
+      throttle(() => interval(100)),
+      tap(cb),
+      observe,
+    )
+
+    src.receive(1)
+    src.receive(2)
+    cb.should.have.been.calledWith(2)
+
+    clock.tick(100)
+    cb.should.have.been.calledOnce
+
+    src.receive(4)
+    clock.tick(100)
+    cb.should.have.been.calledTwice
+    cb.should.have.been.calledWith(8)
+
+    clock.restore()
   })
 })
 

@@ -4,6 +4,7 @@ import { map } from '../map'
 import { pipe, source, talkback } from '../../util'
 import { Subject } from '../../sources'
 import { finalize, tap, observe } from '../../sinks'
+import { TrackFunc } from '../../types'
 
 
 describe('map()', () => {
@@ -54,5 +55,20 @@ describe('map()', () => {
 
     cb.should.not.have.been.called
     cb2.should.have.been.calledOnce
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+    const a = new Subject<number>()
+
+    pipe(
+      ($: TrackFunc) => $(a) * 2,
+      map(x => x + 3),
+      tap(cb),
+      observe
+    )
+
+    a.receive(42)
+    cb.should.have.been.calledWith(87)
   })
 })

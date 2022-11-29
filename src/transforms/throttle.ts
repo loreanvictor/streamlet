@@ -1,4 +1,5 @@
-import { Source, Talkback, Sink, SourceFactory, isSource } from '../types'
+import { from } from '../sources/expr'
+import { Source, Talkback, Sink, SourceableFactory, Sourceable, isSourceable } from '../types'
 import { wait, stopWaiting, resolveWait, Waiting, WaitNotifier, WaitIndicator } from '../util/wait'
 
 
@@ -57,15 +58,15 @@ export class ThrottledSource<T> implements Source<T> {
 }
 
 
-export function throttle<T>(notif: WaitNotifier | WaitIndicator<T>): SourceFactory<T>
-export function throttle<T>(source: Source<T>, notif: WaitNotifier | WaitIndicator<T>): Source<T>
+export function throttle<T>(notif: WaitNotifier | WaitIndicator<T>): SourceableFactory<T>
+export function throttle<T>(source: Sourceable<T>, notif: WaitNotifier | WaitIndicator<T>): Source<T>
 export function throttle<T>(
-  source: Source<T> | WaitNotifier | WaitIndicator<T>,
+  source: Sourceable<T> | WaitNotifier | WaitIndicator<T>,
   notif?: WaitNotifier | WaitIndicator<T>
-): SourceFactory<T> | Source<T> {
-  if (isSource(source) && !!notif) {
-    return new ThrottledSource(source, notif)
+): SourceableFactory<T> | Source<T> {
+  if (isSourceable(source) && !!notif) {
+    return new ThrottledSource(from(source), notif)
   } else {
-    return (src: Source<T>) => throttle(src, source)
+    return (src: Sourceable<T>) => throttle(src, source as WaitNotifier | WaitIndicator<T>)
   }
 }

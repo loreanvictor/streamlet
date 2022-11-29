@@ -5,6 +5,7 @@ import { Subject, iterable, interval } from '../../sources'
 import { map, share } from '../../transforms'
 import { observe, tap, finalize, iterate } from '../../sinks'
 import { pipe } from '../../util'
+import { TrackFunc } from '../../types'
 
 
 describe('retry()', () => {
@@ -110,5 +111,47 @@ describe('retry()', () => {
     cb.should.have.been.calledWith(2)
 
     clock.restore()
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+    const cb2 = fake()
+
+    const src = new Subject<number>()
+    pipe(
+      ($: TrackFunc) => {
+        if ($(src) === 1) {
+          throw new Error('error')
+        }
+
+        return $(src)
+      },
+      retry(2),
+      tap(cb),
+      finalize(cb2),
+      observe,
+    )
+
+    src.receive(2)
+    cb.should.have.been.calledOnceWith(2)
+
+    src.receive(1)
+    cb.should.have.been.calledOnce
+
+    src.receive(3)
+    cb.should.have.been.calledTwice
+    cb.should.have.been.calledWith(3)
+
+    src.receive(1)
+    cb.should.have.been.calledTwice
+    cb2.should.not.have.been.called
+
+    src.receive(4)
+    cb.should.have.been.calledThrice
+    cb.should.have.been.calledWith(4)
+
+    src.receive(1)
+    cb.should.have.been.calledThrice
+    cb2.should.have.been.calledOnce
   })
 })

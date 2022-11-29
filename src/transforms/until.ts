@@ -1,4 +1,5 @@
-import { Source, Sink, Talkback } from '../types'
+import { from } from '../sources/expr'
+import { Source, Sink, Talkback, Sourceable, USourceableFactory } from '../types'
 
 
 class UntilGateSink<T> implements Sink<T>, Talkback {
@@ -110,13 +111,13 @@ export class UntilSource<T> implements Source<T> {
 }
 
 
-export function until(gate: Source<unknown>): <U>(source: Source<U>) => Source<U>
-export function until<T>(source: Source<T>, gate: Source<unknown>): Source<T>
-export function until<T>(source: Source<T> | Source<unknown>, gate?: Source<unknown>):
-  Source<T> | (<U>(src: Source<U>) => Source<U>){
+export function until(gate: Sourceable<unknown>): USourceableFactory
+export function until<T>(source: Sourceable<T>, gate: Sourceable<unknown>): Source<T>
+export function until<T>(source: Sourceable<T> | Sourceable<unknown>, gate?: Sourceable<unknown>):
+  Source<T> | USourceableFactory {
   if (gate) {
-    return new UntilSource(source, gate)
+    return new UntilSource(from(source), from(gate))
   } else {
-    return <U>(src: Source<U>) => until(src, source)
+    return <U>(src: Sourceable<U>) => until(src, source)
   }
 }

@@ -1,4 +1,5 @@
-import { isSource, Mapping, Sink, Source, SourceMapping, Talkback } from '../types'
+import { from } from '../sources/expr'
+import { isSourceable, Mapping, Sink, Source, Sourceable, SourceableMapping, Talkback } from '../types'
 
 
 export class MappedSink<I, O> implements Sink<I> {
@@ -41,12 +42,13 @@ export class MappedSource<I, O> implements Source<O> {
 }
 
 
-export function map<I, O>(op: Mapping<I, O>): SourceMapping<I, O>
-export function map<I, O>(source: Source<I>, op: Mapping<I, O>): Source<O>
-export function map<I, O>(source: Source<I> | Mapping<I, O>, op?: Mapping<I, O>): Source<O> | SourceMapping<I, O> {
-  if (isSource(source)) {
-    return new MappedSource(source, op!)
+export function map<I, O>(op: Mapping<I, O>): SourceableMapping<I, O>
+export function map<I, O>(source: Sourceable<I>, op: Mapping<I, O>): Source<O>
+export function map<I, O>(source: Sourceable<I> | Mapping<I, O>, op?: Mapping<I, O>):
+  Source<O> | SourceableMapping<I, O> {
+  if (isSourceable(source) && op) {
+    return new MappedSource(from(source), op!)
   } else {
-    return (src: Source<I>) => map(src, source)
+    return (src: Sourceable<I>) => map(src, source as Mapping<I, O>)
   }
 }

@@ -1,4 +1,5 @@
-import { Sink, Source, Talkback } from '../types'
+import { from } from '../sources/expr'
+import { Sink, Source, Sourceable, Talkback } from '../types'
 
 
 export class StreamedSink<T> implements Sink<T>, Talkback{
@@ -56,7 +57,7 @@ export class StreamedSource<T> implements Source<T> {
 }
 
 
-export function stream<T>(source: Source<T>): Source<T> {
-  return new StreamedSource(source)
+export function stream<T>(source: Sourceable<T>): Source<T> {
+  return new StreamedSource(from(source))
 }
 

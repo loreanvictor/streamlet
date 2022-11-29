@@ -1,4 +1,5 @@
-import { Source, Sink, Talkback, USourceFactory, isSource } from '../types'
+import { from } from '../sources/expr'
+import { Source, Sink, Talkback, Sourceable, USourceableFactory, isSourceable } from '../types'
 
 
 export class TakeSink<T> implements Sink<T>, Talkback {
@@ -59,12 +60,12 @@ export class TakeSource<T> implements Source<T> {
 }
 
 
-export function take(max: number): USourceFactory
-export function take<T>(source: Source<T>, max: number): Source<T>
-export function take<T>(source: Source<T> | number, max?: number): USourceFactory | Source<T> {
-  if (isSource(source)) {
-    return new TakeSource(source, max!)
+export function take(max: number): USourceableFactory
+export function take<T>(source: Sourceable<T>, max: number): Source<T>
+export function take<T>(source: Sourceable<T> | number, max?: number): USourceableFactory | Source<T> {
+  if (isSourceable(source)) {
+    return new TakeSource(from(source), max!)
   } else {
-    return <U>(src: Source<U>) => take(src, source)
+    return <U>(src: Sourceable<U>) => take(src, source)
   }
 }

@@ -4,6 +4,7 @@ import { replay } from '../replay'
 import { interval, Subject, iterable } from '../../sources'
 import { pipe, connect } from '../../util'
 import { tap, observe, iterate, finalize } from '../../sinks'
+import { TrackFunc } from '../../types'
 
 
 describe('replay()', () => {
@@ -182,5 +183,27 @@ describe('replay()', () => {
     )
 
     cb.should.have.been.calledOnceWith(43)
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+    const cb2 = fake()
+
+    const a = new Subject<number>()
+    const expr = replay(($: TrackFunc) => $(a) * 2)
+
+    pipe(
+      expr,
+      tap(cb),
+      observe
+    )
+
+    cb.should.not.have.been.called
+    a.receive(21)
+    cb.should.have.been.calledOnceWith(42)
+
+    observe(tap(expr, cb2))
+
+    cb2.should.have.been.calledOnceWith(42)
   })
 })

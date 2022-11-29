@@ -3,7 +3,7 @@ import { fake, useFakeTimers } from 'sinon'
 import { take } from '../take'
 import { of, Subject, iterable, interval } from '../../sources'
 import { tap, finalize, observe, iterate } from '../../sinks'
-import { Talkback, Sink } from '../../types'
+import { Talkback, Sink, TrackFunc } from '../../types'
 import { pipe, connect} from '../../util'
 
 
@@ -103,5 +103,27 @@ describe('take()', () => {
     cb.should.have.been.calledThrice
 
     clock.restore()
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+
+    const a = new Subject<number>()
+
+    pipe(
+      a,
+      o => ($: TrackFunc) => $(o) * 2,
+      take(2),
+      tap(cb),
+      observe,
+    )
+
+    a.receive(1)
+    a.receive(2)
+    a.receive(3)
+
+    cb.should.have.been.calledTwice
+    cb.should.have.been.calledWith(2)
+    cb.should.have.been.calledWith(4)
   })
 })

@@ -1,4 +1,5 @@
-import { Sink, Source, Talkback, USourceFactory } from '../types'
+import { from } from '../sources/expr'
+import { Sink, Source, Sourceable, Talkback, USourceableFactory } from '../types'
 import { stopWaiting, wait, Waiting, WaitNotifier } from '../util/wait'
 
 
@@ -62,12 +63,12 @@ export class PullRateSource<T> implements Source<T> {
 }
 
 
-export function pullrate(rate: WaitNotifier): USourceFactory
-export function pullrate<T>(source: Source<T>, rate: WaitNotifier): Source<T>
-export function pullrate<T>(source: Source<T> | WaitNotifier, rate?: WaitNotifier): Source<T> | USourceFactory {
+export function pullrate(rate: WaitNotifier): USourceableFactory
+export function pullrate<T>(source: Sourceable<T>, rate: WaitNotifier): Source<T>
+export function pullrate<T>(source: Sourceable<T> | WaitNotifier, rate?: WaitNotifier): Source<T> | USourceableFactory {
   if (rate !== undefined) {
-    return new PullRateSource(source as Source<T>, rate)
+    return new PullRateSource(from(source as Sourceable<T>), rate)
   } else {
-    return <U>(src: Source<U>) => pullrate(src, source as WaitNotifier)
+    return <U>(src: Sourceable<U>) => pullrate(src, source as WaitNotifier)
   }
 }

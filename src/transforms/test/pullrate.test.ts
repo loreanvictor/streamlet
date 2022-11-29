@@ -5,6 +5,7 @@ import { iterable } from '../../sources'
 import { map } from '../../transforms'
 import { tap, finalize, iterate } from '../../sinks'
 import { pipe, source, talkback } from '../../util'
+import { TrackFunc } from '../../types'
 
 
 describe('pullrate()', () => {
@@ -100,6 +101,28 @@ describe('pullrate()', () => {
 
     clock.tick(500)
     cb.should.not.have.been.called
+
+    clock.restore()
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+    const clock = useFakeTimers()
+    const a = iterable([1, 2, 3, 4, 5])
+
+    pipe(
+      ($: TrackFunc) => $(a) * 2,
+      pullrate(100),
+      tap(cb),
+      iterate,
+    )
+
+    cb.should.not.have.been.called
+    clock.tick(100)
+    cb.should.have.been.calledOnce
+    cb.should.have.been.calledWith(2)
+    clock.tick(100)
+    cb.should.have.been.calledTwice
 
     clock.restore()
   })

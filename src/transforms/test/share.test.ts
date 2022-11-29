@@ -5,6 +5,7 @@ import { share } from '../share'
 import { interval, iterable } from '../../sources'
 import { tap, finalize, observe } from '../../sinks'
 import { pipe, sink } from '../../util'
+import { TrackFunc } from '../../types'
 
 
 describe('share()', () => {
@@ -89,5 +90,24 @@ describe('share()', () => {
 
   it('should handle disconnection from bogus sinks.', () => {
     expect(() => share(interval(100)).disconnect(sink({}))).to.not.throw()
+  })
+
+  it('should share the source.', () => {
+    const clock = useFakeTimers()
+
+    const cb1 = fake()
+    const cb2 = fake()
+    const a = interval(100)
+    const shared = share(($: TrackFunc) => ($(a) + 1) * 2)
+
+    observe(pipe(shared, tap(cb1)))
+    observe(pipe(shared, tap(cb2)))
+
+    clock.tick(100)
+
+    cb1.should.have.been.calledOnceWith(2)
+    cb2.should.have.been.calledOnceWith(2)
+
+    clock.restore()
   })
 })

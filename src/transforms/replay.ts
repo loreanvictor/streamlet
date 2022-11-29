@@ -1,5 +1,6 @@
-import { Sink, Source, Talkback } from '../types'
-import { Subject } from '../sources'
+import { Sink, Source, Sourceable, Talkback } from '../types'
+import { Subject } from '../sources/subject'
+import { from } from '../sources/expr'
 
 
 class ReplayTalkback<T> implements Talkback {
@@ -93,11 +94,11 @@ export class ReplayedSubject<T> extends ReplayedSource<T> implements Sink<T>, Ta
 
 
 export function replay<T>(subject: Subject<T>): ReplayedSubject<T>
-export function replay<T>(source: Source<T>): ReplayedSource<T>
-export function replay<T>(source: Subject<T> | Source<T>) {
+export function replay<T>(source: Sourceable<T>): ReplayedSource<T>
+export function replay<T>(source: Subject<T> | Sourceable<T>) {
   if (source instanceof Subject) {
     return new ReplayedSubject(source)
   } else {
-    return new ReplayedSource(source)
+    return new ReplayedSource(from(source))
   }
 }

@@ -4,7 +4,7 @@ import { stream } from '../stream'
 import { iterable, of } from '../../sources'
 import { pullrate } from '../../transforms'
 import { tap, observe, iterate } from '../../sinks'
-import { Talkback } from '../../types'
+import { Talkback, TrackFunc } from '../../types'
 import { pipe, source, talkback, sink, connect } from '../../util'
 
 
@@ -126,5 +126,23 @@ describe('stream()', () => {
     )
 
     cb.should.not.have.been.called
+  })
+
+  it('should support expressions.', () => {
+    const cb = fake()
+
+    const a = iterable([1, 2, 3])
+
+    pipe(
+      ($: TrackFunc) => $(a) * 2,
+      stream,
+      tap(cb),
+      observe
+    )
+
+    cb.should.be.calledThrice
+    cb.firstCall.should.have.been.calledWith(2)
+    cb.secondCall.should.have.been.calledWith(4)
+    cb.thirdCall.should.have.been.calledWith(6)
   })
 })
