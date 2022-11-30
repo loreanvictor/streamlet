@@ -1,4 +1,5 @@
-import { Source, Sink, Talkback } from '../types'
+import { from } from '../sources/expr'
+import { Sink, Talkback, Sourceable } from '../types'
 import { Deferred } from '../util'
 
 
@@ -49,11 +50,11 @@ class NextSink<T> implements Sink<T>, Talkback {
 }
 
 
-export async function* next<T>(source: Source<T>) {
+export async function* next<T>(source: Sourceable<T>) {
   const sink = new NextSink<T>()
 
   try {
-    source.connect(sink)
+    from(source).connect(sink)
 
     while(sink.buffer.length > 0) {
       const pack = sink.buffer.shift()!

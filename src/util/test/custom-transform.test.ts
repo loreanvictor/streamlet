@@ -1,11 +1,11 @@
 import { fake, useFakeTimers } from 'sinon'
 
 import { transform } from '../custom-transform'
-import { Source } from '../../types'
+import { Source, TrackFunc } from '../../types'
 import { Subject, interval, combine } from '../../sources'
 import { distinctBy, scan, map } from '../../transforms'
 import { observe, tap } from '../../sinks'
-import { source, sink, pipe } from '../../util'
+import { source, sink, pipe, UTransform } from '../../util'
 
 
 describe('transform()', () => {
@@ -104,6 +104,46 @@ describe('transform()', () => {
     clock.tick(100)
     cb.should.have.been.calledTwice
     cb.should.have.been.calledWith(4)
+
+    clock.restore()
+  })
+
+  it('should support expressions.', async () => {
+    const clock = useFakeTimers()
+
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+    const debounce: UTransform<[number]> = transform(
+      (src, ms: number) => {
+        return async $ => {
+          const value = $(src)
+          await sleep(ms)
+
+          return value
+        }
+      }
+    )
+
+    const cb = fake()
+    const sub = new Subject<number>()
+
+    pipe(
+      ($: TrackFunc) => $(sub) * 2,
+      debounce(100),
+      tap(x => cb(x)),
+      observe
+    )
+
+    await clock.tickAsync(0)
+
+    sub.receive(1)
+    sub.receive(2)
+
+    await clock.tickAsync(0)
+
+    cb.should.not.have.been.called
+
+    await clock.tickAsync(100)
+    cb.should.have.been.calledOnceWith(4)
 
     clock.restore()
   })

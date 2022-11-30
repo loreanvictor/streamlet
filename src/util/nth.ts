@@ -1,4 +1,5 @@
-import { Sink, Source, Talkback } from '../types'
+import { from } from '../sources/expr'
+import { Sink, Sourceable, Talkback } from '../types'
 import { Deferred } from './deferred'
 
 
@@ -47,30 +48,30 @@ class NthSink<T> implements Sink<T> {
 }
 
 
-export async function first<T>(source: Source<T>) {
+export async function first<T>(source: Sourceable<T>) {
   const sink = new NthSink<T>(1)
-  source.connect(sink)
+  from(source).connect(sink)
 
   return await sink.deferred.promise
 }
 
 
-export async function last<T>(source: Source<T>) {
+export async function last<T>(source: Sourceable<T>) {
   const sink = new NthSink<T>(-1)
-  source.connect(sink)
+  from(source).connect(sink)
 
   return await sink.deferred.promise
 }
 
 
-export function nth(target: number): <U>(source: Source<U>) => Promise<U>
-export async function nth<T>(source: Source<T>, target: number): Promise<T>
-export function nth<T>(source: Source<T> | number, target?: number) {
+export function nth(target: number): <U>(source: Sourceable<U>) => Promise<U>
+export async function nth<T>(source: Sourceable<T>, target: number): Promise<T>
+export function nth<T>(source: Sourceable<T> | number, target?: number) {
   if (typeof source === 'number') {
-    return <U>(src: Source<U>) => nth(src, source)
+    return <U>(src: Sourceable<U>) => nth(src, source)
   } else {
     const sink = new NthSink<T>(target!)
-    source.connect(sink)
+    from(source).connect(sink)
 
     return sink.deferred.promise
   }

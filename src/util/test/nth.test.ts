@@ -2,7 +2,7 @@ import { fake, useFakeTimers } from 'sinon'
 
 import { first, last, nth } from '../nth'
 import { pipe, source, talkback } from '../../util'
-import { of, interval } from '../../sources'
+import { of, interval, Subject } from '../../sources'
 import { map, take } from '../../transforms'
 
 
@@ -45,6 +45,20 @@ describe('first()', () => {
     cb.should.have.been.calledOnce
     cb.firstCall.args[0].message.should.equal('Expected at least 1 emissions, but got 0')
     clock.restore()
+  })
+
+  it('should support expressions.', async () => {
+    const cb = fake()
+    const clock = useFakeTimers()
+
+    const a = new Subject<number>()
+
+    first($ => $(a) * 2).then(cb)
+
+    a.receive(2)
+    await clock.tickAsync(0)
+
+    cb.should.have.been.calledOnceWithExactly(4)
   })
 })
 
@@ -89,6 +103,27 @@ describe('last()', () => {
     cb.firstCall.args[0].message.should.equal('Expected at least 1 emissions, but got 0')
     clock.restore()
   })
+
+  it('should support expressions.', async () => {
+    const cb = fake()
+    const clock = useFakeTimers()
+
+    const a = new Subject<number>()
+
+    last($ => $(a) * 2).then(cb)
+
+    a.receive(2)
+    await clock.tickAsync(0)
+    a.receive(3)
+    await clock.tickAsync(0)
+    a.receive(5)
+    await clock.tickAsync(0)
+    cb.should.not.have.been.called
+
+    a.end()
+    await clock.tickAsync(0)
+    cb.should.have.been.calledOnceWithExactly(10)
+  })
 })
 
 
@@ -129,5 +164,22 @@ describe('nth()', () => {
     cb.should.have.been.calledOnce
     cb.firstCall.args[0].message.should.equal('Expected at least 4 emissions, but got 3')
     clock.restore()
+  })
+
+  it('should support expressions.', async () => {
+    const cb = fake()
+    const clock = useFakeTimers()
+
+    const a = new Subject<number>()
+
+    nth($ => $(a) * 2, 2).then(cb)
+
+    a.receive(2)
+    await clock.tickAsync(0)
+    cb.should.not.have.been.called
+
+    a.receive(3)
+    await clock.tickAsync(0)
+    cb.should.have.been.calledOnceWithExactly(6)
   })
 })
